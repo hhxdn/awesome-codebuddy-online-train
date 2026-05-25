@@ -20,7 +20,7 @@ import java.util.Map;
  * H5练习控制器
  */
 @RestController
-@RequestMapping("/api/h5/practice")
+@RequestMapping("/api/practice")
 @Api(tags = "H5-练习接口")
 public class H5PracticeController {
 

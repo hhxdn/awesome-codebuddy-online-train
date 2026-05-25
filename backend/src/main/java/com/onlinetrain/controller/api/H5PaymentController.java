@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/h5/payment")
+@RequestMapping("/api/payment")
 @Api(tags = "H5-支付接口")
 public class H5PaymentController {
 

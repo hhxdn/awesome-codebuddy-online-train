@@ -32,13 +32,15 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loginInterceptor)
                 .addPathPatterns(
-                        "/api/h5/**",
-                        "/api/admin/**"
+                        "/api/**"
                 )
                 .excludePathPatterns(
-                        "/api/h5/user/login",
-                        "/api/h5/user/wx-login",
+                        "/api/user/login",
+                        "/api/user/wx-login",
                         "/api/admin/auth/login",
+                        "/api/courses",
+                        "/api/courses/**",
+                        "/api/categories",
                         "/doc.html",
                         "/webjars/**",
                         "/swagger-resources/**",

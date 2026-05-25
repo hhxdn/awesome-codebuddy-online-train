@@ -20,7 +20,7 @@ import java.util.*;
  * H5考试控制器
  */
 @RestController
-@RequestMapping("/api/h5/exam")
+@RequestMapping("/api/exam")
 @Api(tags = "H5-考试接口")
 public class H5ExamController {
 

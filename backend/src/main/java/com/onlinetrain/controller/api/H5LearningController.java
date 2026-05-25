@@ -22,7 +22,7 @@ import java.util.Map;
  * H5学习记录控制器
  */
 @RestController
-@RequestMapping("/api/h5/learning")
+@RequestMapping("/api/learning")
 @Api(tags = "H5-学习记录接口")
 public class H5LearningController {
 

@@ -23,7 +23,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/h5/user")
+@RequestMapping("/api/user")
 @Api(tags = "H5-用户接口")
 public class H5UserController {
 

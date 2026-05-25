@@ -202,4 +202,4 @@ CREATE TABLE `payment_log` (
 
 -- 插入默认管理员 admin/admin123 (BCrypt加密)
 INSERT INTO `user` (`phone`, `nickname`, `password`, `role`, `status`, `register_time`) VALUES
-('admin', '系统管理员', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5Eh', 'ADMIN', 1, NOW());
+('admin', '系统管理员', '$2a$10$Fb6Mr3wfM1L01e5yfk.MRujUvZiDHsePl5PtKR7cKBornTwZF9JzC', 'ADMIN', 1, NOW());

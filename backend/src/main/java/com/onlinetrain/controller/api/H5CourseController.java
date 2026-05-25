@@ -5,8 +5,10 @@ import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.Chapter;
 import com.onlinetrain.entity.Course;
+import com.onlinetrain.entity.CourseCategory;
 import com.onlinetrain.entity.Question;
 import com.onlinetrain.service.ChapterService;
+import com.onlinetrain.service.CourseCategoryService;
 import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.QuestionService;
 import io.swagger.annotations.Api;
@@ -20,7 +22,7 @@ import java.util.List;
  * H5课程控制器
  */
 @RestController
-@RequestMapping("/api/h5/courses")
+@RequestMapping("/api/courses")
 @Api(tags = "H5-课程接口")
 public class H5CourseController {
 

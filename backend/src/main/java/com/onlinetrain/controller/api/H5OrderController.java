@@ -24,7 +24,7 @@ import java.util.UUID;
  * H5订单控制器
  */
 @RestController
-@RequestMapping("/api/h5/orders")
+@RequestMapping("/api/orders")
 @Api(tags = "H5-订单接口")
 public class H5OrderController {
 

@@ -69,6 +69,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { setToken, setUser } from '../../utils/auth'
+import { post } from '../../api'
 
 const router = useRouter()
 const phone = ref('')
@@ -95,26 +96,31 @@ function sendCode() {
   }, 1000)
 }
 
-function onLogin() {
+async function onLogin() {
   if (code.value !== '123456') {
     showToast('验证码错误（模拟：请输入123456）')
     return
   }
 
   loading.value = true
-  // Mock login
-  setTimeout(() => {
-    setToken('mock_token_' + Date.now())
-    setUser({
-      id: 1,
-      nickname: '手机用户' + phone.value.slice(-4),
+  try {
+    const res = await post('/user/login', {
       phone: phone.value,
-      avatar: ''
+      code: code.value
     })
+    if (res.data && res.data.token) {
+      setToken(res.data.token)
+      setUser(res.data.user)
+      loading.value = false
+      showToast('登录成功')
+      router.replace('/')
+    } else {
+      loading.value = false
+      showToast('登录失败')
+    }
+  } catch (e) {
     loading.value = false
-    showToast('登录成功')
-    router.replace('/')
-  }, 800)
+  }
 }
 
 function wechatLogin() {

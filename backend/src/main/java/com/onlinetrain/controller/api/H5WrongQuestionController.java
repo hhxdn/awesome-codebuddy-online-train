@@ -22,7 +22,7 @@ import java.util.Map;
  * H5错题控制器
  */
 @RestController
-@RequestMapping("/api/h5/wrong-questions")
+@RequestMapping("/api/wrong-questions")
 @Api(tags = "H5-错题接口")
 public class H5WrongQuestionController {
 
