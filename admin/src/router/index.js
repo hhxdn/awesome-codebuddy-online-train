@@ -1,0 +1,133 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
+import { getToken } from '@/utils/auth'
+
+const routes = [
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('@/views/login/Login.vue'),
+    meta: { title: '登录' }
+  },
+  {
+    path: '/',
+    name: 'Layout',
+    component: () => import('@/views/layout/Layout.vue'),
+    redirect: '/dashboard',
+    children: [
+      {
+        path: '/dashboard',
+        name: 'Dashboard',
+        component: () => import('@/views/dashboard/Dashboard.vue'),
+        meta: { title: '仪表盘' }
+      },
+      {
+        path: '/categories',
+        name: 'CategoryList',
+        component: () => import('@/views/category/CategoryList.vue'),
+        meta: { title: '课程分类' }
+      },
+      {
+        path: '/courses',
+        name: 'CourseList',
+        component: () => import('@/views/course/CourseList.vue'),
+        meta: { title: '课程管理' }
+      },
+      {
+        path: '/courses/edit/:id?',
+        name: 'CourseEdit',
+        component: () => import('@/views/course/CourseEdit.vue'),
+        meta: { title: '课程编辑' }
+      },
+      {
+        path: '/questions',
+        name: 'QuestionList',
+        component: () => import('@/views/question/QuestionList.vue'),
+        meta: { title: '题库管理' }
+      },
+      {
+        path: '/questions/import',
+        name: 'QuestionImport',
+        component: () => import('@/views/question/QuestionImport.vue'),
+        meta: { title: '题目导入' }
+      },
+      {
+        path: '/exams',
+        name: 'ExamList',
+        component: () => import('@/views/exam/ExamList.vue'),
+        meta: { title: '试卷管理' }
+      },
+      {
+        path: '/exams/edit/:id?',
+        name: 'ExamEdit',
+        component: () => import('@/views/exam/ExamEdit.vue'),
+        meta: { title: '试卷编辑' }
+      },
+      {
+        path: '/exams/records',
+        name: 'ExamRecord',
+        component: () => import('@/views/exam/ExamRecord.vue'),
+        meta: { title: '考试记录' }
+      },
+      {
+        path: '/students',
+        name: 'StudentList',
+        component: () => import('@/views/student/StudentList.vue'),
+        meta: { title: '学员管理' }
+      },
+      {
+        path: '/students/:id',
+        name: 'StudentDetail',
+        component: () => import('@/views/student/StudentDetail.vue'),
+        meta: { title: '学员详情' }
+      },
+      {
+        path: '/orders',
+        name: 'OrderList',
+        component: () => import('@/views/order/OrderList.vue'),
+        meta: { title: '订单管理' }
+      },
+      {
+        path: '/statistics/revenue',
+        name: 'RevenueStats',
+        component: () => import('@/views/statistics/RevenueStats.vue'),
+        meta: { title: '营收统计' }
+      },
+      {
+        path: '/statistics/learning',
+        name: 'LearningStats',
+        component: () => import('@/views/statistics/LearningStats.vue'),
+        meta: { title: '学情统计' }
+      },
+      {
+        path: '/statistics/exam',
+        name: 'ExamStats',
+        component: () => import('@/views/statistics/ExamStats.vue'),
+        meta: { title: '考试统计' }
+      }
+    ]
+  }
+]
+
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  const token = getToken()
+  if (to.path === '/login') {
+    if (token) {
+      next('/dashboard')
+    } else {
+      next()
+    }
+  } else {
+    if (!token) {
+      next('/login')
+    } else {
+      next()
+    }
+  }
+})
+
+export default router

@@ -1,0 +1,34 @@
+# Maven
+backend/target/
+*.jar
+*.war
+
+# Node
+node_modules/
+dist/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uploads
+uploads/
+
+# Env
+.env
+.env.local
+
+# Logs
+*.log
+logs/
+
+# CodeBuddy
+.codebuddy/
