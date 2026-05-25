@@ -44,6 +44,7 @@ public class AdminExamPaperController {
     /**
      * 创建试卷
      */
+    @SuppressWarnings("unchecked")
     @PostMapping
     @ApiOperation("创建试卷")
     public Result<ExamPaper> create(@RequestBody Map<String, Object> params) {
@@ -57,8 +58,7 @@ public class AdminExamPaperController {
         paper.setStatus(params.get("status") != null ? params.get("status").toString() : "DRAFT");
         examPaperService.save(paper);
 
-        @SuppressWarnings("unchecked")
-        List<Integer> questionIds = (List<Integer>) params.get("questionIds");
+        List<Long> questionIds = (List<Long>) params.get("questionIds");
         if (questionIds != null && !questionIds.isEmpty()) {
             examPaperService.savePaperQuestions(paper.getId(), questionIds);
         }

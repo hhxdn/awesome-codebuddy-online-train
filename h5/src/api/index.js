@@ -40,7 +40,6 @@ request.interceptors.response.use(
         showToast('登录已过期，请重新登录')
         setTimeout(() => {
           window.location.href = '/#/login'
-          window.location.reload()
         }, 1000)
       } else {
         showToast(error.response.data?.message || '网络异常')

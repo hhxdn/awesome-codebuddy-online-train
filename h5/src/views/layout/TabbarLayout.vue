@@ -11,8 +11,8 @@
       route
     >
       <van-tabbar-item to="/home" icon="home-o" name="home">首页</van-tabbar-item>
-      <van-tabbar-item to="/courses" icon="bookmark-o" name="courses">课程</van-tabbar-item>
-      <van-tabbar-item to="/exam" icon="flag-o" name="exam">考试</van-tabbar-item>
+      <van-tabbar-item to="/courses" icon="apps-o" name="courses">课程</van-tabbar-item>
+      <van-tabbar-item to="/exam" icon="award-o" name="exam">考试</van-tabbar-item>
       <van-tabbar-item to="/mine" icon="user-o" name="mine">我的</van-tabbar-item>
     </van-tabbar>
   </div>

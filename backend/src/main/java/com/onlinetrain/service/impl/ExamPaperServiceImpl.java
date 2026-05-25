@@ -19,16 +19,16 @@ public class ExamPaperServiceImpl extends ServiceImpl<ExamPaperMapper, ExamPaper
 
     @Override
     @Transactional
-    public void savePaperQuestions(Long paperId, List<Integer> questionIds) {
+    public void savePaperQuestions(Long paperId, List<Long> questionIds) {
         // 删除旧的关联
         jdbcTemplate.update("DELETE FROM exam_paper_question WHERE exam_paper_id = ?", paperId);
 
         // 插入新的关联
         int order = 0;
-        for (Integer qid : questionIds) {
+        for (Long qid : questionIds) {
             jdbcTemplate.update(
                     "INSERT INTO exam_paper_question (exam_paper_id, question_id, sort_order) VALUES (?, ?, ?)",
-                    paperId, qid.longValue(), order++);
+                    paperId, qid, order++);
         }
     }
 }

@@ -53,8 +53,8 @@ async function fetchWrongQuestions() {
     if (res.data) wrongQuestions.value = res.data.records || res.data || []
   } catch (e) {
     wrongQuestions.value = [
-      { id: 1, courseName: 'Spring Boot实战', content: 'Spring Boot的默认配置文件是什么？', wrongCount: 2 },
-      { id: 2, courseName: 'Spring Boot实战', content: '@SpringBootApplication注解包含哪些注解？', wrongCount: 1 }
+      { id: 1, courseName: 'Spring Boot实战', content: 'Spring Boot的默认配置文件是什么？', wrongCount: 2, chapterId: 1 },
+      { id: 2, courseName: 'Spring Boot实战', content: '@SpringBootApplication注解包含哪些注解？', wrongCount: 1, chapterId: 1 }
     ]
   }
 }

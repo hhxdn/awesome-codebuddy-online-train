@@ -39,17 +39,23 @@ public class H5PaymentController {
 
         log.info("微信支付回调: orderNo={}, transactionId={}", orderNo, transactionId);
 
+        // 查询订单
+        Order order = orderService.lambdaQuery().eq(Order::getOrderNo, orderNo).one();
+
         // 记录支付日志
-        PaymentLog log = new PaymentLog();
-        log.setOrderNo(orderNo);
-        log.setTransactionId(transactionId);
-        log.setPayMethod("WECHAT");
-        log.setStatus("SUCCESS");
-        log.setCallbackData(params.toString());
-        paymentLogService.save(log);
+        PaymentLog paymentLog = new PaymentLog();
+        paymentLog.setOrderNo(orderNo);
+        paymentLog.setTransactionId(transactionId);
+        paymentLog.setPayMethod("WECHAT");
+        paymentLog.setStatus("SUCCESS");
+        paymentLog.setCallbackData(params.toString());
+        if (order != null) {
+            paymentLog.setOrderId(order.getId());
+            paymentLog.setAmount(order.getAmount());
+        }
+        paymentLogService.save(paymentLog);
 
         // 更新订单状态
-        Order order = orderService.lambdaQuery().eq(Order::getOrderNo, orderNo).one();
         if (order != null && "PENDING".equals(order.getStatus())) {
             order.setStatus("PAID");
             orderService.updateById(order);
@@ -69,17 +75,23 @@ public class H5PaymentController {
 
         log.info("支付宝支付回调: orderNo={}, transactionId={}", orderNo, transactionId);
 
+        // 查询订单
+        Order order = orderService.lambdaQuery().eq(Order::getOrderNo, orderNo).one();
+
         // 记录支付日志
-        PaymentLog log = new PaymentLog();
-        log.setOrderNo(orderNo);
-        log.setTransactionId(transactionId);
-        log.setPayMethod("ALIPAY");
-        log.setStatus("SUCCESS");
-        log.setCallbackData(params.toString());
-        paymentLogService.save(log);
+        PaymentLog paymentLog = new PaymentLog();
+        paymentLog.setOrderNo(orderNo);
+        paymentLog.setTransactionId(transactionId);
+        paymentLog.setPayMethod("ALIPAY");
+        paymentLog.setStatus("SUCCESS");
+        paymentLog.setCallbackData(params.toString());
+        if (order != null) {
+            paymentLog.setOrderId(order.getId());
+            paymentLog.setAmount(order.getAmount());
+        }
+        paymentLogService.save(paymentLog);
 
         // 更新订单状态
-        Order order = orderService.lambdaQuery().eq(Order::getOrderNo, orderNo).one();
         if (order != null && "PENDING".equals(order.getStatus())) {
             order.setStatus("PAID");
             orderService.updateById(order);

@@ -10,7 +10,7 @@
 
     <div class="result-status">
       <h3>
-        <van-icon :name="result.passed ? 'success' : 'fail'" size="24" />
+        <van-icon :name="result.passed ? 'success' : 'cross'" size="24" />
         {{ result.passed ? '恭喜通过!' : '未通过' }}
       </h3>
     </div>
@@ -124,9 +124,13 @@ function goBack() {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('exam_result_' + recordId)
-  if (saved) {
-    result.value = JSON.parse(saved)
+  try {
+    const saved = localStorage.getItem('exam_result_' + recordId)
+    if (saved) {
+      result.value = JSON.parse(saved)
+    }
+  } catch {
+    // 数据损坏，使用默认值
   }
 })
 </script>

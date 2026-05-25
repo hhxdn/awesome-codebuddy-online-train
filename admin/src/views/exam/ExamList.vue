@@ -39,7 +39,8 @@
         :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
-        @change="fetchData"
+        @current-change="fetchData"
+        @size-change="fetchData"
         style="margin-top: 16px; justify-content: flex-end;"
       />
     </div>
@@ -116,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, nextTick } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { get, post, put, del } from '@/api'
 
@@ -243,14 +244,13 @@ async function handleEdit(row) {
 
     if (form.courseId) {
       await onCourseChange(form.courseId)
-      // wait for questions load then set selection
-      await new Promise(resolve => setTimeout(resolve, 300))
-      nextTick(() => {
-        availableQuestions.value.forEach(row => {
-          if (form.questionIds.includes(row.id)) {
-            questionTableRef.value?.toggleRowSelection(row, true)
-          }
-        })
+      await nextTick()
+      await loadQuestions()
+      await nextTick()
+      availableQuestions.value.forEach(row => {
+        if (form.questionIds.includes(row.id)) {
+          questionTableRef.value?.toggleRowSelection(row, true)
+        }
       })
     }
     dialogVisible.value = true
@@ -258,30 +258,42 @@ async function handleEdit(row) {
 }
 
 async function handlePublish(row) {
-  await ElMessageBox.confirm('确定发布该试卷吗？发布后学员可以参加考试。', '提示', { type: 'info' })
   try {
+    await ElMessageBox.confirm('确定发布该试卷吗？发布后学员可以参加考试。', '提示', { type: 'info' })
     await put(`/admin/exams/${row.id}/publish`)
     row.status = 'PUBLISHED'
     ElMessage.success('发布成功')
-  } catch { ElMessage.error('操作失败') }
+  } catch (err) {
+    if (err !== 'cancel' && err !== 'close') {
+      ElMessage.error('操作失败')
+    }
+  }
 }
 
 async function handleEnd(row) {
-  await ElMessageBox.confirm('确定结束该考试吗？', '提示', { type: 'warning' })
   try {
+    await ElMessageBox.confirm('确定结束该考试吗？', '提示', { type: 'warning' })
     await put(`/admin/exams/${row.id}/end`)
     row.status = 'ENDED'
     ElMessage.success('已结束')
-  } catch { ElMessage.error('操作失败') }
+  } catch (err) {
+    if (err !== 'cancel' && err !== 'close') {
+      ElMessage.error('操作失败')
+    }
+  }
 }
 
 async function handleDelete(row) {
-  await ElMessageBox.confirm('确定删除该试卷吗？', '提示', { type: 'warning' })
   try {
+    await ElMessageBox.confirm('确定删除该试卷吗？', '提示', { type: 'warning' })
     await del(`/admin/exams/${row.id}`)
     ElMessage.success('删除成功')
     fetchData()
-  } catch { ElMessage.error('删除失败') }
+  } catch (err) {
+    if (err !== 'cancel' && err !== 'close') {
+      ElMessage.error('删除失败')
+    }
+  }
 }
 
 async function handleSubmit() {
@@ -307,6 +319,4 @@ onMounted(() => {
   fetchCourses()
   fetchData()
 })
-
-import { nextTick } from 'vue'
 </script>

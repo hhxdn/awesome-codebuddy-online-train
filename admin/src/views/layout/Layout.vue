@@ -74,7 +74,9 @@
         <div class="header-right">
           <el-dropdown @command="handleCommand">
             <span class="user-info">
-              <el-avatar :size="32" icon="UserFilled" />
+              <el-avatar :size="32">
+                <el-icon><UserFilled /></el-icon>
+              </el-avatar>
               <span class="username">{{ username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </span>
@@ -102,7 +104,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getUser, removeToken, removeUser } from '@/utils/auth'
 import {
-  DataAnalysis, Document, Tickets, User, TrendCharts,
+  DataAnalysis, Document, Tickets, User, UserFilled, TrendCharts,
   Fold, Expand, ArrowDown, SwitchButton
 } from '@element-plus/icons-vue'
 

@@ -60,11 +60,11 @@ const stats = ref({})
 const menuGroups = [
   [
     { title: '我的课程', icon: 'bookmark-o', path: '/my-courses' },
-    { title: '我的订单', icon: 'orders-o', path: '/my-orders' }
+    { title: '我的订单', icon: 'records-o', path: '/my-orders' }
   ],
   [
     { title: '我的错题', icon: 'cross', path: '/my-wrong' },
-    { title: '考试记录', icon: 'flag-o', path: '/my-exams' },
+    { title: '考试记录', icon: 'award-o', path: '/my-exams' },
     { title: '学习记录', icon: 'clock-o', path: '/my-learning' }
   ]
 ]

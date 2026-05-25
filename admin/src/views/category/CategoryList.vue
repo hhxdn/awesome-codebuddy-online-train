@@ -44,7 +44,8 @@
         :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
-        @change="fetchData"
+        @current-change="fetchData"
+        @size-change="fetchData"
         style="margin-top: 16px; justify-content: flex-end;"
       />
     </div>
@@ -150,13 +151,15 @@ async function handleToggleStatus(row, val) {
 }
 
 async function handleDelete(row) {
-  await ElMessageBox.confirm('确定删除该分类吗？', '提示', { type: 'warning' })
   try {
+    await ElMessageBox.confirm('确定删除该分类吗？', '提示', { type: 'warning' })
     await del(`/admin/categories/${row.id}`)
     ElMessage.success('删除成功')
     fetchData()
-  } catch {
-    ElMessage.error('删除失败')
+  } catch (err) {
+    if (err !== 'cancel' && err !== 'close') {
+      ElMessage.error('删除失败')
+    }
   }
 }
 

@@ -152,9 +152,9 @@ function initAnswers() {
   })
 }
 
-function autoSubmit() {
+async function autoSubmit() {
   showToast('考试时间已到，自动交卷')
-  doSubmit()
+  await doSubmit()
 }
 
 function handleSubmit() {

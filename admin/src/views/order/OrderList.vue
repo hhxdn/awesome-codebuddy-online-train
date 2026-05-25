@@ -66,7 +66,8 @@
         :total="total"
         :page-sizes="[10, 20, 50]"
         layout="total, sizes, prev, pager, next"
-        @change="fetchData"
+        @current-change="fetchData"
+        @size-change="fetchData"
         style="margin-top: 16px; justify-content: flex-end;"
       />
     </div>

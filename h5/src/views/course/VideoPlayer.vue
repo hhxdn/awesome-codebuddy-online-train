@@ -111,9 +111,7 @@ function onTimeUpdate() {
 
 function onVideoEnded() {
   showToast('播放完成')
-  try {
-    post('/chapters/' + chapterId + '/finish')
-  } catch (e) {}
+  post('/chapters/' + chapterId + '/finish').catch(() => {})
 }
 
 function loadProgress() {
@@ -127,12 +125,10 @@ function saveProgress() {
   if (videoRef.value) {
     localStorage.setItem('video_position_' + chapterId, videoRef.value.currentTime)
   }
-  try {
-    post('/learning/progress', {
-      chapterId: chapterId,
-      position: videoRef.value?.currentTime || 0
-    })
-  } catch (e) {}
+  post('/learning/progress', {
+    chapterId: chapterId,
+    position: videoRef.value?.currentTime || 0
+  }).catch(() => {})
 }
 
 function startProgressSave() {

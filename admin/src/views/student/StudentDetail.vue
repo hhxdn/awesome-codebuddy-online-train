@@ -153,7 +153,6 @@ async function fetchTabData(tab) {
 }
 
 watch(activeTab, (tab) => {
-  const key = { learning: 'learningRecords', exam: 'examRecords', order: 'orderRecords' }[tab]
   const arr = { learning: learningRecords, exam: examRecords, order: orderRecords }[tab]
   if (arr.value.length === 0) {
     fetchTabData(tab)

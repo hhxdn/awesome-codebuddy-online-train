@@ -1,6 +1,7 @@
 package com.onlinetrain.controller.api;
 
 import com.onlinetrain.common.Result;
+import com.onlinetrain.entity.LearningRecord;
 import com.onlinetrain.entity.User;
 import com.onlinetrain.service.LearningRecordService;
 import com.onlinetrain.service.UserService;
@@ -160,11 +161,11 @@ public class H5UserController {
 
         // 统计学习记录数
         long totalRecords = learningRecordService.lambdaQuery()
-                .eq(com.onlinetrain.entity.LearningRecord::getUserId, userId)
+                .eq(LearningRecord::getUserId, userId)
                 .count();
         long finishedRecords = learningRecordService.lambdaQuery()
-                .eq(com.onlinetrain.entity.LearningRecord::getUserId, userId)
-                .eq(com.onlinetrain.entity.LearningRecord::getIsFinished, 1)
+                .eq(LearningRecord::getUserId, userId)
+                .eq(LearningRecord::getIsFinished, 1)
                 .count();
 
         Map<String, Object> data = new HashMap<>();

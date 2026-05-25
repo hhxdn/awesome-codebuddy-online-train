@@ -65,7 +65,7 @@
           />
           <van-icon
             v-else
-            name="video-o"
+            name="play-circle-o"
             color="#1989fa"
             style="margin-right: 8px;"
           />

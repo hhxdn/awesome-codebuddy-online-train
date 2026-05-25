@@ -80,9 +80,9 @@ async function fetchOrders() {
     if (res.data) orders.value = res.data.records || res.data || []
   } catch (e) {
     orders.value = [
-      { id: 1, orderNo: '20240115001', courseName: 'Spring Boot实战', courseCover: '',
+      { id: 1, orderNo: '20240115001', courseName: 'Spring Boot实战', courseCover: '', courseId: 1,
         amount: 99, status: 'PAID', createTime: '2024-01-15 10:30' },
-      { id: 2, orderNo: '20240116001', courseName: 'Vue3从入门到精通', courseCover: '',
+      { id: 2, orderNo: '20240116001', courseName: 'Vue3从入门到精通', courseCover: '', courseId: 2,
         amount: 99, status: 'PENDING', createTime: '2024-01-16 14:20' }
     ]
   }

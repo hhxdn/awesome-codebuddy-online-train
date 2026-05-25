@@ -26,7 +26,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         List<Question> questions = new ArrayList<>();
         for (Long qid : questionIds) {
             Question q = getById(qid);
-            if (q != null && q.getDeleted() == 0) {
+            if (q != null) {
                 questions.add(q);
             }
         }

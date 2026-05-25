@@ -114,10 +114,14 @@ function goBackCourse() {
 }
 
 onMounted(() => {
-  const saved = localStorage.getItem('practice_result_' + chapterId)
-  if (saved) {
-    result.value = JSON.parse(saved)
-    result.value.pass = correctRate.value >= 60
+  try {
+    const saved = localStorage.getItem('practice_result_' + chapterId)
+    if (saved) {
+      result.value = JSON.parse(saved)
+      result.value.pass = correctRate.value >= 60
+    }
+  } catch {
+    // 数据损坏，使用默认值
   }
 })
 </script>
