@@ -1,19 +1,18 @@
 <template>
-  <div class="course-detail-page">
+  <div class="course-detail-page page-fade-in">
     <!-- Course Banner -->
     <div class="course-banner">
+      <div class="banner-bg-decor">
+        <div class="b-decor d1"></div>
+        <div class="b-decor d2"></div>
+      </div>
       <van-nav-bar
-        title="课程详情"
-        left-text="返回"
         left-arrow
         @click-left="$router.back()"
         :style="{ backgroundColor: 'transparent' }"
       >
         <template #title>
-          <span style="color: #fff; font-weight: 600;">课程详情</span>
-        </template>
-        <template #left>
-          <van-icon name="arrow-left" size="20" color="#fff" @click="$router.back()" />
+          <span style="color: #fff; font-weight: 600; font-size: 17px;">课程详情</span>
         </template>
       </van-nav-bar>
       <div class="banner-content">
@@ -22,7 +21,10 @@
           <span class="banner-tag" :class="(course.price || 0) === 0 ? 'free' : 'paid'">
             {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
           </span>
-          <span class="banner-cat">{{ course.categoryName }}</span>
+          <span class="banner-cat">
+            <span class="cat-dot"></span>
+            {{ course.categoryName }}
+          </span>
           <span class="banner-count">
             <van-icon name="friends-o" size="14" />
             {{ course.studentCount || 0 }}人已学
@@ -37,21 +39,22 @@
       <div class="desc-content" :class="{ expanded: descExpanded }">
         {{ course.description || '暂无介绍' }}
       </div>
-      <van-button
+      <div
         v-if="(course.description || '').length > 150"
-        size="small"
-        plain
-        type="primary"
+        class="desc-toggle"
         @click="descExpanded = !descExpanded"
-        class="toggle-desc"
       >
-        {{ descExpanded ? '收起' : '展开全部' }}
-      </van-button>
+        <span>{{ descExpanded ? '收起' : '展开全部' }}</span>
+        <van-icon :name="descExpanded ? 'arrow-up' : 'arrow-down'" size="14" />
+      </div>
     </div>
 
     <!-- Chapter List -->
     <div class="section-card">
-      <div class="section-title">课程目录 ({{ chapters.length }}节)</div>
+      <div class="section-title">
+        课程目录
+        <span class="chapter-total">共{{ chapters.length }}节</span>
+      </div>
       <div class="chapter-list" v-if="chapters.length > 0">
         <div
           v-for="(chapter, index) in chapters"
@@ -59,15 +62,15 @@
           class="chapter-item"
           @click="goChapter(chapter)"
         >
-          <div class="chapter-index">{{ index + 1 }}</div>
+          <div class="chapter-index">{{ String(index + 1).padStart(2, '0') }}</div>
           <div class="chapter-info">
             <div class="chapter-title text-ellipsis-2">{{ chapter.title }}</div>
             <div class="chapter-meta">
               <span class="chapter-duration">
-                <van-icon name="clock-o" size="12" /> {{ chapter.duration || '视频' }}
+                <van-icon name="play-circle-o" size="13" /> {{ chapter.duration || '视频' }}
               </span>
               <span v-if="chapter.completed" class="chapter-done">
-                <van-icon name="success" size="12" color="var(--success)" /> 已完成
+                <van-icon name="success" size="13" color="var(--success)" /> 已完成
               </span>
             </div>
           </div>
@@ -79,10 +82,11 @@
               plain
               type="primary"
               @click.stop="goPractice(chapter)"
+              class="practice-btn"
             >
               练习
             </van-button>
-            <van-icon v-else name="lock" color="#c8c9cc" />
+            <van-icon v-else name="lock" color="#c8c9cc" size="16" />
           </div>
         </div>
       </div>
@@ -91,21 +95,25 @@
 
     <!-- Bottom Bar -->
     <div class="bottom-bar safe-bottom">
+      <div class="bottom-bg"></div>
       <template v-if="(course.price || 0) === 0">
-        <van-button type="primary" block round @click="startLearn" size="large">
+        <van-button type="primary" block round @click="startLearn" size="large" class="learn-btn">
+          <van-icon name="play-circle-o" size="18" />
           开始学习
         </van-button>
       </template>
       <template v-else-if="!purchased">
         <div class="bottom-info">
+          <span class="bottom-price-label">课程价格</span>
           <span class="bottom-price">¥{{ course.price }}</span>
         </div>
-        <van-button type="primary" round size="large" @click="buyNow">
+        <van-button type="primary" round size="large" @click="buyNow" class="buy-btn">
           立即购买
         </van-button>
       </template>
       <template v-else>
-        <van-button type="primary" block round @click="startLearn" size="large">
+        <van-button type="primary" block round @click="startLearn" size="large" class="learn-btn">
+          <van-icon name="play-circle-o" size="18" />
           继续学习
         </van-button>
       </template>
@@ -202,56 +210,99 @@ onMounted(() => {
 .course-detail-page {
   background: var(--bg-color);
   min-height: 100vh;
-  padding-bottom: 70px;
+  padding-bottom: 80px;
 }
 
+/* Banner */
 .course-banner {
-  background: linear-gradient(160deg, var(--primary-dark), var(--primary), var(--primary-light));
-  padding-bottom: 24px;
+  background: linear-gradient(160deg, #3a54d4, var(--primary), var(--primary-light));
+  padding-bottom: 28px;
   position: relative;
+  overflow: hidden;
+}
+
+.banner-bg-decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.b-decor {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.b-decor.d1 {
+  width: 180px;
+  height: 180px;
+  top: -40px;
+  right: -30px;
+}
+
+.b-decor.d2 {
+  width: 100px;
+  height: 100px;
+  bottom: -20px;
+  left: 10%;
 }
 
 .banner-content {
   padding: 8px 20px 0;
+  position: relative;
 }
 
 .banner-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: #fff;
   line-height: 1.4;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .banner-meta {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .banner-tag {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   color: #fff;
-  padding: 3px 12px;
-  border-radius: 12px;
+  padding: 4px 14px;
+  border-radius: 14px;
 }
 
 .banner-tag.free {
-  background: rgba(34, 197, 94, 0.3);
+  background: rgba(34, 197, 94, 0.35);
+  backdrop-filter: blur(4px);
 }
 
 .banner-tag.paid {
-  background: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.35);
+  backdrop-filter: blur(4px);
 }
 
 .banner-cat {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.15);
-  padding: 3px 10px;
-  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.12);
+  padding: 4px 12px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(4px);
+}
+
+.cat-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .banner-count {
@@ -262,40 +313,68 @@ onMounted(() => {
   gap: 4px;
 }
 
+/* Section Card */
 .section-card {
   background: #fff;
-  border-radius: 12px;
+  border-radius: var(--radius);
   margin: 10px 12px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  padding: 18px;
+  box-shadow: var(--shadow-xs);
 }
 
 .section-title {
   font-size: 16px;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 14px;
   padding-left: 10px;
   border-left: 3px solid var(--primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
+.chapter-total {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  background: var(--bg-color);
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+/* Description */
 .desc-content {
   font-size: 14px;
-  color: #666;
-  line-height: 1.7;
+  color: var(--text-secondary);
+  line-height: 1.8;
   overflow: hidden;
-  max-height: 88px;
-  transition: max-height 0.3s;
+  max-height: 92px;
+  transition: max-height 0.4s ease;
 }
 
 .desc-content.expanded {
   max-height: none;
 }
 
-.toggle-desc {
-  margin-top: 10px;
-  border-radius: 20px;
+.desc-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 8px;
+  font-size: 13px;
+  color: var(--primary);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background var(--transition);
 }
 
+.desc-toggle:active {
+  background: var(--primary-bg);
+}
+
+/* Chapter List */
 .chapter-list {
   display: flex;
   flex-direction: column;
@@ -308,7 +387,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--border-color);
   gap: 12px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: all var(--transition);
 }
 
 .chapter-item:last-child {
@@ -317,23 +396,24 @@ onMounted(() => {
 
 .chapter-item:active {
   background: var(--bg-color);
-  margin: 0 -16px;
-  padding: 14px 16px;
+  margin: 0 -18px;
+  padding: 14px 18px;
   border-radius: 8px;
 }
 
 .chapter-index {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
-  background: #e8f4ff;
+  background: var(--primary-bg);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   flex-shrink: 0;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
 }
 
 .chapter-info {
@@ -345,13 +425,13 @@ onMounted(() => {
   font-size: 14px;
   font-weight: 500;
   color: var(--text-color);
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .chapter-meta {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 }
 
 .chapter-duration {
@@ -359,7 +439,7 @@ onMounted(() => {
   color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .chapter-done {
@@ -368,12 +448,19 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 3px;
+  font-weight: 500;
 }
 
 .chapter-actions {
   flex-shrink: 0;
 }
 
+.practice-btn {
+  font-size: 12px !important;
+  height: 28px !important;
+}
+
+/* Bottom Bar */
 .bottom-bar {
   position: fixed;
   bottom: 0;
@@ -382,11 +469,11 @@ onMounted(() => {
   width: 100%;
   max-width: 750px;
   background: #fff;
-  padding: 10px 16px;
+  padding: 12px 16px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
+  gap: 14px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
   z-index: 100;
 }
 
@@ -394,17 +481,44 @@ onMounted(() => {
   flex: 1;
 }
 
+.bottom-price-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
 .bottom-price {
-  font-size: 22px;
-  font-weight: 700;
+  font-size: 24px;
+  font-weight: 800;
   color: var(--danger);
 }
 
-:deep(.van-nav-bar) {
+.learn-btn {
+  height: 46px;
+  font-size: 16px;
+  font-weight: 600;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  box-shadow: 0 4px 14px rgba(79, 110, 247, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.buy-btn {
+  height: 46px;
+  font-size: 16px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
+  box-shadow: 0 4px 14px rgba(79, 110, 247, 0.35);
+}
+
+::deep(.van-nav-bar) {
   background: transparent !important;
 }
 
-:deep(.van-nav-bar .van-icon) {
+::deep(.van-nav-bar .van-icon) {
   color: #fff !important;
 }
 </style>

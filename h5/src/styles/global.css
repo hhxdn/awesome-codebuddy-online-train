@@ -2,21 +2,29 @@
   --primary: #4f6ef7;
   --primary-light: #7b94fa;
   --primary-dark: #3a54d4;
+  --primary-bg: #f0f3ff;
   --success: #22c55e;
+  --success-light: #f0fdf4;
   --warning: #f59e0b;
+  --warning-light: #fffbeb;
   --danger: #ef4444;
-  --text-color: #1f2937;
+  --danger-light: #fef2f2;
+  --text-color: #1a1a2e;
   --text-secondary: #6b7280;
   --text-muted: #9ca3af;
-  --border-color: #e5e7eb;
-  --bg-color: #f3f4f6;
+  --border-color: #f0f0f5;
+  --bg-color: #f8f9fc;
+  --card-bg: #ffffff;
   --white: #ffffff;
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --radius-sm: 8px;
   --radius: 12px;
   --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -36,6 +44,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  -webkit-overflow-scrolling: touch;
 }
 
 #app {
@@ -50,6 +59,7 @@ body {
 .van-nav-bar__title {
   color: var(--text-color);
   font-weight: 600;
+  font-size: 17px;
 }
 
 .van-tabbar-item--active {
@@ -75,8 +85,14 @@ body {
 }
 
 .van-tag--primary {
-  background-color: #e8eeff;
+  background-color: var(--primary-bg);
   color: var(--primary);
+}
+
+.van-cell-group--inset {
+  margin: 0 12px;
+  border-radius: var(--radius) !important;
+  overflow: hidden;
 }
 
 /* Page containers */
@@ -114,7 +130,7 @@ body {
 .course-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 12px;
   padding: 12px;
 }
 
@@ -142,7 +158,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06);
   z-index: 100;
 }
 
@@ -286,7 +302,7 @@ body {
 }
 
 .question-indicator-dot.answered {
-  background: #e8f4ff;
+  background: var(--primary-bg);
   border-color: var(--primary);
 }
 
@@ -296,7 +312,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 8px;
-  background: #fff7e6;
+  background: var(--warning-light);
   color: var(--warning);
   font-size: 14px;
   font-weight: 500;
@@ -316,6 +332,30 @@ body {
   text-align: center;
   color: #fff;
   border-radius: 0 0 24px 24px;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.profile-header::after {
+  content: '';
+  position: absolute;
+  bottom: -30%;
+  left: -20%;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .profile-header .avatar {
@@ -379,7 +419,7 @@ body {
 /* Fade in animation */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 .fade-enter-from,
 .fade-leave-to {
@@ -390,9 +430,9 @@ body {
 .section-card {
   background: #fff;
   border-radius: var(--radius);
-  margin: 12px;
+  margin: 10px 12px;
   padding: 16px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
 }
 
 .section-title {
@@ -402,6 +442,7 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
+  color: var(--text-color);
 }
 
 .section-title::before {
@@ -410,4 +451,45 @@ body {
   height: 18px;
   background: var(--primary);
   border-radius: 2px;
+}
+
+/* Modern gradient tag */
+.gradient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.gradient-tag.primary {
+  background: linear-gradient(135deg, #e8eeff, #dce4ff);
+  color: var(--primary);
+}
+
+.gradient-tag.success {
+  background: linear-gradient(135deg, #dcfce7, #d1fae5);
+  color: #16a34a;
+}
+
+.gradient-tag.warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  color: #d97706;
+}
+
+.gradient-tag.danger {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #dc2626;
+}
+
+/* Page fade-in */
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.page-fade-in {
+  animation: pageFadeIn 0.35s ease;
 }

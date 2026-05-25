@@ -1,6 +1,6 @@
 <template>
-  <div class="exam-list-page">
-    <van-nav-bar title="考试列表" />
+  <div class="exam-list-page page-fade-in">
+    <van-nav-bar title="考试列表" :border="false" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
@@ -10,28 +10,40 @@
       >
         <div v-for="exam in examList" :key="exam.id" class="exam-card" @click="goExam(exam)">
           <div class="exam-card-header">
-            <div class="exam-name-wrap">
-              <van-icon name="certificate" size="20" color="var(--primary)" />
-              <h3>{{ exam.name }}</h3>
+            <div class="exam-icon-wrap">
+              <van-icon name="certificate" size="22" color="#fff" />
             </div>
-            <van-tag :type="getStatusType(exam)" size="medium" round>
-              {{ getStatusText(exam) }}
-            </van-tag>
+            <div class="exam-name-wrap">
+              <h3>{{ exam.name }}</h3>
+              <span class="exam-status" :class="'exam-' + getStatusType(exam)">
+                {{ getStatusText(exam) }}
+              </span>
+            </div>
           </div>
-          <div class="exam-card-tags">
-            <span class="exam-tag"><van-icon name="clock-o" size="13" /> {{ exam.duration || 60 }}分钟</span>
-            <span class="exam-tag"><van-icon name="gold-coin-o" size="13" /> 满分{{ exam.totalScore || 100 }}分</span>
-            <span class="exam-tag"><van-icon name="passed" size="13" /> 及格{{ exam.passScore || 60 }}分</span>
+          <div class="exam-card-info">
+            <div class="exam-info-item">
+              <van-icon name="clock-o" size="15" color="var(--primary)" />
+              <span>{{ exam.duration || 60 }}分钟</span>
+            </div>
+            <div class="exam-info-item">
+              <van-icon name="gold-coin-o" size="15" color="#f59e0b" />
+              <span>满分{{ exam.totalScore || 100 }}分</span>
+            </div>
+            <div class="exam-info-item">
+              <van-icon name="passed" size="15" color="var(--success)" />
+              <span>及格{{ exam.passScore || 60 }}分</span>
+            </div>
           </div>
           <div class="exam-card-footer" v-if="exam.questionCount">
-            <van-icon name="description" size="13" color="var(--text-muted)" />
-            共{{ exam.questionCount }}题
+            <van-icon name="description" size="14" color="var(--text-muted)" />
+            <span>共{{ exam.questionCount }}题</span>
+            <van-icon name="arrow" size="14" color="var(--text-muted)" style="margin-left: auto;" />
           </div>
         </div>
       </van-list>
     </van-pull-refresh>
 
-    <EmptyState v-if="!loading && examList.length === 0" description="暂无考试" />
+    <EmptyState v-if="!loading && !refreshing && examList.length === 0" description="暂无考试" />
   </div>
 </template>
 
@@ -72,8 +84,8 @@ async function fetchExams() {
 
 function getStatusType(exam) {
   if (exam.userScore >= exam.passScore) return 'success'
-  if (exam.userScore !== undefined) return 'danger'
-  return 'primary'
+  if (exam.userScore !== undefined) return 'fail'
+  return 'new'
 }
 
 function getStatusText(exam) {
@@ -104,57 +116,100 @@ onMounted(() => {
 
 .exam-card {
   background: #fff;
-  margin: 10px 12px;
+  margin: 8px 12px;
   padding: 18px;
-  border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-xs);
   cursor: pointer;
-  transition: transform 0.15s;
+  transition: all var(--transition);
 }
 
 .exam-card:active {
-  transform: scale(0.98);
+  transform: scale(0.985);
+  box-shadow: var(--shadow-sm);
 }
 
 .exam-card-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.exam-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .exam-name-wrap {
+  flex: 1;
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex: 1;
+  justify-content: space-between;
   min-width: 0;
 }
 
 .exam-name-wrap h3 {
   font-size: 16px;
+  font-weight: 700;
+  color: var(--text-color);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.exam-status {
+  font-size: 11px;
   font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  margin-left: 8px;
 }
 
-.exam-card-tags {
+.exam-status.exam-success {
+  background: var(--success-light);
+  color: var(--success);
+}
+
+.exam-status.exam-fail {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+.exam-status.exam-new {
+  background: var(--primary-bg);
+  color: var(--primary);
+}
+
+.exam-card-info {
   display: flex;
-  gap: 14px;
-  margin-bottom: 10px;
+  gap: 20px;
+  margin-bottom: 12px;
 }
 
-.exam-tag {
-  font-size: 13px;
-  color: var(--text-secondary);
+.exam-info-item {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 
 .exam-card-footer {
-  font-size: 12px;
-  color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
 }
 </style>

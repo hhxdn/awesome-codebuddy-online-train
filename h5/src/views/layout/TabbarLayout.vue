@@ -2,7 +2,7 @@
   <div class="tabbar-layout">
     <div class="tabbar-content">
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
+        <transition name="page-slide" mode="out-in">
           <component :is="Component" />
         </transition>
       </router-view>
@@ -14,17 +14,38 @@
       :safe-area-inset-bottom="true"
       route
       :border="true"
+      class="main-tabbar"
     >
-      <van-tabbar-item to="/home" icon="home-o" name="home">
+      <van-tabbar-item to="/home">
+        <template #icon="props">
+          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
+            <van-icon name="home-o" size="20" />
+          </div>
+        </template>
         首页
       </van-tabbar-item>
-      <van-tabbar-item to="/courses" icon="apps-o" name="courses">
+      <van-tabbar-item to="/courses">
+        <template #icon="props">
+          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
+            <van-icon name="apps-o" size="20" />
+          </div>
+        </template>
         课程
       </van-tabbar-item>
-      <van-tabbar-item to="/exam" icon="certificate" name="exam">
+      <van-tabbar-item to="/exam">
+        <template #icon="props">
+          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
+            <van-icon name="certificate" size="20" />
+          </div>
+        </template>
         考试
       </van-tabbar-item>
-      <van-tabbar-item to="/mine" icon="manager-o" name="mine">
+      <van-tabbar-item to="/mine">
+        <template #icon="props">
+          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
+            <van-icon name="manager-o" size="20" />
+          </div>
+        </template>
         我的
       </van-tabbar-item>
     </van-tabbar>
@@ -64,11 +85,42 @@ watch(
   padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
-:deep(.van-tabbar) {
-  box-shadow: 0 -1px 10px rgba(0, 0, 0, 0.05);
+.main-tabbar {
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06) !important;
+  background: #fff !important;
 }
 
-:deep(.van-tabbar-item__text) {
-  font-size: 11px;
+.tab-icon-wrap {
+  position: relative;
+  transition: all var(--transition);
+}
+
+.tab-icon-wrap.tab-active {
+  transform: scale(1.05);
+}
+
+.main-tabbar :deep(.van-tabbar-item) {
+  transition: all var(--transition);
+}
+
+.main-tabbar :deep(.van-tabbar-item__text) {
+  font-size: 10px;
+  font-weight: 500;
+}
+
+/* Page transition */
+.page-slide-enter-active,
+.page-slide-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.page-slide-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.page-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
 }
 </style>
