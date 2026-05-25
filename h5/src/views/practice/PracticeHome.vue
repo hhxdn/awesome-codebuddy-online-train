@@ -211,7 +211,7 @@ onMounted(() => {
 
 .history-section {
   background: #fff;
-  margin: 0 12px 12px;
+  margin-right: 12px; margin-bottom: 12px; margin-left: 12px;
   border-radius: 12px;
   padding: 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);

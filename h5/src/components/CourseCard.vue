@@ -121,7 +121,10 @@ function goDetail() {
 }
 
 .card-body {
-  padding: 10px 12px 12px;
+  padding-top: 10px;
+  padding-left: 12px;
+  padding-right: 12px;
+  padding-bottom: 12px;
 }
 
 .card-title {

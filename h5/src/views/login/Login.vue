@@ -147,7 +147,7 @@ async function onRegister() {
 
 .login-content {
   position: relative; z-index: 1;
-  padding: 56px 20px 40px; max-width: 420px; margin: 0 auto;
+  padding-top: 56px; padding-left: 20px; padding-right: 20px; padding-bottom: 40px; max-width: 420px; margin: 0 auto;
 }
 
 .login-brand { text-align: center; margin-bottom: 40px; }
@@ -156,11 +156,11 @@ async function onRegister() {
 .app-desc { font-size: 14px; color: rgba(255,255,255,0.6); margin-top: 6px; }
 
 .login-card {
-  background: #fff; border-radius: 16px; padding: 0 0 4px;
+  background: #fff; border-radius: 16px; padding-bottom: 4px;
   box-shadow: 0 12px 40px rgba(0,0,0,0.1);
   overflow: hidden;
 }
-.card-tabs { display: flex; padding: 20px 20px 0; gap: 20px; }
+.card-tabs { display: flex; padding-top: 20px; padding-left: 20px; padding-right: 20px; gap: 20px; }
 .tab {
   font-size: 17px; font-weight: 500; color: var(--text-muted);
   padding-bottom: 10px; cursor: pointer; position: relative;
@@ -170,7 +170,7 @@ async function onRegister() {
   content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
   width: 24px; height: 3px; border-radius: 2px; background: var(--primary);
 }
-.form-action { padding: 28px 20px 28px; }
+.form-action { padding: 28px 20px; }
 .action-btn {
   height: 48px; font-size: 16px; font-weight: 600; letter-spacing: 2px;
   background: var(--primary) !important; border: none !important;

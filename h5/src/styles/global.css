@@ -360,7 +360,7 @@ body {
 /* User profile header - Tencent blue */
 .profile-header {
   background: linear-gradient(160deg, #003CAB, #0052D9 40%, #366EF4 100%);
-  padding: 44px 20px 36px;
+  padding-top: 44px; padding-left: 20px; padding-right: 20px; padding-bottom: 36px;
   text-align: center;
   color: #fff;
   position: relative;

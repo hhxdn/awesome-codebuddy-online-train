@@ -129,7 +129,7 @@ onMounted(() => { fetchCategories(); loading.value = true })
 .cat-chip:active { transform: scale(0.96); }
 .cat-chip.active { background: var(--primary-bg); color: var(--primary); font-weight: 600; }
 .cat-more { display: flex; align-items: center; gap: 3px; color: var(--text-muted); }
-.category-popup { padding: 16px 16px 30px; }
+.category-popup { padding-top: 16px; padding-left: 16px; padding-right: 16px; padding-bottom: 30px; }
 .popup-title { font-size: 16px; font-weight: 600; text-align: center; margin-bottom: 16px; }
 .popup-grid { display: flex; flex-wrap: wrap; gap: 10px; }
 .popup-cat-item {

@@ -172,7 +172,7 @@ onMounted(() => fetchDetail())
 }
 
 .banner-body {
-  padding: 4px 20px 0;
+  padding-top: 4px; padding-left: 20px; padding-right: 20px; padding-bottom: 0;
 }
 
 .banner-title {

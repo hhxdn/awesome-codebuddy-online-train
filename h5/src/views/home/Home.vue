@@ -192,7 +192,7 @@ onMounted(() => {
 /* Header */
 .home-header {
   background: linear-gradient(180deg, #0052D9 0%, #0052D9 60%, #366EF4 100%);
-  padding: 12px 16px 20px;
+  padding-top: 12px; padding-left: 16px; padding-right: 16px; padding-bottom: 20px;
   position: relative;
 }
 
@@ -292,7 +292,7 @@ onMounted(() => {
 
 /* Category Popup */
 .category-popup {
-  padding: 16px 16px 30px;
+  padding-top: 16px; padding-left: 16px; padding-right: 16px; padding-bottom: 30px;
 }
 .popup-title {
   font-size: 16px;

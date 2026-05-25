@@ -156,7 +156,7 @@ onMounted(() => {
 
 /* Menu */
 .menu-section { margin-top: 14px; }
-.menu-label { font-size: 12px; color: var(--text-muted); padding: 0 20px 8px; font-weight: 500; }
+.menu-label { font-size: 12px; color: var(--text-muted); padding-left: 20px; padding-right: 20px; padding-bottom: 8px; font-weight: 500; }
 .menu-cell { padding: 14px 16px !important; }
 .menu-cell :deep(.van-cell__title) { font-weight: 400; }
 .menu-icon {

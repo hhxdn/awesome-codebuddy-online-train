@@ -157,7 +157,7 @@ onMounted(() => {
 }
 
 .result-hero {
-  padding: 10px 0 0;
+  padding-top: 10px;
 }
 
 .result-verdict {
@@ -299,7 +299,7 @@ onMounted(() => {
 }
 
 .result-actions {
-  padding: 20px 16px 40px;
+  padding-top: 20px; padding-left: 16px; padding-right: 16px; padding-bottom: 40px;
 }
 
 .stat-item { position: relative; }

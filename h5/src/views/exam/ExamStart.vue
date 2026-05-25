@@ -99,7 +99,7 @@ onMounted(() => {
 
 .exam-hero {
   background: linear-gradient(160deg, var(--primary-dark), var(--primary), var(--primary-light));
-  padding: 24px 20px 28px;
+  padding-top: 24px; padding-left: 20px; padding-right: 20px; padding-bottom: 28px;
   text-align: center;
   border-radius: 0 0 24px 24px;
 }
