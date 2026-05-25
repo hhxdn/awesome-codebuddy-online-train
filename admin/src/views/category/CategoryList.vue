@@ -38,16 +38,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
-        v-model:current-page="page"
-        v-model:page-size="pageSize"
-        :total="total"
-        :page-sizes="[10, 20, 50]"
-        layout="total, sizes, prev, pager, next"
-        @current-change="fetchData"
-        @size-change="fetchData"
-        style="margin-top: 16px; justify-content: flex-end;"
-      />
     </div>
 
     <el-dialog
@@ -82,9 +72,6 @@ import { get, post, put, del } from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
-const page = ref(1)
-const pageSize = ref(10)
-const total = ref(0)
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增分类')
@@ -115,9 +102,8 @@ function resetForm() {
 async function fetchData() {
   loading.value = true
   try {
-    const res = await get('/admin/categories', { page: page.value, pageSize: pageSize.value })
-    tableData.value = res.data?.records || res.data?.list || []
-    total.value = res.data?.total || 0
+    const res = await get('/admin/categories')
+    tableData.value = res.data || []
   } catch {
     tableData.value = []
   } finally {

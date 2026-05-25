@@ -33,6 +33,9 @@ public class AdminStudentController {
     @Autowired
     private LearningRecordService learningRecordService;
 
+    @Autowired
+    private ChapterService chapterService;
+
     @GetMapping("/students")
     @ApiOperation("学员列表")
     public Result<PageResult<User>> list(
@@ -81,12 +84,49 @@ public class AdminStudentController {
             item.put("title", course.getTitle());
             item.put("price", course.getPrice());
 
+            long totalChapters = chapterService.lambdaQuery()
+                    .eq(Chapter::getCourseId, cid).count();
             long finishedCount = learningRecordService.lambdaQuery()
                     .eq(LearningRecord::getUserId, id)
                     .eq(LearningRecord::getCourseId, cid)
                     .eq(LearningRecord::getIsFinished, 1)
                     .count();
             item.put("finishedChapters", finishedCount);
+            item.put("totalChapters", totalChapters);
+            item.put("progress", totalChapters > 0 ? (int)((double)finishedCount / totalChapters * 100) : 0);
+            item.put("finished", finishedCount >= totalChapters && totalChapters > 0);
+            result.add(item);
+        }
+        return Result.ok(result);
+    }
+
+    @GetMapping("/students/{id}/learning")
+    @ApiOperation("学员学习记录(前端兼容)")
+    public Result<List<Map<String, Object>>> studentLearning(@PathVariable Long id) {
+        List<Order> paidOrders = orderService.lambdaQuery()
+                .eq(Order::getUserId, id)
+                .eq(Order::getStatus, "PAID")
+                .list();
+
+        Set<Long> courseIds = paidOrders.stream().map(Order::getCourseId).collect(Collectors.toSet());
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Long cid : courseIds) {
+            Course course = courseService.getById(cid);
+            if (course == null) continue;
+            Map<String, Object> item = new HashMap<>();
+            item.put("courseName", course.getTitle());
+            item.put("courseId", cid);
+
+            long totalChapters = chapterService.lambdaQuery()
+                    .eq(Chapter::getCourseId, cid).count();
+            long finishedCount = learningRecordService.lambdaQuery()
+                    .eq(LearningRecord::getUserId, id)
+                    .eq(LearningRecord::getCourseId, cid)
+                    .eq(LearningRecord::getIsFinished, 1)
+                    .count();
+            item.put("progress", totalChapters > 0 ? (int)((double)finishedCount / totalChapters * 100) : 0);
+            item.put("duration", finishedCount * 600L); // 估算学习时长，每章约10分钟
+            item.put("finished", finishedCount >= totalChapters && totalChapters > 0);
             result.add(item);
         }
         return Result.ok(result);

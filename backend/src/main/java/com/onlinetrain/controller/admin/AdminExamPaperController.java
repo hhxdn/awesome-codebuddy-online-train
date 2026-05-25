@@ -10,8 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 /**
  * 管理端-试卷管理控制器（路径匹配前端 /admin/exams）
@@ -45,10 +45,24 @@ public class AdminExamPaperController {
      */
     @GetMapping("/exams/{id}")
     @ApiOperation("试卷详情")
-    public Result<ExamPaper> detail(@PathVariable Long id) {
+    public Result<Map<String, Object>> detail(@PathVariable Long id) {
         ExamPaper paper = examPaperService.getById(id);
         if (paper == null) return Result.notFound("试卷不存在");
-        return Result.ok(paper);
+        
+        // 获取关联的题目ID列表
+        List<Long> questionIds = examPaperService.getPaperQuestionIds(id);
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", paper.getId());
+        result.put("title", paper.getTitle());
+        result.put("courseId", paper.getCourseId());
+        result.put("durationMinutes", paper.getDurationMinutes());
+        result.put("totalScore", paper.getTotalScore());
+        result.put("passScore", paper.getPassScore());
+        result.put("maxAttempts", paper.getMaxAttempts());
+        result.put("status", paper.getStatus());
+        result.put("questionIds", questionIds != null ? questionIds : Collections.emptyList());
+        return Result.ok(result);
     }
 
     /**

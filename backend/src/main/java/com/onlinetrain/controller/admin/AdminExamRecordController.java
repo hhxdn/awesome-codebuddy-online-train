@@ -62,9 +62,10 @@ public class AdminExamRecordController {
             Map<String, Object> item = new HashMap<>();
             item.put("id", r.getId());
             item.put("examPaperId", r.getExamPaperId());
-            item.put("paperName", paper != null ? paper.getTitle() : "");
+            item.put("examTitle", paper != null ? paper.getTitle() : "");
             item.put("userId", r.getUserId());
             item.put("score", r.getScore());
+            item.put("totalScore", paper != null ? paper.getTotalScore() : 0);
             item.put("isPass", r.getIsPass());
             item.put("status", r.getStatus());
             item.put("startTime", r.getStartTime());
@@ -97,10 +98,12 @@ public class AdminExamRecordController {
             Question q = questionService.getById(a.getQuestionId());
             Map<String, Object> detail = new HashMap<>();
             detail.put("id", a.getId());
-            detail.put("question", q);
+            detail.put("questionContent", q != null ? q.getContent() : "");
             detail.put("userAnswer", a.getUserAnswer());
+            detail.put("correctAnswer", q != null ? q.getAnswer() : "");
             detail.put("isCorrect", a.getIsCorrect());
             detail.put("score", a.getScore());
+            detail.put("analysis", q != null ? q.getAnalysis() : "");
             answerDetails.add(detail);
         }
 

@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 管理端-题库管理控制器
@@ -56,25 +56,107 @@ public class AdminQuestionController {
 
     @GetMapping("/questions/{id}")
     @ApiOperation("题目详情")
-    public Result<Question> detail(@PathVariable Long id) {
+    public Result<Map<String, Object>> detail(@PathVariable Long id) {
         Question q = questionService.getById(id);
         if (q == null) return Result.notFound("题目不存在");
-        return Result.ok(q);
+        
+        // 加载选项
+        List<QuestionOption> options = questionOptionService.lambdaQuery()
+                .eq(QuestionOption::getQuestionId, id)
+                .orderByAsc(QuestionOption::getOptionLabel)
+                .list();
+        
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", q.getId());
+        result.put("courseId", q.getCourseId());
+        result.put("chapterId", q.getChapterId());
+        result.put("type", q.getType());
+        result.put("content", q.getContent());
+        result.put("answer", q.getAnswer());
+        result.put("analysis", q.getAnalysis());
+        result.put("score", q.getScore());
+        result.put("status", q.getStatus());
+        result.put("options", options.stream().map(o -> {
+            Map<String, Object> opt = new HashMap<>();
+            opt.put("optionLabel", o.getOptionLabel());
+            opt.put("content", o.getContent());
+            opt.put("isCorrect", o.getIsCorrect());
+            return opt;
+        }).collect(Collectors.toList()));
+        
+        return Result.ok(result);
     }
 
+    @SuppressWarnings("unchecked")
     @PostMapping("/questions")
     @ApiOperation("创建题目")
-    public Result<Question> create(@RequestBody Question question) {
+    public Result<Map<String, Object>> create(@RequestBody Map<String, Object> params) {
+        Question question = new Question();
+        if (params.get("courseId") != null) question.setCourseId(Long.valueOf(params.get("courseId").toString()));
+        if (params.get("chapterId") != null) question.setChapterId(Long.valueOf(params.get("chapterId").toString()));
+        if (params.get("type") != null) question.setType(params.get("type").toString());
+        if (params.get("content") != null) question.setContent(params.get("content").toString());
+        if (params.get("analysis") != null) question.setAnalysis(params.get("analysis").toString());
+        if (params.get("score") != null) question.setScore(Integer.parseInt(params.get("score").toString()));
+        if (params.get("answer") != null) question.setAnswer(params.get("answer").toString());
+        question.setStatus(1);
         questionService.save(question);
-        return Result.ok(question);
+
+        // 保存选项
+        if (params.get("options") instanceof List) {
+            List<Map<String, Object>> options = (List<Map<String, Object>>) params.get("options");
+            for (Map<String, Object> optMap : options) {
+                if (optMap.get("content") != null && !optMap.get("content").toString().isEmpty()) {
+                    QuestionOption option = new QuestionOption();
+                    option.setQuestionId(question.getId());
+                    option.setOptionLabel(optMap.get("optionLabel") != null ? optMap.get("optionLabel").toString() : "");
+                    option.setContent(optMap.get("content").toString());
+                    option.setIsCorrect(optMap.get("isCorrect") != null && (Boolean.parseBoolean(optMap.get("isCorrect").toString()) || "1".equals(optMap.get("isCorrect").toString())) ? 1 : 0);
+                    questionOptionService.save(option);
+                }
+            }
+        }
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", question.getId());
+        return Result.ok(result);
     }
 
+    @SuppressWarnings("unchecked")
     @PutMapping("/questions/{id}")
     @ApiOperation("更新题目")
-    public Result<Question> update(@PathVariable Long id, @RequestBody Question question) {
-        question.setId(id);
+    public Result<Void> update(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        Question question = questionService.getById(id);
+        if (question == null) return Result.notFound("题目不存在");
+
+        if (params.get("courseId") != null) question.setCourseId(Long.valueOf(params.get("courseId").toString()));
+        if (params.get("chapterId") != null) question.setChapterId(Long.valueOf(params.get("chapterId").toString()));
+        if (params.get("type") != null) question.setType(params.get("type").toString());
+        if (params.get("content") != null) question.setContent(params.get("content").toString());
+        if (params.get("analysis") != null) question.setAnalysis(params.get("analysis").toString());
+        if (params.get("score") != null) question.setScore(Integer.parseInt(params.get("score").toString()));
+        if (params.get("answer") != null) question.setAnswer(params.get("answer").toString());
         questionService.updateById(question);
-        return Result.ok(question);
+
+        // 更新选项：先删后建
+        if (params.containsKey("options")) {
+            questionOptionService.lambdaUpdate().eq(QuestionOption::getQuestionId, id).remove();
+            if (params.get("options") instanceof List) {
+                List<Map<String, Object>> options = (List<Map<String, Object>>) params.get("options");
+                for (Map<String, Object> optMap : options) {
+                    if (optMap.get("content") != null && !optMap.get("content").toString().isEmpty()) {
+                        QuestionOption option = new QuestionOption();
+                        option.setQuestionId(id);
+                        option.setOptionLabel(optMap.get("optionLabel") != null ? optMap.get("optionLabel").toString() : "");
+                        option.setContent(optMap.get("content").toString());
+                        option.setIsCorrect(optMap.get("isCorrect") != null && (Boolean.parseBoolean(optMap.get("isCorrect").toString()) || "1".equals(optMap.get("isCorrect").toString())) ? 1 : 0);
+                        questionOptionService.save(option);
+                    }
+                }
+            }
+        }
+
+        return Result.ok();
     }
 
     @DeleteMapping("/questions/{id}")

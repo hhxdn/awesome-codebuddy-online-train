@@ -31,4 +31,11 @@ public class ExamPaperServiceImpl extends ServiceImpl<ExamPaperMapper, ExamPaper
                     paperId, qid, order++);
         }
     }
+
+    @Override
+    public List<Long> getPaperQuestionIds(Long paperId) {
+        return jdbcTemplate.queryForList(
+                "SELECT question_id FROM exam_paper_question WHERE exam_paper_id = ? ORDER BY sort_order",
+                Long.class, paperId);
+    }
 }

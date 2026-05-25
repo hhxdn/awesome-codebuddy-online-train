@@ -96,7 +96,7 @@
             <el-table-column type="selection" width="50" :selectable="(row) => true" />
             <el-table-column label="题型" width="70">
               <template #default="{ row }">
-                <el-tag size="small">{{ row.type }}</el-tag>
+                <el-tag size="small" :type="tagType(row.type)">{{ typeLabel(row.type) }}</el-tag>
               </template>
             </el-table-column>
             <el-table-column prop="chapterName" label="章节" width="100" />
@@ -159,6 +159,16 @@ const formRules = {
 function statusTag(status) {
   const map = { DRAFT: 'info', PUBLISHED: 'success', ENDED: 'danger' }
   return map[status] || 'info'
+}
+
+function tagType(type) {
+  const map = { SINGLE: '', MULTIPLE: 'success', JUDGE: 'warning', ESSAY: 'danger' }
+  return map[type] || 'info'
+}
+
+function typeLabel(type) {
+  const map = { SINGLE: '单选', MULTIPLE: '多选', JUDGE: '判断', ESSAY: '简答' }
+  return map[type] || type
 }
 
 function resetForm() {

@@ -15,8 +15,7 @@
 
     <div class="card-container">
       <el-table :data="tableData" border stripe>
-        <el-table-column prop="studentName" label="学员" width="120" />
-        <el-table-column prop="examTitle" label="试卷名称" min-width="160" show-overflow-tooltip />
+        <el-table-column prop="examTitle" label="试卷名称" min-width="180" show-overflow-tooltip />
         <el-table-column label="成绩" width="100">
           <template #default="{ row }">
             {{ row.score }} / {{ row.totalScore }}
@@ -24,14 +23,13 @@
         </el-table-column>
         <el-table-column label="是否通过" width="90">
           <template #default="{ row }">
-            <el-tag :type="row.isPass ? 'success' : 'danger'" size="small">
-              {{ row.isPass ? '通过' : '未通过' }}
+            <el-tag :type="row.isPass === 1 || row.isPass === true ? 'success' : 'danger'" size="small">
+              {{ row.isPass === 1 || row.isPass === true ? '通过' : '未通过' }}
             </el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="startTime" label="开始时间" width="170" />
         <el-table-column prop="submitTime" label="提交时间" width="170" />
-        <el-table-column prop="cheatCount" label="作弊次数" width="90" />
         <el-table-column label="操作" width="120" fixed="right">
           <template #default="{ row }">
             <el-button size="small" type="primary" link @click="handleViewDetail(row)">查看详情</el-button>

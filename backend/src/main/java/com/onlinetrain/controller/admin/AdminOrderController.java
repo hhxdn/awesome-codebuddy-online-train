@@ -23,6 +23,9 @@ public class AdminOrderController {
     public Result<PageResult<Order>> list(
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String orderNo,
+            @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -32,6 +35,9 @@ public class AdminOrderController {
 
         if (status != null && !status.isEmpty()) wrapper.eq(Order::getStatus, status);
         if (orderNo != null && !orderNo.isEmpty()) wrapper.like(Order::getOrderNo, orderNo);
+        if (courseId != null) wrapper.eq(Order::getCourseId, courseId);
+        if (startDate != null && !startDate.isEmpty()) wrapper.ge(Order::getCreateTime, startDate + " 00:00:00");
+        if (endDate != null && !endDate.isEmpty()) wrapper.le(Order::getCreateTime, endDate + " 23:59:59");
         wrapper.orderByDesc(Order::getCreateTime);
 
         return Result.ok(PageResult.of(orderService.page(pageParam, wrapper)));

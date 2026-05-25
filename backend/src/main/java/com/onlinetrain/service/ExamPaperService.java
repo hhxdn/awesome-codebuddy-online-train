@@ -11,4 +11,9 @@ public interface ExamPaperService extends IService<ExamPaper> {
      * 保存试卷关联的题目
      */
     void savePaperQuestions(Long paperId, List<Long> questionIds);
+
+    /**
+     * 获取试卷关联的题目ID列表
+     */
+    List<Long> getPaperQuestionIds(Long paperId);
 }

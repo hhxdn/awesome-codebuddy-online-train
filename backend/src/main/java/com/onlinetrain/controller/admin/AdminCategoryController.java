@@ -57,7 +57,7 @@ public class AdminCategoryController {
         if (category != null && params.get("status") != null) {
             // status: 0=禁用, 1=启用
             Object statusObj = params.get("status");
-            category.setSortOrder(Integer.valueOf(statusObj.toString()));
+            category.setStatus(Integer.valueOf(statusObj.toString()));
             categoryService.updateById(category);
         }
         return Result.ok();

@@ -73,7 +73,10 @@ async function handleLogin() {
 
   loading.value = true
   try {
-    const res = await post('/admin/auth/login', form)
+    const res = await post('/admin/auth/login', {
+      account: form.username,
+      password: form.password
+    })
     setToken(res.data.token || res.data.accessToken)
     setUser(res.data.user || { username: form.username })
     ElMessage.success('登录成功')

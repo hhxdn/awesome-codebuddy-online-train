@@ -41,7 +41,7 @@
         <el-table-column prop="chapterName" label="章节" width="120" show-overflow-tooltip />
         <el-table-column label="类型" width="80">
           <template #default="{ row }">
-            <el-tag size="small" :type="tagType(row.type)">{{ row.type }}</el-tag>
+            <el-tag size="small" :type="tagType(row.type)">{{ typeLabel(row.type) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="content" label="题目内容" min-width="200" show-overflow-tooltip />
@@ -202,6 +202,11 @@ const formRules = {
 function tagType(type) {
   const map = { SINGLE: '', MULTIPLE: 'success', JUDGE: 'warning', ESSAY: 'danger' }
   return map[type] || 'info'
+}
+
+function typeLabel(type) {
+  const map = { SINGLE: '单选', MULTIPLE: '多选', JUDGE: '判断', ESSAY: '简答' }
+  return map[type] || type
 }
 
 function onTypeChange() {
