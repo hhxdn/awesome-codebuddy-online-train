@@ -9,45 +9,16 @@
     </div>
     <van-tabbar
       v-model="active"
-      active-color="var(--primary)"
-      inactive-color="#9ca3af"
+      active-color="#0052D9"
+      inactive-color="#86909C"
       :safe-area-inset-bottom="true"
       route
-      :border="true"
       class="main-tabbar"
     >
-      <van-tabbar-item to="/home">
-        <template #icon="props">
-          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
-            <van-icon name="home-o" size="20" />
-          </div>
-        </template>
-        首页
-      </van-tabbar-item>
-      <van-tabbar-item to="/courses">
-        <template #icon="props">
-          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
-            <van-icon name="apps-o" size="20" />
-          </div>
-        </template>
-        课程
-      </van-tabbar-item>
-      <van-tabbar-item to="/exam">
-        <template #icon="props">
-          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
-            <van-icon name="certificate" size="20" />
-          </div>
-        </template>
-        考试
-      </van-tabbar-item>
-      <van-tabbar-item to="/mine">
-        <template #icon="props">
-          <div class="tab-icon-wrap" :class="{ 'tab-active': props.active }">
-            <van-icon name="manager-o" size="20" />
-          </div>
-        </template>
-        我的
-      </van-tabbar-item>
+      <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
+      <van-tabbar-item to="/courses" icon="apps-o">课程</van-tabbar-item>
+      <van-tabbar-item to="/exam" icon="certificate">考试</van-tabbar-item>
+      <van-tabbar-item to="/mine" icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
   </div>
 </template>
@@ -57,14 +28,16 @@ import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const active = ref('home')
+const active = ref(0)
+
+const tabMap = { home: 0, courses: 1, exam: 2, mine: 3 }
 
 watch(
   () => route.path,
   (path) => {
     const parts = path.split('/')
-    if (parts[1]) {
-      active.value = parts[1]
+    if (parts[1] && tabMap[parts[1]] !== undefined) {
+      active.value = tabMap[parts[1]]
     }
   },
   { immediate: true }
@@ -86,41 +59,31 @@ watch(
 }
 
 .main-tabbar {
-  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.06) !important;
+  box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.04) !important;
   background: #fff !important;
 }
 
-.tab-icon-wrap {
-  position: relative;
-  transition: all var(--transition);
-}
-
-.tab-icon-wrap.tab-active {
-  transform: scale(1.05);
-}
-
-.main-tabbar :deep(.van-tabbar-item) {
-  transition: all var(--transition);
+.main-tabbar :deep(.van-tabbar-item__icon) {
+  margin-bottom: 2px;
 }
 
 .main-tabbar :deep(.van-tabbar-item__text) {
   font-size: 10px;
-  font-weight: 500;
 }
 
 /* Page transition */
 .page-slide-enter-active,
 .page-slide-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .page-slide-enter-from {
   opacity: 0;
-  transform: translateX(20px);
+  transform: translateX(16px);
 }
 
 .page-slide-leave-to {
   opacity: 0;
-  transform: translateX(-20px);
+  transform: translateX(-16px);
 }
 </style>

@@ -1,33 +1,30 @@
 <template>
   <div class="home-page page-fade-in">
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-      <div class="hero-bg-decor">
-        <div class="decor-circle c1"></div>
-        <div class="decor-circle c2"></div>
+    <!-- Header -->
+    <div class="home-header">
+      <div class="header-top">
+        <div class="header-brand">
+          <span class="brand-icon">
+            <svg viewBox="0 0 32 32" width="28" height="28" fill="none">
+              <rect width="32" height="32" rx="8" fill="#0052D9"/>
+              <path d="M10 14L16 9L22 14V22C22 22.6 21.6 23 21 23H11C10.4 23 10 22.6 10 22V14Z" stroke="white" stroke-width="1.5" fill="none"/>
+              <path d="M14 23V17H18V23" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <span class="brand-name">在线学习</span>
+        </div>
       </div>
-      <div class="hero-content">
-        <h1 class="hero-title">在线学习平台</h1>
-        <p class="hero-subtitle">随时随地，提升自我</p>
-      </div>
-      <div class="search-bar">
-        <van-search
-          v-model="keyword"
-          shape="round"
-          placeholder="搜索你感兴趣的课程"
-          @search="onSearch"
-          background="transparent"
-        >
-          <template #left-icon>
-            <van-icon name="search" size="18" color="#9ca3af" />
-          </template>
-        </van-search>
+      <div class="header-search">
+        <div class="search-box" @click="$router.push('/courses')">
+          <van-icon name="search" size="16" color="#86909C" />
+          <span class="search-placeholder">搜索课程、知识点</span>
+        </div>
       </div>
     </div>
 
     <!-- Category Chips -->
     <div class="category-bar">
-      <div class="category-scroll" ref="scrollRef">
+      <div class="category-scroll">
         <div
           v-for="cat in visibleCategories"
           :key="cat.id"
@@ -35,29 +32,27 @@
           :class="{ active: activeCategory === cat.id }"
           @click="selectCategory(cat.id)"
         >
-          <span class="cat-icon" v-if="cat.icon">{{ cat.icon }}</span>
-          <span class="cat-name">{{ cat.name }}</span>
+          {{ cat.name }}
         </div>
         <div
           v-if="hasMoreCategories"
           class="cat-chip cat-more"
           @click="showAllCategories = true"
         >
-          <van-icon name="ellipsis" size="16" />
-          <span class="cat-name">更多</span>
+          更多
+          <van-icon name="arrow-down" size="12" />
         </div>
       </div>
     </div>
 
-    <!-- Category Popup (全部分类) -->
+    <!-- Category Popup -->
     <van-popup
       v-model:show="showAllCategories"
       position="bottom"
       round
-      :style="{ maxHeight: '60vh' }"
+      :style="{ maxHeight: '50vh' }"
     >
       <div class="category-popup">
-        <div class="popup-handle"></div>
         <h3 class="popup-title">全部分类</h3>
         <div class="popup-grid">
           <div
@@ -67,8 +62,7 @@
             :class="{ active: activeCategory === cat.id }"
             @click="selectCategoryFromPopup(cat.id)"
           >
-            <span class="popup-cat-icon" v-if="cat.icon">{{ cat.icon }}</span>
-            <span class="popup-cat-name">{{ cat.name }}</span>
+            <span>{{ cat.name }}</span>
             <van-icon v-if="activeCategory === cat.id" name="success" color="var(--primary)" size="16" />
           </div>
         </div>
@@ -98,8 +92,9 @@
         />
       </div>
 
-      <!-- Empty -->
-      <EmptyState v-if="!refreshing && !loading && courseList.length === 0" />
+      <div v-if="!refreshing && !loading && courseList.length === 0" class="empty-wrap">
+        <EmptyState description="暂无课程" subText="换个分类试试" />
+      </div>
     </van-pull-refresh>
   </div>
 </template>
@@ -116,7 +111,7 @@ const keyword = ref('')
 const activeCategory = ref(0)
 const refreshing = ref(false)
 const loading = ref(false)
-const categories = ref([{ id: 0, name: '全部', icon: '📚' }])
+const categories = ref([{ id: 0, name: '全部' }])
 const courseList = ref([])
 const showAllCategories = ref(false)
 
@@ -129,33 +124,21 @@ async function fetchCategories() {
     const res = await get('/categories')
     if (res.data && res.data.length > 0) {
       categories.value = [
-        { id: 0, name: '全部', icon: '📚' },
-        ...res.data.map(c => ({ ...c, icon: getCategoryIcon(c.name) }))
+        { id: 0, name: '全部' },
+        ...res.data.map(c => ({ id: c.id, name: c.name }))
       ]
     }
   } catch (e) {
     categories.value = [
-      { id: 0, name: '全部', icon: '📚' },
-      { id: 1, name: 'Java开发', icon: '☕' },
-      { id: 2, name: '前端开发', icon: '🎨' },
-      { id: 3, name: 'Python', icon: '🐍' },
-      { id: 4, name: 'AI与大模型', icon: '🤖' },
-      { id: 5, name: '数据库', icon: '🗄️' },
-      { id: 6, name: '云计算', icon: '☁️' }
+      { id: 0, name: '全部' },
+      { id: 1, name: 'Java开发' },
+      { id: 2, name: '前端开发' },
+      { id: 3, name: 'Python' },
+      { id: 4, name: 'AI与大模型' },
+      { id: 5, name: '数据库' },
+      { id: 6, name: '云计算' }
     ]
   }
-}
-
-function getCategoryIcon(name) {
-  const icons = {
-    'Java': '☕', '前端': '🎨', 'Python': '🐍', 'AI': '🤖',
-    '数据库': '🗄️', '云计算': '☁️', 'DevOps': '🔧', '大模型': '🤖',
-    '测试': '🧪', '安全': '🔒', '架构': '🏗️', '大数据': '📊'
-  }
-  for (const [key, icon] of Object.entries(icons)) {
-    if (name.includes(key)) return icon
-  }
-  return '📖'
 }
 
 async function fetchCourses() {
@@ -185,10 +168,6 @@ function selectCategoryFromPopup(id) {
   fetchCourses()
 }
 
-function onSearch() {
-  fetchCourses()
-}
-
 function onRefresh() {
   refreshing.value = true
   fetchCourses().finally(() => { refreshing.value = false })
@@ -210,87 +189,61 @@ onMounted(() => {
   background: var(--bg-color);
 }
 
-/* Hero Banner */
-.hero-banner {
-  background: linear-gradient(160deg, #3a54d4 0%, var(--primary) 30%, var(--primary-light) 70%, #a5b4fc 100%);
-  padding: 0 0 16px;
+/* Header */
+.home-header {
+  background: linear-gradient(180deg, #0052D9 0%, #0052D9 60%, #366EF4 100%);
+  padding: 12px 16px 20px;
   position: relative;
-  overflow: hidden;
 }
 
-.hero-bg-decor {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+.header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
 }
 
-.decor-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.decor-circle.c1 {
-  width: 200px;
-  height: 200px;
-  top: -60px;
-  right: -40px;
+.brand-icon {
+  display: flex;
+  align-items: center;
 }
 
-.decor-circle.c2 {
-  width: 120px;
-  height: 120px;
-  bottom: -30px;
-  left: -20px;
-}
-
-.hero-content {
-  padding: 32px 20px 8px;
-  position: relative;
-  z-index: 1;
-}
-
-.hero-title {
-  font-size: 24px;
-  font-weight: 800;
+.brand-name {
+  font-size: 18px;
+  font-weight: 700;
   color: #fff;
-  letter-spacing: 1px;
-  margin-bottom: 4px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.5px;
 }
 
-.hero-subtitle {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
-  font-weight: 400;
+.header-search {
+  padding: 0 4px;
 }
 
-/* Search Bar */
-.search-bar {
-  position: relative;
-  z-index: 1;
-  padding: 0 12px;
-}
-
-.search-bar :deep(.van-search) {
-  padding: 8px 0;
-}
-
-.search-bar :deep(.van-search__content) {
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.95);
-  border-radius: 24px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
 }
 
-.search-bar :deep(.van-field__control) {
+.search-placeholder {
   font-size: 14px;
+  color: var(--text-placeholder);
 }
 
 /* Category Bar */
 .category-bar {
   background: #fff;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-light);
   position: sticky;
   top: 0;
   z-index: 99;
@@ -299,8 +252,8 @@ onMounted(() => {
 .category-scroll {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 14px;
+  gap: 4px;
+  padding: 10px 14px;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
@@ -311,11 +264,8 @@ onMounted(() => {
 
 .cat-chip {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  border-radius: 22px;
+  padding: 7px 15px;
+  border-radius: 6px;
   background: var(--bg-color);
   font-size: 13px;
   color: var(--text-secondary);
@@ -323,67 +273,52 @@ onMounted(() => {
   transition: all var(--transition);
   white-space: nowrap;
   user-select: none;
-  border: 1.5px solid transparent;
+  font-weight: 400;
 }
 .cat-chip:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 .cat-chip.active {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
+  background: var(--primary-bg);
+  color: var(--primary);
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(79, 110, 247, 0.35);
-  border-color: transparent;
 }
 .cat-more {
-  background: var(--bg-color);
-  gap: 4px;
-}
-.cat-icon {
-  font-size: 15px;
-  line-height: 1;
-}
-.cat-name {
-  line-height: 1;
+  gap: 3px;
+  display: flex;
+  align-items: center;
+  color: var(--text-muted);
 }
 
 /* Category Popup */
 .category-popup {
-  padding: 12px 16px 30px;
-}
-.popup-handle {
-  width: 36px;
-  height: 4px;
-  background: #ddd;
-  border-radius: 2px;
-  margin: 0 auto 16px;
+  padding: 16px 16px 30px;
 }
 .popup-title {
-  font-size: 17px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 600;
   color: var(--text-color);
-  margin-bottom: 18px;
+  margin-bottom: 16px;
   text-align: center;
 }
 .popup-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
 }
 .popup-cat-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border-radius: var(--radius);
+  justify-content: space-between;
+  padding: 11px 16px;
+  border-radius: 8px;
   background: var(--bg-color);
   font-size: 14px;
   color: var(--text-color);
   cursor: pointer;
   transition: all var(--transition);
-  flex: 0 0 calc(50% - 6px);
+  flex: 0 0 calc(50% - 5px);
   box-sizing: border-box;
-  border: 1.5px solid transparent;
 }
 .popup-cat-item:active {
   transform: scale(0.97);
@@ -392,18 +327,10 @@ onMounted(() => {
   background: var(--primary-bg);
   color: var(--primary);
   font-weight: 600;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(79, 110, 247, 0.12);
-}
-.popup-cat-icon {
-  font-size: 20px;
-}
-.popup-cat-name {
-  flex: 1;
 }
 
 /* Pull Refresh */
 .pull-refresh-wrap {
-  min-height: calc(100vh - 180px);
+  min-height: calc(100vh - 140px);
 }
 </style>

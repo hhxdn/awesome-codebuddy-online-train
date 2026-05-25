@@ -1,92 +1,81 @@
 <template>
   <div class="course-detail-page page-fade-in">
-    <!-- Course Banner -->
-    <div class="course-banner">
-      <div class="banner-bg-decor">
-        <div class="b-decor d1"></div>
-        <div class="b-decor d2"></div>
-      </div>
+    <!-- Top Banner -->
+    <div class="detail-banner">
       <van-nav-bar
         left-arrow
         @click-left="$router.back()"
         :style="{ backgroundColor: 'transparent' }"
       >
         <template #title>
-          <span style="color: #fff; font-weight: 600; font-size: 17px;">课程详情</span>
+          <span style="color:#fff;font-weight:600;font-size:17px;">课程详情</span>
         </template>
       </van-nav-bar>
-      <div class="banner-content">
+      <div class="banner-body">
         <h1 class="banner-title">{{ course.title }}</h1>
-        <div class="banner-meta">
-          <span class="banner-tag" :class="(course.price || 0) === 0 ? 'free' : 'paid'">
+        <div class="banner-tags">
+          <span class="banner-tag" :class="(course.price || 0) === 0 ? 'tag-free' : 'tag-paid'">
             {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
           </span>
-          <span class="banner-cat">
-            <span class="cat-dot"></span>
-            {{ course.categoryName }}
-          </span>
-          <span class="banner-count">
-            <van-icon name="friends-o" size="14" />
-            {{ course.studentCount || 0 }}人已学
-          </span>
+          <span class="banner-tag tag-cat">{{ course.categoryName }}</span>
+        </div>
+        <div class="banner-stats">
+          <span>{{ course.studentCount || 0 }}人在学</span>
         </div>
       </div>
     </div>
 
-    <!-- Course Description -->
+    <!-- Description -->
     <div class="section-card">
       <div class="section-title">课程介绍</div>
-      <div class="desc-content" :class="{ expanded: descExpanded }">
+      <div class="desc-text" :class="{ expanded: descExpanded }">
         {{ course.description || '暂无介绍' }}
       </div>
       <div
-        v-if="(course.description || '').length > 150"
+        v-if="(course.description || '').length > 120"
         class="desc-toggle"
         @click="descExpanded = !descExpanded"
       >
-        <span>{{ descExpanded ? '收起' : '展开全部' }}</span>
+        {{ descExpanded ? '收起' : '展开全部' }}
         <van-icon :name="descExpanded ? 'arrow-up' : 'arrow-down'" size="14" />
       </div>
     </div>
 
-    <!-- Chapter List -->
+    <!-- Chapters -->
     <div class="section-card">
       <div class="section-title">
         课程目录
         <span class="chapter-total">共{{ chapters.length }}节</span>
       </div>
-      <div class="chapter-list" v-if="chapters.length > 0">
+      <div v-if="chapters.length > 0">
         <div
-          v-for="(chapter, index) in chapters"
-          :key="chapter.id"
+          v-for="(ch, i) in chapters"
+          :key="ch.id"
           class="chapter-item"
-          @click="goChapter(chapter)"
+          @click="goChapter(ch)"
         >
-          <div class="chapter-index">{{ String(index + 1).padStart(2, '0') }}</div>
+          <div class="chapter-num">{{ String(i + 1).padStart(2, '0') }}</div>
           <div class="chapter-info">
-            <div class="chapter-title text-ellipsis-2">{{ chapter.title }}</div>
-            <div class="chapter-meta">
-              <span class="chapter-duration">
-                <van-icon name="play-circle-o" size="13" /> {{ chapter.duration || '视频' }}
+            <div class="chapter-name text-ellipsis-2">{{ ch.title }}</div>
+            <div class="chapter-bottom">
+              <span class="chapter-dur">
+                <van-icon name="play-circle-o" size="13" /> {{ ch.duration || '视频' }}
               </span>
-              <span v-if="chapter.completed" class="chapter-done">
-                <van-icon name="success" size="13" color="var(--success)" /> 已完成
+              <span v-if="ch.completed" class="chapter-done">
+                <van-icon name="success" size="13" color="#00A870" /> 已学完
               </span>
             </div>
           </div>
-          <div class="chapter-actions">
+          <div class="chapter-right">
             <van-button
               v-if="!isPaid || purchased"
               size="small"
               round
               plain
               type="primary"
-              @click.stop="goPractice(chapter)"
-              class="practice-btn"
-            >
-              练习
-            </van-button>
-            <van-icon v-else name="lock" color="#c8c9cc" size="16" />
+              @click.stop="goPractice(ch)"
+            >练习</van-button>
+            <van-icon v-else name="lock" color="#C9CDD4" size="16" />
           </div>
         </div>
       </div>
@@ -95,25 +84,20 @@
 
     <!-- Bottom Bar -->
     <div class="bottom-bar safe-bottom">
-      <div class="bottom-bg"></div>
       <template v-if="(course.price || 0) === 0">
-        <van-button type="primary" block round @click="startLearn" size="large" class="learn-btn">
-          <van-icon name="play-circle-o" size="18" />
+        <van-button type="primary" block round size="large" @click="startLearn" class="bottom-btn">
           开始学习
         </van-button>
       </template>
       <template v-else-if="!purchased">
-        <div class="bottom-info">
-          <span class="bottom-price-label">课程价格</span>
-          <span class="bottom-price">¥{{ course.price }}</span>
+        <div class="bottom-left">
+          <span class="price-label">价格</span>
+          <span class="price-value">¥{{ course.price }}</span>
         </div>
-        <van-button type="primary" round size="large" @click="buyNow" class="buy-btn">
-          立即购买
-        </van-button>
+        <van-button type="primary" round @click="buyNow" class="bottom-btn-half">立即购买</van-button>
       </template>
       <template v-else>
-        <van-button type="primary" block round @click="startLearn" size="large" class="learn-btn">
-          <van-icon name="play-circle-o" size="18" />
+        <van-button type="primary" block round size="large" @click="startLearn" class="bottom-btn">
           继续学习
         </van-button>
       </template>
@@ -143,67 +127,33 @@ async function fetchDetail() {
     if (res.data) course.value = res.data
     isPaid.value = (course.value.price || 0) > 0
   } catch (e) {
-    course.value = {
-      id: courseId,
-      title: 'Spring Boot 实战教程',
-      cover: '',
-      price: 0,
-      categoryName: 'Java开发',
-      studentCount: 1234,
-      description: '本课程从零开始，系统讲解Spring Boot框架的核心特性和实战应用。'
-    }
+    course.value = { id: courseId, title: '加载中...', price: 0, categoryName: '', studentCount: 0, description: '' }
   }
-
   try {
     const res = await get('/courses/' + courseId + '/chapters')
     if (res.data) chapters.value = res.data
-  } catch (e) {
-    chapters.value = [
-      { id: 1, title: '第一章：Spring Boot入门', duration: '12:30' },
-      { id: 2, title: '第二章：配置文件详解', duration: '18:45' },
-      { id: 3, title: '第三章：数据访问层', duration: '25:20' }
-    ]
-  }
-
+  } catch (e) { chapters.value = [] }
   try {
     const res = await get('/courses/' + courseId + '/access')
     if (res.data) purchased.value = res.data.purchased
-  } catch (e) {
-    purchased.value = false
-  }
+  } catch (e) { purchased.value = false }
 }
 
-function goChapter(chapter) {
-  if (isPaid.value && !purchased.value) {
-    showToast('请先购买课程')
-    return
-  }
-  router.push('/video/' + chapter.id)
+function goChapter(ch) {
+  if (isPaid.value && !purchased.value) { showToast('请先购买课程'); return }
+  router.push('/video/' + ch.id)
 }
-
-function goPractice(chapter) {
-  if (isPaid.value && !purchased.value) {
-    showToast('请先购买课程')
-    return
-  }
-  router.push('/practice/' + chapter.id)
+function goPractice(ch) {
+  if (isPaid.value && !purchased.value) { showToast('请先购买课程'); return }
+  router.push('/practice/' + ch.id)
 }
-
 function startLearn() {
-  if (chapters.value.length > 0) {
-    router.push('/video/' + chapters.value[0].id)
-  } else {
-    showToast('暂无章节内容')
-  }
+  if (chapters.value.length > 0) router.push('/video/' + chapters.value[0].id)
+  else showToast('暂无章节内容')
 }
+function buyNow() { router.push('/order/confirm/' + courseId) }
 
-function buyNow() {
-  router.push('/order/confirm/' + courseId)
-}
-
-onMounted(() => {
-  fetchDetail()
-})
+onMounted(() => fetchDetail())
 </script>
 
 <style scoped>
@@ -214,251 +164,118 @@ onMounted(() => {
 }
 
 /* Banner */
-.course-banner {
-  background: linear-gradient(160deg, #3a54d4, var(--primary), var(--primary-light));
-  padding-bottom: 28px;
+.detail-banner {
+  background: linear-gradient(160deg, #003CAB, #0052D9 50%, #366EF4 100%);
+  padding-bottom: 24px;
   position: relative;
   overflow: hidden;
 }
 
-.banner-bg-decor {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.b-decor {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.b-decor.d1 {
-  width: 180px;
-  height: 180px;
-  top: -40px;
-  right: -30px;
-}
-
-.b-decor.d2 {
-  width: 100px;
-  height: 100px;
-  bottom: -20px;
-  left: 10%;
-}
-
-.banner-content {
-  padding: 8px 20px 0;
-  position: relative;
+.banner-body {
+  padding: 4px 20px 0;
 }
 
 .banner-title {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 700;
   color: #fff;
   line-height: 1.4;
-  margin-bottom: 14px;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 12px;
 }
 
-.banner-meta {
+.banner-tags {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .banner-tag {
-  font-size: 17px;
-  font-weight: 700;
-  color: #fff;
-  padding: 4px 14px;
-  border-radius: 14px;
-}
-
-.banner-tag.free {
-  background: rgba(34, 197, 94, 0.35);
-  backdrop-filter: blur(4px);
-}
-
-.banner-tag.paid {
-  background: rgba(239, 68, 68, 0.35);
-  backdrop-filter: blur(4px);
-}
-
-.banner-cat {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.9);
-  background: rgba(255, 255, 255, 0.12);
-  padding: 4px 12px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  backdrop-filter: blur(4px);
-}
-
-.cat-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-}
-
-.banner-count {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Section Card */
-.section-card {
-  background: #fff;
-  border-radius: var(--radius);
-  margin: 10px 12px;
-  padding: 18px;
-  box-shadow: var(--shadow-xs);
-}
-
-.section-title {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 14px;
-  padding-left: 10px;
-  border-left: 3px solid var(--primary);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.chapter-total {
-  font-size: 12px;
-  color: var(--text-muted);
-  font-weight: 400;
-  background: var(--bg-color);
+  font-weight: 600;
   padding: 3px 10px;
-  border-radius: 10px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+  color: #fff;
+}
+
+.tag-free { background: rgba(0, 168, 112, 0.3); }
+.tag-paid { background: rgba(227, 77, 89, 0.3); }
+.tag-cat { background: rgba(255, 255, 255, 0.12); }
+
+.banner-stats {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Description */
-.desc-content {
+.desc-text {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.8;
+  max-height: 80px;
   overflow: hidden;
-  max-height: 92px;
-  transition: max-height 0.4s ease;
+  transition: max-height 0.35s ease;
 }
-
-.desc-content.expanded {
-  max-height: none;
-}
-
+.desc-text.expanded { max-height: none; }
 .desc-toggle {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  margin-top: 12px;
-  padding: 8px;
+  margin-top: 10px;
   font-size: 13px;
   color: var(--primary);
   cursor: pointer;
-  border-radius: 8px;
-  transition: background var(--transition);
+  padding: 6px;
+  border-radius: 6px;
 }
+.desc-toggle:active { background: var(--primary-bg); }
 
-.desc-toggle:active {
-  background: var(--primary-bg);
-}
-
-/* Chapter List */
-.chapter-list {
-  display: flex;
-  flex-direction: column;
+/* Chapter */
+.chapter-total {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  background: var(--bg-color);
+  padding: 2px 10px;
+  border-radius: 4px;
+  margin-left: 4px;
 }
 
 .chapter-item {
   display: flex;
   align-items: center;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--border-color);
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border-light);
   gap: 12px;
   cursor: pointer;
-  transition: all var(--transition);
+  transition: background var(--transition);
 }
+.chapter-item:last-child { border-bottom: none; }
+.chapter-item:active { background: var(--bg-color); margin: 0 -18px; padding: 13px 18px; border-radius: 8px; }
 
-.chapter-item:last-child {
-  border-bottom: none;
-}
-
-.chapter-item:active {
-  background: var(--bg-color);
-  margin: 0 -18px;
-  padding: 14px 18px;
-  border-radius: 8px;
-}
-
-.chapter-index {
-  width: 30px;
-  height: 30px;
+.chapter-num {
+  width: 32px;
+  height: 32px;
   border-radius: 8px;
   background: var(--primary-bg);
   color: var(--primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
   flex-shrink: 0;
-  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+  font-family: 'SF Mono', Menlo, monospace;
 }
 
-.chapter-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.chapter-title {
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--text-color);
-  margin-bottom: 5px;
-}
-
-.chapter-meta {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.chapter-duration {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.chapter-done {
-  font-size: 12px;
-  color: var(--success);
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-weight: 500;
-}
-
-.chapter-actions {
-  flex-shrink: 0;
-}
-
-.practice-btn {
-  font-size: 12px !important;
-  height: 28px !important;
-}
+.chapter-info { flex: 1; min-width: 0; }
+.chapter-name { font-size: 14px; color: var(--text-color); margin-bottom: 4px; }
+.chapter-bottom { display: flex; align-items: center; gap: 12px; }
+.chapter-dur { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+.chapter-done { font-size: 12px; color: #00A870; display: flex; align-items: center; gap: 3px; }
+.chapter-right { flex-shrink: 0; }
+.chapter-right :deep(.van-button) { font-size: 12px; height: 28px; }
 
 /* Bottom Bar */
 .bottom-bar {
@@ -469,56 +286,32 @@ onMounted(() => {
   width: 100%;
   max-width: 750px;
   background: #fff;
-  padding: 12px 16px;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.06);
+  gap: 12px;
+  box-shadow: 0 -1px 12px rgba(0, 0, 0, 0.04);
   z-index: 100;
 }
-
-.bottom-info {
-  flex: 1;
-}
-
-.bottom-price-label {
-  font-size: 12px;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 2px;
-}
-
-.bottom-price {
-  font-size: 24px;
-  font-weight: 800;
-  color: var(--danger);
-}
-
-.learn-btn {
+.bottom-btn {
   height: 46px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
-  box-shadow: 0 4px 14px rgba(79, 110, 247, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  background: var(--primary) !important;
+  border: none !important;
 }
-
-.buy-btn {
+.bottom-btn-half {
   height: 46px;
-  font-size: 16px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important;
-  box-shadow: 0 4px 14px rgba(79, 110, 247, 0.35);
+  font-size: 15px;
+  font-weight: 600;
+  padding: 0 28px;
+  background: var(--primary) !important;
+  border: none !important;
 }
+.bottom-left { flex: 1; }
+.price-label { font-size: 12px; color: var(--text-muted); display: block; }
+.price-value { font-size: 22px; font-weight: 700; color: var(--danger); }
 
-::deep(.van-nav-bar) {
-  background: transparent !important;
-}
-
-::deep(.van-nav-bar .van-icon) {
-  color: #fff !important;
-}
+:deep(.van-nav-bar) { background: transparent !important; }
+:deep(.van-nav-bar .van-icon) { color: #fff !important; }
 </style>

@@ -3,23 +3,17 @@
     <div class="card-cover">
       <img v-if="course.cover" :src="course.cover" alt="" />
       <div v-else class="cover-placeholder" :style="{ background: getGradient() }">
-        <span class="cover-icon">{{ course.title?.charAt(0) || '课' }}</span>
+        <span class="cover-text">{{ course.title?.charAt(0) || '课' }}</span>
       </div>
-      <div class="cover-badge" v-if="(course.price || 0) === 0">
-        <span class="badge-text">免费</span>
-      </div>
-      <div class="cover-badge badge-pro" v-else>
-        <span class="badge-text">¥{{ course.price }}</span>
+      <div class="cover-badge" :class="(course.price || 0) === 0 ? 'free' : 'paid'">
+        {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
       </div>
     </div>
     <div class="card-body">
       <h3 class="card-title text-ellipsis-2">{{ course.title }}</h3>
-      <div class="card-footer">
-        <span class="meta-tag">{{ course.categoryName || '通用' }}</span>
-        <span class="meta-students">
-          <van-icon name="friends-o" size="12" />
-          {{ formatCount(course.studentCount || 0) }}
-        </span>
+      <div class="card-meta">
+        <span class="meta-category">{{ course.categoryName || '通用' }}</span>
+        <span class="meta-students">{{ course.studentCount || 0 }}人学习</span>
       </div>
     </div>
   </div>
@@ -35,25 +29,17 @@ const props = defineProps({
 const router = useRouter()
 
 const gradients = [
-  'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-  'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-  'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-  'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-  'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-  'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
-  'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)',
-  'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)'
+  'linear-gradient(135deg, #0052D9 0%, #366EF4 100%)',
+  'linear-gradient(135deg, #00A870 0%, #2BA471 100%)',
+  'linear-gradient(135deg, #ED7B2F 0%, #E37318 100%)',
+  'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+  'linear-gradient(135deg, #E34D59 0%, #C9353F 100%)',
+  'linear-gradient(135deg, #0594FA 0%, #0052D9 100%)'
 ]
 
 function getGradient() {
   const idx = (props.course.id || 0) % gradients.length
   return gradients[idx]
-}
-
-function formatCount(n) {
-  if (n >= 10000) return (n / 10000).toFixed(1) + 'w'
-  if (n >= 1000) return (n / 1000).toFixed(1) + 'k'
-  return String(n)
 }
 
 function goDetail() {
@@ -64,16 +50,16 @@ function goDetail() {
 <style scoped>
 .course-card {
   background: #fff;
-  border-radius: var(--radius);
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
 .course-card:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
 }
 
 .course-card:active {
@@ -83,7 +69,7 @@ function goDetail() {
 .card-cover {
   position: relative;
   width: 100%;
-  height: 120px;
+  height: 136px;
   overflow: hidden;
 }
 
@@ -91,11 +77,11 @@ function goDetail() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.35s ease;
 }
 
 .course-card:hover .card-cover img {
-  transform: scale(1.05);
+  transform: scale(1.06);
 }
 
 .cover-placeholder {
@@ -106,68 +92,63 @@ function goDetail() {
   justify-content: center;
 }
 
-.cover-icon {
-  font-size: 36px;
-  color: rgba(255, 255, 255, 0.75);
-  font-weight: 800;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+.cover-placeholder .cover-text {
+  font-size: 42px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .cover-badge {
   position: absolute;
   top: 8px;
   right: 8px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  background: rgba(34, 197, 94, 0.92);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-.cover-badge.badge-pro {
-  background: rgba(239, 68, 68, 0.92);
-}
-
-.badge-text {
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(8px);
+}
+
+.cover-badge.free {
+  background: rgba(0, 168, 112, 0.88);
   color: #fff;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+}
+
+.cover-badge.paid {
+  background: rgba(227, 77, 89, 0.88);
+  color: #fff;
 }
 
 .card-body {
-  padding: 12px 12px 14px;
+  padding: 10px 12px 12px;
 }
 
 .card-title {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-color);
   line-height: 1.5;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   min-height: 42px;
 }
 
-.card-footer {
+.card-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.meta-tag {
+.meta-category {
   font-size: 11px;
   color: var(--primary);
   background: var(--primary-bg);
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
 .meta-students {
   font-size: 11px;
   color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 3px;
 }
 </style>

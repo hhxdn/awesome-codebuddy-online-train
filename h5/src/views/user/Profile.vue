@@ -1,43 +1,35 @@
 <template>
   <div class="profile-page page-fade-in">
-    <!-- User Header -->
+    <!-- Header -->
     <div class="profile-header">
-      <div class="header-bg-pattern"></div>
-      <div class="header-edit" @click="showToast('编辑资料功能开发中')">
-        <van-icon name="setting-o" size="20" color="#fff" />
+      <div class="header-setting" @click="showToast('个人设置')">
+        <van-icon name="setting-o" size="20" color="rgba(255,255,255,0.7)" />
       </div>
-      <van-image round width="72" height="72" :src="user.avatar" class="avatar">
+      <van-image round width="68" height="68" :src="user.avatar" class="avatar">
         <template #error>
-          <div class="avatar-placeholder">{{ user.nickname?.charAt(0) || 'U' }}</div>
+          <div class="avatar-fallback">{{ user.nickname?.charAt(0) || 'U' }}</div>
         </template>
       </van-image>
-      <div class="nickname">{{ user.nickname || '未登录' }}</div>
-      <div class="phone" v-if="user.phone">
-        <van-icon name="phone-o" size="13" />
-        {{ user.phone }}
+      <div class="nickname">{{ user.nickname || '未设置昵称' }}</div>
+      <div class="phone-line" v-if="user.phone">
+        <van-icon name="phone-o" size="12" /> {{ formatPhone(user.phone) }}
       </div>
     </div>
 
     <!-- Stats -->
     <div class="stats-row">
       <div class="stat-item">
-        <div class="stat-icon stat-icon-time">
-          <van-icon name="clock-o" size="18" />
-        </div>
+        <div class="stat-icon s-time"><van-icon name="clock-o" size="18" /></div>
         <span class="stat-value">{{ stats.studyDuration || 0 }}<small>h</small></span>
         <span class="stat-label">学习时长</span>
       </div>
       <div class="stat-item">
-        <div class="stat-icon stat-icon-course">
-          <van-icon name="bookmark-o" size="18" />
-        </div>
+        <div class="stat-icon s-course"><van-icon name="bookmark-o" size="18" /></div>
         <span class="stat-value">{{ stats.courseCount || 0 }}</span>
-        <span class="stat-label">学习课程</span>
+        <span class="stat-label">在学课程</span>
       </div>
       <div class="stat-item">
-        <div class="stat-icon stat-icon-practice">
-          <van-icon name="edit" size="18" />
-        </div>
+        <div class="stat-icon s-practice"><van-icon name="edit" size="18" /></div>
         <span class="stat-value">{{ stats.practiceCount || 0 }}</span>
         <span class="stat-label">练习次数</span>
       </div>
@@ -45,15 +37,11 @@
 
     <!-- Menu -->
     <div class="menu-section" v-for="(group, gIdx) in menuGroups" :key="gIdx">
-      <div class="menu-group-title">{{ gIdx === 0 ? '学习管理' : '学习记录' }}</div>
+      <div class="menu-label">{{ gIdx === 0 ? '学习管理' : '学习记录' }}</div>
       <van-cell-group inset>
         <van-cell
-          v-for="item in group"
-          :key="item.path"
-          :title="item.title"
-          is-link
-          @click="navigate(item.path)"
-          center
+          v-for="item in group" :key="item.path"
+          :title="item.title" is-link @click="navigate(item.path)"
           class="menu-cell"
         >
           <template #icon>
@@ -61,17 +49,13 @@
               <van-icon :name="item.icon" size="18" />
             </div>
           </template>
-          <template #value v-if="item.badge">
-            <van-badge :content="item.badge" />
-          </template>
         </van-cell>
       </van-cell-group>
     </div>
 
     <!-- Logout -->
-    <div class="logout-section">
+    <div class="logout-wrap">
       <van-button block round plain type="danger" @click="logout" class="logout-btn">
-        <van-icon name="revoke" size="16" />
         退出登录
       </van-button>
     </div>
@@ -91,37 +75,36 @@ const stats = ref({})
 
 const menuGroups = [
   [
-    { title: '我的课程', icon: 'bookmark-o', iconClass: 'icon-blue', path: '/my-courses' },
-    { title: '我的订单', icon: 'records-o', iconClass: 'icon-orange', path: '/my-orders' }
+    { title: '我的课程', icon: 'bookmark-o', iconClass: 'm-blue', path: '/my-courses' },
+    { title: '我的订单', icon: 'records-o', iconClass: 'm-orange', path: '/my-orders' }
   ],
   [
-    { title: '错题回顾', icon: 'cross', iconClass: 'icon-red', path: '/my-wrong' },
-    { title: '考试记录', icon: 'certificate', iconClass: 'icon-green', path: '/my-exams' },
-    { title: '学习记录', icon: 'clock-o', iconClass: 'icon-purple', path: '/my-learning' }
+    { title: '错题回顾', icon: 'cross', iconClass: 'm-red', path: '/my-wrong' },
+    { title: '考试记录', icon: 'certificate', iconClass: 'm-green', path: '/my-exams' },
+    { title: '学习记录', icon: 'clock-o', iconClass: 'm-purple', path: '/my-learning' }
   ]
 ]
+
+function formatPhone(phone) {
+  if (!phone || phone.length < 7) return phone
+  return phone.slice(0, 3) + '****' + phone.slice(-4)
+}
 
 async function fetchStats() {
   try {
     const res = await get('/user/stats')
     if (res.data) stats.value = res.data
   } catch (e) {
-    stats.value = { studyDuration: 12, courseCount: 3, practiceCount: 15 }
+    stats.value = { studyDuration: 0, courseCount: 0, practiceCount: 0 }
   }
 }
 
-function navigate(path) {
-  router.push(path)
-}
+function navigate(path) { router.push(path) }
 
 function logout() {
-  showConfirmDialog({
-    title: '退出登录',
-    message: '确定要退出登录吗？'
-  }).then(() => {
-    clearAuth()
-    router.replace('/login')
-  }).catch(() => {})
+  showConfirmDialog({ title: '退出登录', message: '确定要退出吗？' })
+    .then(() => { clearAuth(); router.replace('/login') })
+    .catch(() => {})
 }
 
 onMounted(() => {
@@ -138,151 +121,58 @@ onMounted(() => {
 }
 
 /* Header */
-.profile-header {
-  background: linear-gradient(160deg, #3a54d4, var(--primary), var(--primary-light));
-  padding: 44px 20px 32px;
-  text-align: center;
-  color: #fff;
-  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-  position: relative;
-  overflow: hidden;
+.avatar-fallback {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
 }
 
-.header-bg-pattern {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 50%),
-              radial-gradient(circle at 80% 20%, rgba(255,255,255,0.06) 0%, transparent 50%);
+.header-setting {
+  position: absolute; top: 16px; right: 16px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; z-index: 1;
 }
 
-.header-edit {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
+.phone-line {
+  font-size: 13px; opacity: 0.7; margin-top: 4px;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
 }
 
-.avatar-placeholder {
-  width: 72px;
-  height: 72px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 800;
-  color: #fff;
-}
-
-.profile-header .nickname {
-  font-size: 20px;
-  font-weight: 700;
-  margin-top: 8px;
-  position: relative;
-}
-
-.profile-header .phone {
-  font-size: 13px;
-  opacity: 0.75;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-}
-
-/* Stats */
+/* Stats Icons */
 .stat-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
+  width: 42px; height: 42px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 8px;
 }
+.s-time { background: var(--primary-bg); color: var(--primary); }
+.s-course { background: var(--success-light); color: #00A870; }
+.s-practice { background: var(--warning-light); color: #ED7B2F; }
 
-.stat-icon-time { background: var(--primary-bg); color: var(--primary); }
-.stat-icon-course { background: var(--success-light); color: var(--success); }
-.stat-icon-practice { background: var(--warning-light); color: var(--warning); }
-
-.stat-value {
-  font-size: 24px;
-  font-weight: 800;
-}
-
-.stat-value small {
-  font-size: 14px;
-  font-weight: 500;
-  margin-left: 2px;
-}
+.stat-value { font-size: 22px; font-weight: 700; }
+.stat-value small { font-size: 13px; font-weight: 500; margin-left: 2px; }
 
 /* Menu */
-.menu-section {
-  margin-top: 14px;
-}
-
-.menu-group-title {
-  font-size: 13px;
-  color: var(--text-muted);
-  padding: 0 20px 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.menu-cell {
-  padding: 14px 16px !important;
-}
-
-.menu-cell :deep(.van-cell__title) {
-  font-weight: 500;
-}
-
+.menu-section { margin-top: 14px; }
+.menu-label { font-size: 12px; color: var(--text-muted); padding: 0 20px 8px; font-weight: 500; }
+.menu-cell { padding: 14px 16px !important; }
+.menu-cell :deep(.van-cell__title) { font-weight: 400; }
 .menu-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
   margin-right: 12px;
 }
+.m-blue { background: var(--primary-bg); color: var(--primary); }
+.m-orange { background: var(--warning-light); color: #ED7B2F; }
+.m-red { background: var(--danger-light); color: #E34D59; }
+.m-green { background: var(--success-light); color: #00A870; }
+.m-purple { background: #F3F0FF; color: #7C3AED; }
 
-.icon-blue { background: var(--primary-bg); color: var(--primary); }
-.icon-orange { background: var(--warning-light); color: #f97316; }
-.icon-red { background: var(--danger-light); color: var(--danger); }
-.icon-green { background: var(--success-light); color: var(--success); }
-.icon-purple { background: #f5f3ff; color: #8b5cf6; }
-
-/* Logout */
-.logout-section {
-  padding: 36px 20px;
-}
-
+.logout-wrap { padding: 40px 20px; }
 .logout-btn {
-  height: 46px;
-  font-size: 14px;
-  font-weight: 500;
-  border: 1.5px solid var(--danger) !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all var(--transition);
-}
-
-.logout-btn:active {
-  background: var(--danger-light) !important;
+  height: 46px; font-size: 14px; border: 1px solid #E34D59 !important;
+  color: var(--text-secondary) !important;
 }
 </style>
