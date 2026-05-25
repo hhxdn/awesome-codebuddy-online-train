@@ -43,30 +43,28 @@ public class H5UserController {
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
-     * 手机号+验证码登录
+     * 手机号+密码登录
      */
     @PostMapping("/login")
-    @ApiOperation("手机号验证码登录")
+    @ApiOperation("手机号密码登录")
     public Result<Map<String, Object>> login(@RequestBody Map<String, String> params) {
         String phone = params.get("phone");
-        String code = params.get("code");
+        String password = params.get("password");
 
         if (phone == null || phone.isEmpty()) {
             return Result.error("手机号不能为空");
         }
-        if (!"123456".equals(code)) {
-            return Result.error("验证码错误");
+        if (password == null || password.isEmpty()) {
+            return Result.error("密码不能为空");
         }
 
         User user = userService.lambdaQuery().eq(User::getPhone, phone).one();
         if (user == null) {
-            user = new User();
-            user.setPhone(phone);
-            user.setNickname("用户" + phone.substring(Math.max(0, phone.length() - 4)));
-            user.setRole("STUDENT");
-            user.setStatus(1);
-            user.setRegisterTime(LocalDateTime.now());
-            userService.save(user);
+            return Result.error("用户不存在，请先注册");
+        }
+
+        if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
+            return Result.error("密码错误");
         }
 
         if (user.getStatus() == 0) {
@@ -77,6 +75,53 @@ public class H5UserController {
 
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
+        user.setPassword(null);
+        result.put("user", user);
+        return Result.ok(result);
+    }
+
+    /**
+     * 用户注册
+     */
+    @PostMapping("/register")
+    @ApiOperation("用户注册")
+    public Result<Map<String, Object>> register(@RequestBody Map<String, String> params) {
+        String phone = params.get("phone");
+        String password = params.get("password");
+        String confirmPassword = params.get("confirmPassword");
+
+        if (phone == null || phone.isEmpty()) {
+            return Result.error("手机号不能为空");
+        }
+        if (password == null || password.isEmpty()) {
+            return Result.error("密码不能为空");
+        }
+        if (password.length() < 6) {
+            return Result.error("密码长度不能少于6位");
+        }
+        if (!password.equals(confirmPassword)) {
+            return Result.error("两次输入的密码不一致");
+        }
+
+        User existUser = userService.lambdaQuery().eq(User::getPhone, phone).one();
+        if (existUser != null) {
+            return Result.error("该手机号已注册，请直接登录");
+        }
+
+        User user = new User();
+        user.setPhone(phone);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setNickname("用户" + phone.substring(Math.max(0, phone.length() - 4)));
+        user.setRole("STUDENT");
+        user.setStatus(1);
+        user.setRegisterTime(LocalDateTime.now());
+        userService.save(user);
+
+        String token = jwtUtils.createToken(user.getId(), user.getRole());
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", token);
+        user.setPassword(null);
         result.put("user", user);
         return Result.ok(result);
     }

@@ -23,22 +23,31 @@
         <p class="app-slogan">随时随地，提升自我</p>
       </div>
 
-      <!-- Login Form Card -->
+      <!-- Login/Register Form Card -->
       <div class="login-card">
         <div class="card-header">
-          <span class="card-tab active">手机登录</span>
+          <span
+            class="card-tab"
+            :class="{ active: activeTab === 'login' }"
+            @click="switchTab('login')"
+          >登录</span>
+          <span
+            class="card-tab"
+            :class="{ active: activeTab === 'register' }"
+            @click="switchTab('register')"
+          >注册</span>
         </div>
 
-        <van-form @submit="onLogin" class="login-form">
+        <!-- 登录表单 -->
+        <van-form v-if="activeTab === 'login'" @submit="onLogin" class="login-form">
           <van-cell-group inset>
             <van-field
-              v-model="phone"
+              v-model="loginForm.phone"
               name="phone"
               type="tel"
               maxlength="11"
               placeholder="请输入手机号"
               :rules="[{ required: true, message: '请输入手机号' }, { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确' }]"
-              class="phone-field"
             >
               <template #left-icon>
                 <div class="field-icon">
@@ -47,30 +56,16 @@
               </template>
             </van-field>
             <van-field
-              v-model="code"
-              name="code"
-              placeholder="请输入验证码"
-              maxlength="6"
-              type="digit"
-              :rules="[{ required: true, message: '请输入验证码' }]"
-              class="code-field"
+              v-model="loginForm.password"
+              name="password"
+              type="password"
+              placeholder="请输入密码"
+              :rules="[{ required: true, message: '请输入密码' }]"
             >
               <template #left-icon>
                 <div class="field-icon">
-                  <van-icon name="shield-o" size="18" />
+                  <van-icon name="lock" size="18" />
                 </div>
-              </template>
-              <template #button>
-                <van-button
-                  size="small"
-                  plain
-                  type="primary"
-                  :disabled="countdown > 0"
-                  @click="sendCode"
-                  class="send-code-btn"
-                >
-                  {{ countdown > 0 ? `${countdown}s后重发` : '获取验证码' }}
-                </van-button>
               </template>
             </van-field>
           </van-cell-group>
@@ -86,21 +81,64 @@
             >
               登 录
             </van-button>
+          </div>
+        </van-form>
 
-            <div class="divider-row">
-              <span class="divider-line"></span>
-              <span class="divider-text">其他方式登录</span>
-              <span class="divider-line"></span>
-            </div>
+        <!-- 注册表单 -->
+        <van-form v-else @submit="onRegister" class="login-form">
+          <van-cell-group inset>
+            <van-field
+              v-model="registerForm.phone"
+              name="phone"
+              type="tel"
+              maxlength="11"
+              placeholder="请输入手机号"
+              :rules="[{ required: true, message: '请输入手机号' }, { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确' }]"
+            >
+              <template #left-icon>
+                <div class="field-icon">
+                  <van-icon name="phone-o" size="18" />
+                </div>
+              </template>
+            </van-field>
+            <van-field
+              v-model="registerForm.password"
+              name="password"
+              type="password"
+              placeholder="请设置密码（至少6位）"
+              :rules="[{ required: true, message: '请设置密码' }, { validator: passwordValidator, message: '密码长度不能少于6位' }]"
+            >
+              <template #left-icon>
+                <div class="field-icon">
+                  <van-icon name="lock" size="18" />
+                </div>
+              </template>
+            </van-field>
+            <van-field
+              v-model="registerForm.confirmPassword"
+              name="confirmPassword"
+              type="password"
+              placeholder="请确认密码"
+              :rules="[{ required: true, message: '请确认密码' }, { validator: confirmPasswordValidator, message: '两次输入的密码不一致' }]"
+            >
+              <template #left-icon>
+                <div class="field-icon">
+                  <van-icon name="checked" size="18" />
+                </div>
+              </template>
+            </van-field>
+          </van-cell-group>
 
+          <div class="login-actions">
             <van-button
               round
               block
-              class="wechat-btn"
-              @click="wechatLogin"
+              type="primary"
+              native-type="submit"
+              :loading="loading"
+              class="login-btn"
             >
-              <van-icon name="wechat" size="20" />
-              微信一键登录
+              注 册
             </van-button>
           </div>
         </van-form>
@@ -109,7 +147,7 @@
       <!-- Tip -->
       <div class="login-tip">
         <van-icon name="info-o" size="14" />
-        <span>提示：任意手机号 + 验证码 123456 即可登录</span>
+        <span>提示：首次使用请先注册账号</span>
       </div>
 
       <p class="login-footer-text">
@@ -120,48 +158,47 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { setToken, setUser } from '../../utils/auth'
 import { post } from '../../api'
 
 const router = useRouter()
-const phone = ref('')
-const code = ref('')
-const countdown = ref(0)
+const activeTab = ref('login')
 const loading = ref(false)
 
-function sendCode() {
-  if (!phone.value) {
-    showToast('请输入手机号')
-    return
-  }
-  if (!/^1[3-9]\d{9}$/.test(phone.value)) {
-    showToast('请输入正确的手机号')
-    return
-  }
-  showToast('验证码已发送（模拟）')
-  countdown.value = 60
-  const timer = setInterval(() => {
-    countdown.value--
-    if (countdown.value <= 0) {
-      clearInterval(timer)
-    }
-  }, 1000)
+const loginForm = reactive({
+  phone: '',
+  password: ''
+})
+
+const registerForm = reactive({
+  phone: '',
+  password: '',
+  confirmPassword: ''
+})
+
+function switchTab(tab) {
+  activeTab.value = tab
+}
+
+// 密码长度校验
+function passwordValidator(val) {
+  return val.length >= 6
+}
+
+// 确认密码一致性校验
+function confirmPasswordValidator(val) {
+  return val === registerForm.password
 }
 
 async function onLogin() {
-  if (code.value !== '123456') {
-    showToast('验证码错误（模拟：请输入123456）')
-    return
-  }
-
   loading.value = true
   try {
     const res = await post('/user/login', {
-      phone: phone.value,
-      code: code.value
+      phone: loginForm.phone,
+      password: loginForm.password
     })
     if (res.data && res.data.token) {
       setToken(res.data.token)
@@ -171,24 +208,45 @@ async function onLogin() {
       router.replace('/')
     } else {
       loading.value = false
-      showToast('登录失败')
+      showToast(res.message || '登录失败')
     }
   } catch (e) {
     loading.value = false
+    showToast(e.message || '登录失败')
   }
 }
 
-function wechatLogin() {
-  showToast('微信登录功能开发中')
-  setToken('mock_wechat_token_' + Date.now())
-  setUser({
-    id: 2,
-    nickname: '微信用户',
-    phone: '',
-    avatar: ''
-  })
-  showToast('微信登录成功')
-  setTimeout(() => router.replace('/'), 500)
+async function onRegister() {
+  if (registerForm.password !== registerForm.confirmPassword) {
+    showToast('两次输入的密码不一致')
+    return
+  }
+  if (registerForm.password.length < 6) {
+    showToast('密码长度不能少于6位')
+    return
+  }
+
+  loading.value = true
+  try {
+    const res = await post('/user/register', {
+      phone: registerForm.phone,
+      password: registerForm.password,
+      confirmPassword: registerForm.confirmPassword
+    })
+    if (res.data && res.data.token) {
+      setToken(res.data.token)
+      setUser(res.data.user)
+      loading.value = false
+      showToast('注册成功')
+      router.replace('/')
+    } else {
+      loading.value = false
+      showToast(res.message || '注册失败')
+    }
+  } catch (e) {
+    loading.value = false
+    showToast(e.message || '注册失败')
+  }
 }
 </script>
 
@@ -293,19 +351,40 @@ function wechatLogin() {
 }
 
 .card-header {
-  padding: 20px 20px 8px;
+  display: flex;
+  padding: 20px 20px 0;
+  gap: 24px;
 }
 
 .card-tab {
   font-size: 17px;
-  font-weight: 700;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding-bottom: 10px;
+  cursor: pointer;
+  position: relative;
+  transition: all var(--transition);
+}
+
+.card-tab.active {
   color: var(--text-color);
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--primary);
+  font-weight: 700;
+}
+
+.card-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
 }
 
 .login-form {
-  padding-top: 4px;
+  padding-top: 12px;
 }
 
 .login-form :deep(.van-cell-group--inset) {
@@ -333,14 +412,10 @@ function wechatLogin() {
   margin-right: 0;
 }
 
-.phone-field :deep(.van-field__body) {
-  border-bottom: 1px solid var(--border-color);
-}
-
 /* Actions */
 .login-actions {
   margin-top: 28px;
-  padding: 0 20px;
+  padding: 0 20px 28px;
 }
 
 .login-btn {
@@ -356,51 +431,6 @@ function wechatLogin() {
 
 .login-btn:active {
   transform: scale(0.98);
-}
-
-.divider-row {
-  display: flex;
-  align-items: center;
-  margin: 24px 0;
-  gap: 14px;
-}
-
-.divider-line {
-  flex: 1;
-  height: 1px;
-  background: var(--border-color);
-}
-
-.divider-text {
-  font-size: 12px;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.wechat-btn {
-  height: 46px;
-  font-size: 14px;
-  font-weight: 600;
-  background: var(--success-light) !important;
-  border: 1.5px solid var(--success) !important;
-  color: #16a34a !important;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all var(--transition);
-}
-
-.wechat-btn:active {
-  transform: scale(0.98);
-  background: #dcfce7 !important;
-}
-
-.send-code-btn {
-  border-radius: 20px !important;
-  font-size: 12px !important;
-  height: 32px !important;
-  font-weight: 500;
 }
 
 /* Tip & Footer */
