@@ -31,15 +31,17 @@ public class H5PracticeController {
     private WrongQuestionService wrongQuestionService;
 
     /**
-     * 提交练习答案
+     * 提交练习答案 - body: {chapterId, answers: [{questionId, answer}]}
      */
-    @PostMapping("/submit/{chapterId}")
+    @SuppressWarnings("unchecked")
+    @PostMapping("/submit")
     @ApiOperation("提交练习答案")
     public Result<Map<String, Object>> submitPractice(
-            @PathVariable Long chapterId,
-            @RequestBody List<Map<String, Object>> answers,
+            @RequestBody Map<String, Object> params,
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        Long chapterId = Long.valueOf(params.get("chapterId").toString());
+        List<Map<String, Object>> answers = (List<Map<String, Object>>) params.get("answers");
 
         List<Question> questions = questionService.lambdaQuery()
                 .eq(Question::getChapterId, chapterId)
@@ -65,7 +67,7 @@ public class H5PracticeController {
                 }
             }
 
-            if (userAnswer != null && userAnswer.equals(question.getAnswer())) {
+            if (userAnswer != null && userAnswer.equals(questionService.toIndexAnswer(question))) {
                 rightCount++;
                 totalScore += (question.getScore() != null ? question.getScore() : 1);
             } else {
@@ -107,6 +109,7 @@ public class H5PracticeController {
         List<Question> questions = questionService.lambdaQuery()
                 .eq(Question::getChapterId, chapterId)
                 .list();
+        questionService.enrichForDisplay(questions);
         questions.forEach(q -> q.setAnswer(null));
         return Result.ok(questions);
     }

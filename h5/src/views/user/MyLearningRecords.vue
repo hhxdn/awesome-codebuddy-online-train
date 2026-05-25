@@ -1,15 +1,17 @@
 <template>
   <div class="my-learning-records-page">
-    <van-nav-bar title="学习记录" left-text="返回" left-arrow @click-left="$router.back()" />
+    <van-nav-bar title="学习记录" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <div v-for="course in courseList" :key="course.id" class="learning-card" @click="goDetail(course)">
-        <h4>{{ course.courseTitle }}</h4>
-        <van-progress :percentage="course.progress || 0" stroke-color="#1989fa" style="margin: 12px 0;" />
+        <div class="learning-header">
+          <h4>{{ course.courseTitle }}</h4>
+          <span class="progress-badge">{{ course.progress || 0 }}%</span>
+        </div>
+        <van-progress :percentage="course.progress || 0" stroke-color="var(--primary)" :show-pivot="false" />
         <div class="learning-stats">
-          <span>进度 {{ course.progress || 0 }}%</span>
-          <span>已学 {{ course.studiedChapters || 0 }}/{{ course.totalChapters || 0 }} 节</span>
-          <span>总时长 {{ course.totalDuration || 0 }}分钟</span>
+          <span><van-icon name="bookmark-o" size="12" /> 已学 {{ course.studiedChapters || 0 }}/{{ course.totalChapters || 0 }} 节</span>
+          <span><van-icon name="clock-o" size="12" /> {{ course.totalDuration || 0 }}分钟</span>
         </div>
       </div>
     </van-pull-refresh>
@@ -62,21 +64,50 @@ onMounted(() => {
 
 .learning-card {
   background: #fff;
-  margin: 12px;
+  margin: 10px 12px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  transition: transform 0.15s;
 }
 
-.learning-card h4 {
+.learning-card:active {
+  transform: scale(0.98);
+}
+
+.learning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.learning-header h4 {
   font-size: 15px;
-  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.progress-badge {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  background: #e8f4ff;
+  padding: 4px 10px;
+  border-radius: 10px;
 }
 
 .learning-stats {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  margin-top: 10px;
+}
+
+.learning-stats span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

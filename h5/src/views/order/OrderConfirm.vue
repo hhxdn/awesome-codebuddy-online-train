@@ -4,7 +4,11 @@
 
     <!-- Course Info -->
     <div class="course-info-card" v-if="course.title">
-      <van-image :src="course.cover" width="80" height="60" fit="cover" round />
+      <van-image :src="course.cover" width="80" height="56" fit="cover" radius="8">
+        <template #error>
+          <div class="cover-placeholder">{{ course.title?.charAt(0) }}</div>
+        </template>
+      </van-image>
       <div class="course-detail">
         <h4>{{ course.title }}</h4>
         <span class="course-price">¥{{ course.price }}</span>
@@ -12,29 +16,33 @@
     </div>
 
     <!-- Amount -->
-    <van-cell-group inset title="支付信息">
+    <van-cell-group inset style="margin-top: 12px;">
       <van-cell title="课程价格" :value="'¥' + (course.price || 0)" />
       <van-cell title="优惠" value="¥0" />
       <van-cell title="实付金额" class="total-amount">
         <template #value>
-          <span class="price">¥{{ course.price || 0 }}</span>
+          <span class="total-price">¥{{ course.price || 0 }}</span>
         </template>
       </van-cell>
     </van-cell-group>
 
     <!-- Payment Method -->
-    <van-cell-group inset title="支付方式" style="margin-top: 16px;">
-      <van-cell title="微信支付" clickable @click="payMethod = 'wechat'">
+    <van-cell-group inset title="支付方式" style="margin-top: 12px;">
+      <van-cell title="微信支付" clickable @click="payMethod = 'wechat'" center>
         <template #icon>
-          <div class="pay-icon wechat">微</div>
+          <div class="pay-icon wechat">
+            <van-icon name="wechat" size="18" color="#fff" />
+          </div>
         </template>
         <template #right-icon>
           <van-radio :name="'wechat'" v-model="payMethod" />
         </template>
       </van-cell>
-      <van-cell title="支付宝" clickable @click="payMethod = 'alipay'">
+      <van-cell title="支付宝" clickable @click="payMethod = 'alipay'" center>
         <template #icon>
-          <div class="pay-icon alipay">支</div>
+          <div class="pay-icon alipay">
+            <span style="font-size:14px;font-weight:700;">支</span>
+          </div>
         </template>
         <template #right-icon>
           <van-radio :name="'alipay'" v-model="payMethod" />
@@ -44,7 +52,7 @@
 
     <!-- Pay Button -->
     <div class="pay-action">
-      <van-button type="primary" block round size="large" :loading="paying" @click="pay">
+      <van-button type="primary" block round size="large" :loading="paying" @click="pay" class="pay-btn">
         确认支付 ¥{{ course.price || 0 }}
       </van-button>
     </div>
@@ -83,7 +91,6 @@ async function pay() {
       router.replace('/course/' + courseId)
     }, 1000)
   } catch (e) {
-    // Mock payment
     showToast('支付成功（模拟）')
     setTimeout(() => {
       router.replace('/course/' + courseId)
@@ -105,12 +112,30 @@ onMounted(() => {
 
 .course-info-card {
   background: #fff;
-  margin: 12px;
+  margin: 10px 12px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
   display: flex;
   gap: 12px;
   align-items: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cover-placeholder {
+  width: 80px;
+  height: 56px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+.course-detail {
+  flex: 1;
 }
 
 .course-detail h4 {
@@ -124,8 +149,12 @@ onMounted(() => {
   color: var(--danger);
 }
 
-.total-amount .price {
-  font-size: 20px !important;
+.total-amount :deep(.van-cell__value) {
+  font-weight: 700;
+}
+
+.total-price {
+  font-size: 20px;
   font-weight: 700;
   color: var(--danger);
 }
@@ -137,21 +166,21 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
   margin-right: 12px;
+  flex-shrink: 0;
 }
 
-.pay-icon.wechat {
-  background: #07c160;
-}
-
-.pay-icon.alipay {
-  background: #1677ff;
-}
+.pay-icon.wechat { background: #07c160; }
+.pay-icon.alipay { background: #1677ff; color: #fff; }
 
 .pay-action {
   padding: 24px 16px;
+}
+
+.pay-btn {
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(79, 110, 247, 0.4);
 }
 </style>

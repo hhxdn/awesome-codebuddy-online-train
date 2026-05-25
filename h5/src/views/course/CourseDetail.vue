@@ -1,30 +1,39 @@
 <template>
   <div class="course-detail-page">
-    <van-nav-bar title="课程详情" left-text="返回" left-arrow @click-left="$router.back()" />
-
     <!-- Course Banner -->
-    <van-image :src="course.cover || ''" width="100%" height="200" fit="cover">
-      <template #error>
-        <div class="cover-placeholder">课程封面</div>
-      </template>
-    </van-image>
-
-    <!-- Course Info -->
-    <div class="course-info">
-      <h2 class="course-title">{{ course.title }}</h2>
-      <div class="course-meta">
-        <span class="price" v-if="(course.price || 0) === 0">免费</span>
-        <span class="price" v-else>¥{{ course.price }}</span>
-        <van-tag type="primary" size="medium">{{ course.categoryName }}</van-tag>
-        <span class="student-count">{{ course.studentCount || 0 }}人已学</span>
+    <div class="course-banner">
+      <van-nav-bar
+        title="课程详情"
+        left-text="返回"
+        left-arrow
+        @click-left="$router.back()"
+        :style="{ backgroundColor: 'transparent' }"
+      >
+        <template #title>
+          <span style="color: #fff; font-weight: 600;">课程详情</span>
+        </template>
+        <template #left>
+          <van-icon name="arrow-left" size="20" color="#fff" @click="$router.back()" />
+        </template>
+      </van-nav-bar>
+      <div class="banner-content">
+        <h1 class="banner-title">{{ course.title }}</h1>
+        <div class="banner-meta">
+          <span class="banner-tag" :class="(course.price || 0) === 0 ? 'free' : 'paid'">
+            {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
+          </span>
+          <span class="banner-cat">{{ course.categoryName }}</span>
+          <span class="banner-count">
+            <van-icon name="friends-o" size="14" />
+            {{ course.studentCount || 0 }}人已学
+          </span>
+        </div>
       </div>
     </div>
 
-    <van-divider />
-
     <!-- Course Description -->
-    <div class="course-desc">
-      <h3>课程介绍</h3>
+    <div class="section-card">
+      <div class="section-title">课程介绍</div>
       <div class="desc-content" :class="{ expanded: descExpanded }">
         {{ course.description || '暂无介绍' }}
       </div>
@@ -36,62 +45,69 @@
         @click="descExpanded = !descExpanded"
         class="toggle-desc"
       >
-        {{ descExpanded ? '收起' : '展开' }}
+        {{ descExpanded ? '收起' : '展开全部' }}
       </van-button>
     </div>
 
     <!-- Chapter List -->
-    <van-divider>课程目录</van-divider>
-    <div class="chapter-list" v-if="chapters.length > 0">
-      <van-cell
-        v-for="chapter in chapters"
-        :key="chapter.id"
-        :title="chapter.title"
-        :label="chapter.duration || '视频'"
-        @click="goChapter(chapter)"
-      >
-        <template #icon>
-          <van-icon
-            v-if="isPaid && !purchased"
-            name="lock"
-            color="#c8c9cc"
-            style="margin-right: 8px;"
-          />
-          <van-icon
-            v-else-if="chapter.completed"
-            name="success"
-            color="#07c160"
-            style="margin-right: 8px;"
-          />
-          <van-icon
-            v-else
-            name="play-circle-o"
-            color="#1989fa"
-            style="margin-right: 8px;"
-          />
-        </template>
-        <template #right-icon>
-          <van-button size="small" type="primary" plain @click.stop="goPractice(chapter)">
-            练习
-          </van-button>
-        </template>
-      </van-cell>
+    <div class="section-card">
+      <div class="section-title">课程目录 ({{ chapters.length }}节)</div>
+      <div class="chapter-list" v-if="chapters.length > 0">
+        <div
+          v-for="(chapter, index) in chapters"
+          :key="chapter.id"
+          class="chapter-item"
+          @click="goChapter(chapter)"
+        >
+          <div class="chapter-index">{{ index + 1 }}</div>
+          <div class="chapter-info">
+            <div class="chapter-title text-ellipsis-2">{{ chapter.title }}</div>
+            <div class="chapter-meta">
+              <span class="chapter-duration">
+                <van-icon name="clock-o" size="12" /> {{ chapter.duration || '视频' }}
+              </span>
+              <span v-if="chapter.completed" class="chapter-done">
+                <van-icon name="success" size="12" color="var(--success)" /> 已完成
+              </span>
+            </div>
+          </div>
+          <div class="chapter-actions">
+            <van-button
+              v-if="!isPaid || purchased"
+              size="small"
+              round
+              plain
+              type="primary"
+              @click.stop="goPractice(chapter)"
+            >
+              练习
+            </van-button>
+            <van-icon v-else name="lock" color="#c8c9cc" />
+          </div>
+        </div>
+      </div>
+      <EmptyState v-else description="暂无章节" />
     </div>
-    <EmptyState v-else description="暂无章节" />
 
     <!-- Bottom Bar -->
     <div class="bottom-bar safe-bottom">
       <template v-if="(course.price || 0) === 0">
-        <van-button type="primary" block round @click="startLearn">开始学习</van-button>
+        <van-button type="primary" block round @click="startLearn" size="large">
+          开始学习
+        </van-button>
       </template>
       <template v-else-if="!purchased">
         <div class="bottom-info">
-          <span class="price">¥{{ course.price }}</span>
+          <span class="bottom-price">¥{{ course.price }}</span>
         </div>
-        <van-button type="primary" round @click="buyNow">立即购买</van-button>
+        <van-button type="primary" round size="large" @click="buyNow">
+          立即购买
+        </van-button>
       </template>
       <template v-else>
-        <van-button type="primary" block round @click="startLearn">继续学习</van-button>
+        <van-button type="primary" block round @click="startLearn" size="large">
+          继续学习
+        </van-button>
       </template>
     </div>
   </div>
@@ -119,7 +135,6 @@ async function fetchDetail() {
     if (res.data) course.value = res.data
     isPaid.value = (course.value.price || 0) > 0
   } catch (e) {
-    // Mock
     course.value = {
       id: courseId,
       title: 'Spring Boot 实战教程',
@@ -127,7 +142,7 @@ async function fetchDetail() {
       price: 0,
       categoryName: 'Java开发',
       studentCount: 1234,
-      description: '本课程从零开始，系统讲解Spring Boot框架的核心特性和实战应用，包括自动配置、起步依赖、Actuator监控、配置文件、日志管理、数据访问、安全控制、缓存、消息队列、定时任务等核心模块。'
+      description: '本课程从零开始，系统讲解Spring Boot框架的核心特性和实战应用。'
     }
   }
 
@@ -190,55 +205,77 @@ onMounted(() => {
   padding-bottom: 70px;
 }
 
-.cover-placeholder {
-  width: 100%;
-  height: 200px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #fff;
-  font-size: 18px;
+.course-banner {
+  background: linear-gradient(160deg, var(--primary-dark), var(--primary), var(--primary-light));
+  padding-bottom: 24px;
+  position: relative;
 }
 
-.course-info {
-  background: #fff;
-  padding: 16px;
+.banner-content {
+  padding: 8px 20px 0;
 }
 
-.course-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  line-height: 1.4;
-}
-
-.course-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.price {
+.banner-title {
   font-size: 20px;
   font-weight: 700;
-  color: var(--danger);
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 12px;
 }
 
-.student-count {
-  color: var(--text-secondary);
+.banner-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.banner-tag {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  padding: 3px 12px;
+  border-radius: 12px;
+}
+
+.banner-tag.free {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.banner-tag.paid {
+  background: rgba(239, 68, 68, 0.3);
+}
+
+.banner-cat {
   font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.15);
+  padding: 3px 10px;
+  border-radius: 10px;
 }
 
-.course-desc {
+.banner-count {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.section-card {
   background: #fff;
+  border-radius: 12px;
+  margin: 10px 12px;
   padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.course-desc h3 {
+.section-title {
   font-size: 16px;
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  padding-left: 10px;
+  border-left: 3px solid var(--primary);
 }
 
 .desc-content {
@@ -246,7 +283,7 @@ onMounted(() => {
   color: #666;
   line-height: 1.7;
   overflow: hidden;
-  max-height: 100px;
+  max-height: 88px;
   transition: max-height 0.3s;
 }
 
@@ -255,11 +292,86 @@ onMounted(() => {
 }
 
 .toggle-desc {
-  margin-top: 8px;
+  margin-top: 10px;
+  border-radius: 20px;
 }
 
 .chapter-list {
-  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.chapter-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.chapter-item:last-child {
+  border-bottom: none;
+}
+
+.chapter-item:active {
+  background: var(--bg-color);
+  margin: 0 -16px;
+  padding: 14px 16px;
+  border-radius: 8px;
+}
+
+.chapter-index {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #e8f4ff;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.chapter-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapter-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.chapter-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chapter-duration {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.chapter-done {
+  font-size: 12px;
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.chapter-actions {
+  flex-shrink: 0;
 }
 
 .bottom-bar {
@@ -274,11 +386,25 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 12px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.06);
   z-index: 100;
 }
 
 .bottom-info {
   flex: 1;
+}
+
+.bottom-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+:deep(.van-nav-bar) {
+  background: transparent !important;
+}
+
+:deep(.van-nav-bar .van-icon) {
+  color: #fff !important;
 }
 </style>

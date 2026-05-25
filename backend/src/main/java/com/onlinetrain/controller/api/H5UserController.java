@@ -1,10 +1,8 @@
 package com.onlinetrain.controller.api;
 
 import com.onlinetrain.common.Result;
-import com.onlinetrain.entity.LearningRecord;
-import com.onlinetrain.entity.User;
-import com.onlinetrain.service.LearningRecordService;
-import com.onlinetrain.service.UserService;
+import com.onlinetrain.entity.*;
+import com.onlinetrain.service.*;
 import com.onlinetrain.utils.JwtUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -15,8 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * H5用户控制器
@@ -32,6 +30,12 @@ public class H5UserController {
 
     @Autowired
     private LearningRecordService learningRecordService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private CourseService courseService;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -50,12 +54,10 @@ public class H5UserController {
         if (phone == null || phone.isEmpty()) {
             return Result.error("手机号不能为空");
         }
-        // 模拟验证码 123456
         if (!"123456".equals(code)) {
             return Result.error("验证码错误");
         }
 
-        // 查找或创建用户
         User user = userService.lambdaQuery().eq(User::getPhone, phone).one();
         if (user == null) {
             user = new User();
@@ -139,27 +141,22 @@ public class H5UserController {
         if (user == null) {
             return Result.notFound("用户不存在");
         }
-        if (updateUser.getNickname() != null) {
-            user.setNickname(updateUser.getNickname());
-        }
-        if (updateUser.getAvatar() != null) {
-            user.setAvatar(updateUser.getAvatar());
-        }
+        if (updateUser.getNickname() != null) user.setNickname(updateUser.getNickname());
+        if (updateUser.getAvatar() != null) user.setAvatar(updateUser.getAvatar());
         userService.updateById(user);
         user.setPassword(null);
         return Result.ok(user);
     }
 
     /**
-     * 学习数据统计
+     * 学习数据统计（同时支持 /study-data 和 /stats）
      */
-    @GetMapping("/study-data")
+    @GetMapping({"/study-data", "/stats"})
     @ApiOperation("学习数据统计")
     public Result<Map<String, Object>> studyData(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         User user = userService.getById(userId);
 
-        // 统计学习记录数
         long totalRecords = learningRecordService.lambdaQuery()
                 .eq(LearningRecord::getUserId, userId)
                 .count();
@@ -174,5 +171,65 @@ public class H5UserController {
         data.put("finishedRecords", finishedRecords);
 
         return Result.ok(data);
+    }
+
+    /**
+     * 我的课程列表（已购买或免费的）
+     */
+    @GetMapping("/courses")
+    @ApiOperation("我的课程")
+    public Result<List<Map<String, Object>>> myCourses(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 查询已支付的订单
+        List<Order> paidOrders = orderService.lambdaQuery()
+                .eq(Order::getUserId, userId)
+                .eq(Order::getStatus, "PAID")
+                .list();
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        Set<Long> addedCourseIds = new HashSet<>();
+
+        for (Order order : paidOrders) {
+            if (addedCourseIds.contains(order.getCourseId())) continue;
+            Course course = courseService.getById(order.getCourseId());
+            if (course != null) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", course.getId());
+                item.put("title", course.getTitle());
+                item.put("coverUrl", course.getCover());
+                item.put("price", course.getPrice());
+
+                // 学习进度
+                long finishedChapters = learningRecordService.lambdaQuery()
+                        .eq(LearningRecord::getUserId, userId)
+                        .eq(LearningRecord::getCourseId, course.getId())
+                        .eq(LearningRecord::getIsFinished, 1)
+                        .count();
+                item.put("finishedChapters", finishedChapters);
+
+                result.add(item);
+                addedCourseIds.add(order.getCourseId());
+            }
+        }
+
+        // 也包含免费课程
+        List<Course> freeCourses = courseService.lambdaQuery()
+                .and(w -> w.isNull(Course::getPrice).or().eq(Course::getPrice, java.math.BigDecimal.ZERO))
+                .eq(Course::getStatus, "UP")
+                .list();
+        for (Course course : freeCourses) {
+            if (addedCourseIds.contains(course.getId())) continue;
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", course.getId());
+            item.put("title", course.getTitle());
+            item.put("coverUrl", course.getCover());
+            item.put("price", course.getPrice());
+            item.put("finishedChapters", 0);
+            result.add(item);
+            addedCourseIds.add(course.getId());
+        }
+
+        return Result.ok(result);
     }
 }

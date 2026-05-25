@@ -12,8 +12,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/admin/courses")
+@RequestMapping("/api/admin")
 @Api(tags = "管理端-课程管理")
 public class AdminCourseController {
 
@@ -23,7 +25,7 @@ public class AdminCourseController {
     @Autowired
     private ChapterService chapterService;
 
-    @GetMapping
+    @GetMapping("/courses")
     @ApiOperation("课程列表")
     public Result<PageResult<Course>> list(
             @RequestParam(required = false) Long categoryId,
@@ -44,16 +46,24 @@ public class AdminCourseController {
         return Result.ok(PageResult.of(courseService.page(pageParam, wrapper)));
     }
 
-    @PostMapping
+    @GetMapping("/courses/{id}")
+    @ApiOperation("课程详情")
+    public Result<Course> detail(@PathVariable Long id) {
+        Course course = courseService.getById(id);
+        if (course == null) return Result.notFound("课程不存在");
+        return Result.ok(course);
+    }
+
+    @PostMapping("/courses")
     @ApiOperation("创建课程")
     public Result<Course> create(@RequestBody Course course) {
         course.setStudentCount(0);
-        course.setStatus("UP");
+        if (course.getStatus() == null) course.setStatus("UP");
         courseService.save(course);
         return Result.ok(course);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/courses/{id}")
     @ApiOperation("更新课程")
     public Result<Course> update(@PathVariable Long id, @RequestBody Course course) {
         course.setId(id);
@@ -61,25 +71,25 @@ public class AdminCourseController {
         return Result.ok(course);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/courses/{id}")
     @ApiOperation("删除课程")
     public Result<Void> delete(@PathVariable Long id) {
         courseService.removeById(id);
         return Result.ok();
     }
 
-    @PutMapping("/{id}/status")
-    @ApiOperation("切换课程状态")
-    public Result<Void> toggleStatus(@PathVariable Long id, @RequestParam String status) {
+    @PutMapping("/courses/{id}/status")
+    @ApiOperation("切换课程状态 - body: {status}")
+    public Result<Void> toggleStatus(@PathVariable Long id, @RequestBody Map<String, Object> params) {
         Course course = courseService.getById(id);
-        if (course != null) {
-            course.setStatus(status);
+        if (course != null && params.get("status") != null) {
+            course.setStatus(params.get("status").toString());
             courseService.updateById(course);
         }
         return Result.ok();
     }
 
-    @PostMapping("/{id}/chapters")
+    @PostMapping("/courses/{id}/chapters")
     @ApiOperation("添加章节")
     public Result<Chapter> addChapter(@PathVariable Long id, @RequestBody Chapter chapter) {
         chapter.setCourseId(id);
@@ -87,7 +97,7 @@ public class AdminCourseController {
         return Result.ok(chapter);
     }
 
-    @PutMapping("/{id}/chapters/{chapterId}")
+    @PutMapping("/courses/{id}/chapters/{chapterId}")
     @ApiOperation("更新章节")
     public Result<Chapter> updateChapter(@PathVariable Long id, @PathVariable Long chapterId, @RequestBody Chapter chapter) {
         chapter.setId(chapterId);
@@ -96,7 +106,7 @@ public class AdminCourseController {
         return Result.ok(chapter);
     }
 
-    @DeleteMapping("/{id}/chapters/{chapterId}")
+    @DeleteMapping("/courses/{id}/chapters/{chapterId}")
     @ApiOperation("删除章节")
     public Result<Void> deleteChapter(@PathVariable Long id, @PathVariable Long chapterId) {
         chapterService.removeById(chapterId);

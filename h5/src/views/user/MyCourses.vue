@@ -1,21 +1,26 @@
 <template>
   <div class="my-courses-page">
-    <van-nav-bar title="我的课程" left-text="返回" left-arrow @click-left="$router.back()" />
+    <van-nav-bar title="我的课程" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-      <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多课程">
+      <van-list v-model:loading="loading" :finished="finished" finished-text="— 没有更多课程 —">
         <div v-for="course in courseList" :key="course.id" class="course-item" @click="goDetail(course)">
-          <van-image :src="course.cover" width="120" height="80" fit="cover" round />
+          <van-image :src="course.cover" width="100" height="66" fit="cover" radius="8">
+            <template #error>
+              <div class="cover-placeholder">{{ course.title?.charAt(0) }}</div>
+            </template>
+          </van-image>
           <div class="course-info">
-            <h4>{{ course.title }}</h4>
-            <van-progress :percentage="course.progress || 0" stroke-color="#1989fa" />
+            <h4 class="text-ellipsis-2">{{ course.title }}</h4>
+            <van-progress :percentage="course.progress || 0" stroke-color="var(--primary)" :show-pivot="false" />
             <span class="progress-text">已学{{ course.progress || 0 }}% · {{ course.studiedChapters || 0 }}/{{ course.totalChapters || 0 }}节</span>
           </div>
+          <van-icon name="arrow" size="16" color="var(--text-muted)" />
         </div>
       </van-list>
     </van-pull-refresh>
 
-    <EmptyState v-if="!loading && courseList.length === 0" description="还没有购买课程" />
+    <EmptyState v-if="!loading && courseList.length === 0" description="还没有购买课程，去逛逛吧" />
   </div>
 </template>
 
@@ -68,29 +73,49 @@ onMounted(() => {
 
 .course-item {
   background: #fff;
-  margin: 12px;
-  padding: 12px;
-  border-radius: 8px;
+  margin: 10px 12px;
+  padding: 14px;
+  border-radius: 12px;
   display: flex;
   gap: 12px;
+  align-items: center;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.15s;
+}
+
+.course-item:active {
+  transform: scale(0.98);
+}
+
+.cover-placeholder {
+  width: 100px;
+  height: 66px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 22px;
+  font-weight: 700;
+  border-radius: 8px;
 }
 
 .course-info {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  min-width: 0;
 }
 
 .course-info h4 {
-  font-size: 15px;
+  font-size: 14px;
   margin-bottom: 8px;
+  color: var(--text-color);
 }
 
 .progress-text {
   font-size: 12px;
-  color: var(--text-secondary);
-  margin-top: 4px;
+  color: var(--text-muted);
+  margin-top: 6px;
+  display: block;
 }
 </style>

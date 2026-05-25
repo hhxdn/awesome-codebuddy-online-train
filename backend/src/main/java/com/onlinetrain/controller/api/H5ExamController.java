@@ -17,10 +17,10 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 /**
- * H5考试控制器
+ * H5考试控制器 - 支持 /api/exam 和 /api/exams 两种路径
  */
 @RestController
-@RequestMapping("/api/exam")
+@RequestMapping("/api")
 @Api(tags = "H5-考试接口")
 public class H5ExamController {
 
@@ -34,31 +34,79 @@ public class H5ExamController {
     private ExamAnswerService examAnswerService;
 
     @Autowired
-    private QuestionService questionService;
+    private ExamPaperQuestionService examPaperQuestionService;
 
     @Autowired
-    private QuestionOptionService questionOptionService;
+    private QuestionService questionService;
 
     /**
-     * 课程可用的试卷列表
+     * 试卷列表（支持指定课程筛选）
      */
-    @GetMapping("/papers/{courseId}")
+    @GetMapping("/exams")
     @ApiOperation("试卷列表")
-    public Result<List<ExamPaper>> papers(@PathVariable Long courseId) {
-        List<ExamPaper> papers = examPaperService.lambdaQuery()
-                .eq(ExamPaper::getCourseId, courseId)
-                .eq(ExamPaper::getStatus, "PUBLISHED")
-                .list();
-        return Result.ok(papers);
+    public Result<List<Map<String, Object>>> listExams(
+            @RequestParam(required = false) Long courseId) {
+        List<ExamPaper> papers;
+        if (courseId != null) {
+            papers = examPaperService.lambdaQuery()
+                    .eq(ExamPaper::getCourseId, courseId)
+                    .eq(ExamPaper::getStatus, "PUBLISHED")
+                    .list();
+        } else {
+            papers = examPaperService.lambdaQuery()
+                    .eq(ExamPaper::getStatus, "PUBLISHED")
+                    .list();
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (ExamPaper paper : papers) {
+            long qCount = examPaperQuestionService.lambdaQuery()
+                    .eq(ExamPaperQuestion::getExamPaperId, paper.getId())
+                    .count();
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", paper.getId());
+            item.put("name", paper.getTitle());
+            item.put("duration", paper.getDurationMinutes());
+            item.put("totalScore", paper.getTotalScore());
+            item.put("passScore", paper.getPassScore());
+            item.put("questionCount", qCount);
+            result.add(item);
+        }
+        return Result.ok(result);
     }
 
     /**
-     * 开始考试
+     * 试卷详情
      */
-    @PostMapping("/start/{paperId}")
+    @GetMapping("/exams/{paperId}")
+    @ApiOperation("试卷详情")
+    public Result<Map<String, Object>> examDetail(@PathVariable Long paperId) {
+        ExamPaper paper = examPaperService.getById(paperId);
+        if (paper == null) return Result.notFound("试卷不存在");
+
+        long qCount = examPaperQuestionService.lambdaQuery()
+                .eq(ExamPaperQuestion::getExamPaperId, paperId)
+                .count();
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", paper.getId());
+        result.put("name", paper.getTitle());
+        result.put("duration", paper.getDurationMinutes());
+        result.put("totalScore", paper.getTotalScore());
+        result.put("passScore", paper.getPassScore());
+        result.put("questionCount", qCount);
+        return Result.ok(result);
+    }
+
+    /**
+     * 开始考试 - body: {paperId}
+     */
+    @SuppressWarnings("unchecked")
+    @PostMapping("/exam/start")
     @ApiOperation("开始考试")
-    public Result<Map<String, Object>> startExam(@PathVariable Long paperId, HttpServletRequest request) {
+    public Result<Map<String, Object>> startExam(@RequestBody Map<String, Object> params, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        Long paperId = Long.valueOf(params.get("paperId").toString());
 
         ExamPaper paper = examPaperService.getById(paperId);
         if (paper == null || !"PUBLISHED".equals(paper.getStatus())) {
@@ -81,7 +129,6 @@ public class H5ExamController {
                 .eq(ExamRecord::getStatus, "DOING")
                 .one();
         if (doingRecord != null) {
-            // 返回进行中的考试
             List<ExamAnswer> answers = examAnswerService.lambdaQuery()
                     .eq(ExamAnswer::getExamRecordId, doingRecord.getId())
                     .list();
@@ -90,11 +137,12 @@ public class H5ExamController {
             for (ExamAnswer answer : answers) {
                 Question q = questionService.getById(answer.getQuestionId());
                 if (q != null) {
-                    q.setAnswer(null);
                     q.setAnalysis(null);
                     questions.add(q);
                 }
             }
+            questionService.enrichForDisplay(questions);
+            questions.forEach(q -> q.setAnswer(null));
 
             Map<String, Object> result = new HashMap<>();
             result.put("recordId", doingRecord.getId());
@@ -119,9 +167,12 @@ public class H5ExamController {
         // 获取试卷题目
         List<Question> questions = questionService.getExamPaperQuestions(paperId);
         questions.forEach(q -> {
-            q.setAnswer(null);
             q.setAnalysis(null);
         });
+        // 加载选项并转换答案为索引格式
+        questionService.enrichForDisplay(questions);
+        // 考试中清除正确答案
+        questions.forEach(q -> q.setAnswer(null));
 
         // 创建答题记录
         List<ExamAnswer> answers = new ArrayList<>();
@@ -144,15 +195,17 @@ public class H5ExamController {
     }
 
     /**
-     * 提交考试
+     * 提交考试 - body: {recordId, answers: [{questionId, answer}], cheatCount?}
      */
-    @PostMapping("/submit/{recordId}")
+    @SuppressWarnings("unchecked")
+    @PostMapping("/exam/submit")
     @ApiOperation("提交考试")
     public Result<Map<String, Object>> submitExam(
-            @PathVariable Long recordId,
-            @RequestBody List<Map<String, Object>> userAnswers,
+            @RequestBody Map<String, Object> params,
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
+        Long recordId = Long.valueOf(params.get("recordId").toString());
+        List<Map<String, Object>> userAnswers = (List<Map<String, Object>>) params.get("answers");
 
         ExamRecord record = examRecordService.getById(recordId);
         if (record == null || !record.getUserId().equals(userId)) {
@@ -186,7 +239,8 @@ public class H5ExamController {
             }
 
             answer.setUserAnswer(userAnswer);
-            if (userAnswer != null && userAnswer.equals(question.getAnswer())) {
+            String correctIndex = questionService.toIndexAnswer(question);
+            if (userAnswer != null && userAnswer.equals(correctIndex)) {
                 answer.setIsCorrect(1);
                 answer.setScore(question.getScore() != null ? question.getScore() : 1);
                 rightCount++;
@@ -215,11 +269,38 @@ public class H5ExamController {
     }
 
     /**
-     * 我的考试记录
+     * 获取考试题目的问题列表
      */
-    @GetMapping("/records")
+    @GetMapping("/exam/records/{recordId}/questions")
+    @ApiOperation("获取考试题目")
+    public Result<Map<String, Object>> recordQuestions(@PathVariable Long recordId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        ExamRecord record = examRecordService.getById(recordId);
+        if (record == null || !record.getUserId().equals(userId)) {
+            throw new BusinessException("考试记录不存在");
+        }
+
+        ExamPaper paper = examPaperService.getById(record.getExamPaperId());
+        List<Question> questions = questionService.getExamPaperQuestions(record.getExamPaperId());
+        questions.forEach(q -> {
+            q.setAnalysis(null);
+        });
+        questionService.enrichForDisplay(questions);
+        questions.forEach(q -> q.setAnswer(null));
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("questions", questions);
+        result.put("duration", paper != null ? paper.getDurationMinutes() * 60 : 3600);
+        return Result.ok(result);
+    }
+
+    /**
+     * 我的考试记录（同时支持 /exam/records 和 /user/exam-records）
+     */
+    @GetMapping({"/exam/records", "/user/exam-records"})
     @ApiOperation("我的考试记录")
-    public Result<PageResult<ExamRecord>> myRecords(
+    public Result<PageResult<Map<String, Object>>> myRecords(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,
             HttpServletRequest request) {
@@ -232,13 +313,34 @@ public class H5ExamController {
                 .orderByDesc(ExamRecord::getCreateTime);
 
         Page<ExamRecord> result = examRecordService.page(pageParam, wrapper);
-        return Result.ok(PageResult.of(result));
+
+        // 转换为前端期望的格式（包含 paperName 等）
+        List<Map<String, Object>> records = new ArrayList<>();
+        for (ExamRecord r : result.getRecords()) {
+            ExamPaper paper = examPaperService.getById(r.getExamPaperId());
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", r.getId());
+            item.put("paperName", paper != null ? paper.getTitle() : "");
+            item.put("score", r.getScore());
+            item.put("totalScore", paper != null ? paper.getTotalScore() : 100);
+            item.put("passed", r.getIsPass() == 1);
+            item.put("duration", 0);
+            item.put("createTime", r.getCreateTime() != null ? r.getCreateTime().toString() : "");
+            records.add(item);
+        }
+
+        PageResult<Map<String, Object>> pageResult = new PageResult<>();
+        pageResult.setRecords(records);
+        pageResult.setTotal(result.getTotal());
+        pageResult.setCurrent(result.getCurrent());
+        pageResult.setSize(result.getSize());
+        return Result.ok(pageResult);
     }
 
     /**
      * 考试记录详情
      */
-    @GetMapping("/records/{id}")
+    @GetMapping("/exam/records/{id}")
     @ApiOperation("考试记录详情")
     public Result<Map<String, Object>> recordDetail(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
@@ -266,11 +368,28 @@ public class H5ExamController {
             answerDetails.add(detail);
         }
 
+        // 为回顾模式加载选项和正确答案（索引格式）
+        List<Question> reviewQuestions = new ArrayList<>();
+        for (Map<String, Object> d : answerDetails) {
+            Question q = (Question) d.get("question");
+            if (q != null) reviewQuestions.add(q);
+        }
+        questionService.enrichForDisplay(reviewQuestions);
+
         Map<String, Object> result = new HashMap<>();
         result.put("record", record);
         result.put("paper", paper);
         result.put("answers", answerDetails);
 
         return Result.ok(result);
+    }
+
+    /**
+     * 课程下试卷列表（兼容旧路径，供 H5CourseController 调用）
+     */
+    @GetMapping("/courses/{courseId}/exams")
+    @ApiOperation("课程试卷列表")
+    public Result<List<Map<String, Object>>> courseExams(@PathVariable Long courseId) {
+        return listExams(courseId);
     }
 }

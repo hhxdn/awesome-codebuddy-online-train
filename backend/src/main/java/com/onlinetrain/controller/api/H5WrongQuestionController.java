@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * H5错题控制器
+ * H5错题控制器 - 支持 /wrong-questions 和 /user/wrong-questions 路径
  */
 @RestController
-@RequestMapping("/api/wrong-questions")
+@RequestMapping("/api")
 @Api(tags = "H5-错题接口")
 public class H5WrongQuestionController {
 
@@ -33,9 +33,9 @@ public class H5WrongQuestionController {
     private QuestionService questionService;
 
     /**
-     * 我的错题列表
+     * 我的错题列表（支持 /wrong-questions 和 /user/wrong-questions）
      */
-    @GetMapping
+    @GetMapping({"/wrong-questions", "/user/wrong-questions"})
     @ApiOperation("我的错题列表")
     public Result<PageResult<Map<String, Object>>> list(
             @RequestParam(defaultValue = "1") Integer page,
@@ -69,14 +69,13 @@ public class H5WrongQuestionController {
 
         PageResult<Map<String, Object>> result = PageResult.of(
                 records, wqPage.getTotal(), wqPage.getCurrent(), wqPage.getSize());
-
         return Result.ok(result);
     }
 
     /**
      * 移除单个错题
      */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/wrong-questions/{id}")
     @ApiOperation("移除错题")
     public Result<Void> remove(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
@@ -88,9 +87,9 @@ public class H5WrongQuestionController {
     }
 
     /**
-     * 清空所有错题
+     * 清空所有错题（支持 /wrong-questions/clear 和 /user/wrong-questions）
      */
-    @DeleteMapping("/clear")
+    @DeleteMapping({"/wrong-questions/clear", "/user/wrong-questions"})
     @ApiOperation("清空错题")
     public Result<Void> clearAll(HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");

@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 管理端-题库管理控制器
  */
 @RestController
-@RequestMapping("/api/admin/questions")
+@RequestMapping("/api/admin")
 @Api(tags = "管理端-题库管理")
 public class AdminQuestionController {
 
@@ -31,10 +33,7 @@ public class AdminQuestionController {
     @Autowired
     private QuestionOptionService questionOptionService;
 
-    /**
-     * 题目列表
-     */
-    @GetMapping
+    @GetMapping("/questions")
     @ApiOperation("题目列表")
     public Result<PageResult<Question>> list(
             @RequestParam(required = false) Long courseId,
@@ -55,20 +54,22 @@ public class AdminQuestionController {
         return Result.ok(PageResult.of(questionService.page(pageParam, wrapper)));
     }
 
-    /**
-     * 创建题目
-     */
-    @PostMapping
+    @GetMapping("/questions/{id}")
+    @ApiOperation("题目详情")
+    public Result<Question> detail(@PathVariable Long id) {
+        Question q = questionService.getById(id);
+        if (q == null) return Result.notFound("题目不存在");
+        return Result.ok(q);
+    }
+
+    @PostMapping("/questions")
     @ApiOperation("创建题目")
     public Result<Question> create(@RequestBody Question question) {
         questionService.save(question);
         return Result.ok(question);
     }
 
-    /**
-     * 更新题目
-     */
-    @PutMapping("/{id}")
+    @PutMapping("/questions/{id}")
     @ApiOperation("更新题目")
     public Result<Question> update(@PathVariable Long id, @RequestBody Question question) {
         question.setId(id);
@@ -76,10 +77,7 @@ public class AdminQuestionController {
         return Result.ok(question);
     }
 
-    /**
-     * 删除题目（同时删除选项）
-     */
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/questions/{id}")
     @ApiOperation("删除题目")
     public Result<Void> delete(@PathVariable Long id) {
         questionService.removeById(id);
@@ -87,24 +85,21 @@ public class AdminQuestionController {
         return Result.ok();
     }
 
-    /**
-     * 切换题目状态
-     */
-    @PutMapping("/{id}/status")
-    @ApiOperation("切换状态")
-    public Result<Void> toggleStatus(@PathVariable Long id) {
+    @PutMapping("/questions/{id}/status")
+    @ApiOperation("切换状态 - body: {status: 0|1}")
+    public Result<Void> toggleStatus(@PathVariable Long id, @RequestBody Map<String, Object> params) {
         Question q = questionService.getById(id);
-        if (q != null) {
-            q.setStatus(q.getStatus() == 1 ? 0 : 1);
+        if (q != null && params.get("status") != null) {
+            q.setStatus(Integer.valueOf(params.get("status").toString()));
             questionService.updateById(q);
         }
         return Result.ok();
     }
 
     /**
-     * Excel批量导入题目
+     * Excel批量导入
      */
-    @PostMapping("/import")
+    @PostMapping("/questions/import")
     @ApiOperation("Excel批量导入")
     public Result<Integer> importExcel(@RequestParam("file") MultipartFile file,
                                         @RequestParam(required = false) Long courseId,
@@ -149,11 +144,48 @@ public class AdminQuestionController {
 
                 importedCount++;
             }
-
             return Result.ok("成功导入" + importedCount + "道题目", importedCount);
         } catch (Exception e) {
             return Result.error("导入失败: " + e.getMessage());
         }
+    }
+
+    /**
+     * JSON批量导入 - body: {questions: [{...}, ...]}
+     */
+    @SuppressWarnings("unchecked")
+    @PostMapping("/questions/batch")
+    @ApiOperation("JSON批量导入")
+    public Result<Integer> batchImport(@RequestBody Map<String, Object> params) {
+        List<Map<String, Object>> questions = (List<Map<String, Object>>) params.get("questions");
+        if (questions == null || questions.isEmpty()) {
+            return Result.error("题目列表不能为空");
+        }
+
+        int importedCount = 0;
+        for (Map<String, Object> qMap : questions) {
+            try {
+                Question q = new Question();
+                if (qMap.get("courseId") != null) q.setCourseId(Long.valueOf(qMap.get("courseId").toString()));
+                if (qMap.get("chapterId") != null) q.setChapterId(Long.valueOf(qMap.get("chapterId").toString()));
+                q.setContent(qMap.get("content") != null ? qMap.get("content").toString() : "");
+                q.setType(qMap.get("type") != null ? qMap.get("type").toString() : "SINGLE");
+                q.setAnswer(qMap.get("answer") != null ? qMap.get("answer").toString() : null);
+                q.setScore(qMap.get("score") != null ? Integer.parseInt(qMap.get("score").toString()) : 1);
+                q.setStatus(1);
+                questionService.save(q);
+
+                if (qMap.get("options") instanceof List) {
+                    List<String> options = (List<String>) qMap.get("options");
+                    String[] labels = {"A", "B", "C", "D", "E", "F"};
+                    for (int i = 0; i < options.size() && i < labels.length; i++) {
+                        saveOption(q.getId(), labels[i], options.get(i), labels[i].equals(qMap.get("answer")));
+                    }
+                }
+                importedCount++;
+            } catch (Exception ignored) {}
+        }
+        return Result.ok("成功导入" + importedCount + "道题目", importedCount);
     }
 
     private String getCellValue(Row row, int index) {

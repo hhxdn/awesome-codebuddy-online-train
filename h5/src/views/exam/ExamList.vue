@@ -1,26 +1,30 @@
 <template>
   <div class="exam-list-page">
-    <van-nav-bar title="考试列表" left-text="返回" left-arrow @click-left="$router.back()" />
+    <van-nav-bar title="考试列表" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
         v-model:loading="loading"
         :finished="finished"
-        finished-text="没有更多考试"
+        finished-text="— 没有更多考试 —"
       >
         <div v-for="exam in examList" :key="exam.id" class="exam-card" @click="goExam(exam)">
           <div class="exam-card-header">
-            <h3>{{ exam.name }}</h3>
-            <van-tag :type="getStatusType(exam)" size="medium">
+            <div class="exam-name-wrap">
+              <van-icon name="certificate" size="20" color="var(--primary)" />
+              <h3>{{ exam.name }}</h3>
+            </div>
+            <van-tag :type="getStatusType(exam)" size="medium" round>
               {{ getStatusText(exam) }}
             </van-tag>
           </div>
-          <div class="exam-card-info">
-            <span>⏱ {{ exam.duration || 60 }}分钟</span>
-            <span>📝 满分{{ exam.totalScore || 100 }}分</span>
-            <span>✅ 及格{{ exam.passScore || 60 }}分</span>
+          <div class="exam-card-tags">
+            <span class="exam-tag"><van-icon name="clock-o" size="13" /> {{ exam.duration || 60 }}分钟</span>
+            <span class="exam-tag"><van-icon name="gold-coin-o" size="13" /> 满分{{ exam.totalScore || 100 }}分</span>
+            <span class="exam-tag"><van-icon name="passed" size="13" /> 及格{{ exam.passScore || 60 }}分</span>
           </div>
-          <div class="exam-card-desc" v-if="exam.questionCount">
+          <div class="exam-card-footer" v-if="exam.questionCount">
+            <van-icon name="description" size="13" color="var(--text-muted)" />
             共{{ exam.questionCount }}题
           </div>
         </div>
@@ -100,34 +104,57 @@ onMounted(() => {
 
 .exam-card {
   background: #fff;
-  margin: 12px;
-  padding: 16px;
-  border-radius: 8px;
+  margin: 10px 12px;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.exam-card:active {
+  transform: scale(0.98);
 }
 
 .exam-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
-.exam-card-header h3 {
+.exam-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.exam-name-wrap h3 {
   font-size: 16px;
   font-weight: 600;
 }
 
-.exam-card-info {
+.exam-card-tags {
   display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--text-secondary);
-  margin-bottom: 8px;
+  gap: 14px;
+  margin-bottom: 10px;
 }
 
-.exam-card-desc {
-  font-size: 12px;
+.exam-tag {
+  font-size: 13px;
   color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.exam-card-footer {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 </style>

@@ -4,52 +4,56 @@
 
     <!-- Course Progress -->
     <div class="course-progress">
-      <div class="progress-label">
-        <span>学习进度</span>
+      <div class="progress-header">
+        <span class="progress-title">学习进度</span>
         <span class="progress-text">{{ finishedCount }} / {{ totalCount }}节 · {{ progressPercent }}%</span>
       </div>
-      <van-progress :percentage="progressPercent" stroke-color="#1989fa" />
+      <van-progress :percentage="progressPercent" stroke-color="var(--primary)" :show-pivot="false" />
     </div>
 
     <!-- Chapter List -->
-    <div class="chapters">
-      <van-cell
+    <div class="chapters" v-if="chapters.length > 0">
+      <div
         v-for="(chapter, index) in chapters"
         :key="chapter.id"
-        :title="`${index + 1}. ${chapter.title}`"
-        :label="chapter.duration || '视频'"
+        class="chapter-item"
       >
-        <template #icon>
+        <div class="chapter-status">
           <van-tag
             v-if="chapter.status === 'completed'"
             type="success"
             size="small"
-            style="margin-right: 8px;"
+            round
           >已完成</van-tag>
           <van-tag
             v-else-if="chapter.status === 'learning'"
             type="primary"
             size="small"
-            style="margin-right: 8px;"
+            round
           >学习中</van-tag>
           <van-tag
             v-else
             type="default"
             size="small"
-            style="margin-right: 8px;"
+            round
           >未学习</van-tag>
-        </template>
-        <template #right-icon>
-          <div class="chapter-actions">
-            <van-button size="mini" type="primary" plain @click.stop="goVideo(chapter)">
-              视频
-            </van-button>
-            <van-button size="mini" type="warning" plain @click.stop="goPractice(chapter)">
-              练习
-            </van-button>
+        </div>
+        <div class="chapter-content">
+          <div class="chapter-title">{{ index + 1 }}. {{ chapter.title }}</div>
+          <div class="chapter-meta">
+            <van-icon name="clock-o" size="12" color="var(--text-muted)" />
+            {{ chapter.duration || '视频' }}
           </div>
-        </template>
-      </van-cell>
+        </div>
+        <div class="chapter-actions">
+          <van-button size="mini" round type="primary" plain @click.stop="goVideo(chapter)">
+            视频
+          </van-button>
+          <van-button size="mini" round type="warning" plain @click.stop="goPractice(chapter)">
+            练习
+          </van-button>
+        </div>
+      </div>
     </div>
 
     <EmptyState v-if="chapters.length === 0" description="暂无章节" />
@@ -108,28 +112,75 @@ onMounted(() => {
 
 .course-progress {
   background: #fff;
-  padding: 16px;
-  margin-bottom: 12px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
-.progress-label {
+.progress-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.progress-title {
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .progress-text {
+  font-size: 13px;
   color: var(--primary);
   font-weight: 500;
 }
 
 .chapters {
   background: #fff;
+  margin: 0 12px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.chapter-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color);
+  gap: 12px;
+}
+
+.chapter-item:last-child {
+  border-bottom: none;
+}
+
+.chapter-status {
+  flex-shrink: 0;
+}
+
+.chapter-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapter-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-color);
+  margin-bottom: 4px;
+}
+
+.chapter-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .chapter-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 </style>

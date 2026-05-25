@@ -1,24 +1,29 @@
 <template>
   <div class="course-list-page">
     <van-nav-bar title="全部课程" :border="false" />
-    <van-search v-model="keyword" shape="round" placeholder="搜索课程" @search="onSearch" />
-    <van-tabs v-model:active="activeCategory" @change="onTabChange">
+    <div class="search-wrapper">
+      <van-search v-model="keyword" shape="round" placeholder="搜索你感兴趣的课程" @search="onSearch" />
+    </div>
+    <van-tabs v-model:active="activeCategory" @change="onTabChange" color="var(--primary)" title-active-color="var(--primary)">
       <van-tab v-for="cat in categories" :key="cat.id || 0" :title="cat.name || '全部'" />
     </van-tabs>
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list
         v-model:loading="loading"
         :finished="finished"
-        finished-text="没有更多了"
+        finished-text="— 没有更多了 —"
         @load="fetchCourses"
       >
-        <CourseCard
-          v-for="course in courseList"
-          :key="course.id"
-          :course="course"
-        />
+        <div class="course-list-wrapper">
+          <CourseCard
+            v-for="course in courseList"
+            :key="course.id"
+            :course="course"
+          />
+        </div>
       </van-list>
     </van-pull-refresh>
+    <EmptyState v-if="!loading && !refreshing && courseList.length === 0" description="暂无课程" />
   </div>
 </template>
 
@@ -26,6 +31,7 @@
 import { ref, onMounted } from 'vue'
 import { get } from '../../api'
 import CourseCard from '../../components/CourseCard.vue'
+import EmptyState from '../../components/EmptyState.vue'
 
 const keyword = ref('')
 const activeCategory = ref(0)
@@ -100,3 +106,27 @@ onMounted(() => {
   loading.value = true
 })
 </script>
+
+<style scoped>
+.course-list-page {
+  background: var(--bg-color);
+  min-height: 100vh;
+}
+
+.search-wrapper {
+  background: #fff;
+  padding: 0 4px;
+}
+
+.course-list-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+}
+
+:deep(.van-list__finished-text) {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+</style>

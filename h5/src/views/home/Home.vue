@@ -1,21 +1,42 @@
 <template>
   <div class="home-page">
-    <van-search
-      v-model="keyword"
-      shape="round"
-      placeholder="搜索课程"
-      @search="onSearch"
-    />
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <van-search
+        v-model="keyword"
+        shape="round"
+        placeholder="搜索你感兴趣的课程"
+        @search="onSearch"
+        background="transparent"
+      />
+    </div>
 
+    <!-- Category Tabs -->
     <van-tabs
       v-model:active="activeCategory"
       :before-change="onTabChange"
       sticky
       offset-top="0"
+      color="var(--primary)"
+      title-active-color="var(--primary)"
+      title-inactive-color="var(--text-secondary)"
+      :swipe-threshold="4"
     >
       <van-tab v-for="cat in categories" :key="cat.id || 0" :title="cat.name || '全部'">
         <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-          <div class="course-grid">
+          <!-- Skeleton Loading -->
+          <div class="course-grid" v-if="loading">
+            <div v-for="i in 4" :key="'s'+i" class="skeleton-card">
+              <div class="skeleton-img"></div>
+              <div class="skeleton-text">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Course Grid -->
+          <div class="course-grid" v-else-if="courseList.length > 0">
             <CourseCard
               v-for="course in courseList"
               :key="course.id"
@@ -23,8 +44,9 @@
               @click="goDetail(course.id)"
             />
           </div>
+
+          <!-- Empty -->
           <EmptyState v-if="!refreshing && !loading && courseList.length === 0" />
-          <van-loading v-if="loading" class="loading-center" />
         </van-pull-refresh>
       </van-tab>
     </van-tabs>
@@ -34,7 +56,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
 import { get } from '../../api'
 import CourseCard from '../../components/CourseCard.vue'
 import EmptyState from '../../components/EmptyState.vue'
@@ -50,11 +71,10 @@ const courseList = ref([])
 async function fetchCategories() {
   try {
     const res = await get('/categories')
-    if (res.data) {
+    if (res.data && res.data.length > 0) {
       categories.value = [{ id: 0, name: '全部' }, ...res.data]
     }
   } catch (e) {
-    // Use mock categories
     categories.value = [
       { id: 0, name: '全部' },
       { id: 1, name: 'Java开发' },
@@ -80,7 +100,6 @@ async function fetchCourses() {
       courseList.value = res.data.records || res.data || []
     }
   } catch (e) {
-    // Mock data
     courseList.value = [
       { id: 1, title: 'Spring Boot 实战教程', cover: '', categoryName: 'Java开发', price: 0, studentCount: 1234 },
       { id: 2, title: 'Vue3 全家桶从入门到精通', cover: '', categoryName: '前端开发', price: 99, studentCount: 2100 },
@@ -123,9 +142,19 @@ onMounted(() => {
   background: var(--bg-color);
 }
 
+.search-bar {
+  background: linear-gradient(180deg, var(--primary), var(--primary-light));
+  padding: 8px 12px 12px;
+}
+
+.search-bar :deep(.van-search__content) {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+}
+
 .loading-center {
   display: flex;
   justify-content: center;
-  padding: 40px 0;
+  padding: 60px 0;
 }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <div class="order-list-page">
-    <van-nav-bar title="我的订单" left-text="返回" left-arrow @click-left="$router.back()" />
+    <van-nav-bar title="我的订单" />
 
-    <van-tabs v-model:active="activeTab">
+    <van-tabs v-model:active="activeTab" color="var(--primary)" title-active-color="var(--primary)">
       <van-tab title="全部" />
       <van-tab title="待支付" />
       <van-tab title="已支付" />
@@ -10,16 +10,20 @@
     </van-tabs>
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-      <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多订单">
+      <van-list v-model:loading="loading" :finished="finished" finished-text="— 没有更多订单 —">
         <div v-for="order in filteredOrders" :key="order.id" class="order-card">
           <div class="order-header">
             <span class="order-no">订单号：{{ order.orderNo }}</span>
-            <van-tag :type="getStatusType(order.status)" size="small">
+            <van-tag :type="getStatusType(order.status)" size="small" round>
               {{ getStatusText(order.status) }}
             </van-tag>
           </div>
           <div class="order-body">
-            <van-image :src="order.courseCover" width="60" height="45" fit="cover" />
+            <van-image :src="order.courseCover" width="56" height="40" fit="cover" radius="6">
+              <template #error>
+                <div class="order-cover-placeholder">课</div>
+              </template>
+            </van-image>
             <div class="order-course-info">
               <h5>{{ order.courseName }}</h5>
               <span class="order-amount">¥{{ order.amount }}</span>
@@ -28,16 +32,16 @@
           <div class="order-footer">
             <span class="order-time">{{ order.createTime }}</span>
             <div class="order-actions">
-              <van-button v-if="order.status === 'PENDING'" size="small" type="danger" plain @click="cancelOrder(order)">取消</van-button>
-              <van-button v-if="order.status === 'PENDING'" size="small" type="primary" @click="payOrder(order)">支付</van-button>
-              <van-button v-if="order.status === 'PAID'" size="small" type="primary" plain @click="viewCourse(order)">查看课程</van-button>
+              <van-button v-if="order.status === 'PENDING'" size="small" round plain type="danger" @click="cancelOrder(order)">取消</van-button>
+              <van-button v-if="order.status === 'PENDING'" size="small" round type="primary" @click="payOrder(order)">支付</van-button>
+              <van-button v-if="order.status === 'PAID'" size="small" round plain type="primary" @click="viewCourse(order)">查看课程</van-button>
             </div>
           </div>
         </div>
       </van-list>
     </van-pull-refresh>
 
-    <EmptyState v-if="!loading && filteredOrders.length === 0" />
+    <EmptyState v-if="!loading && filteredOrders.length === 0" description="暂无订单" />
   </div>
 </template>
 
@@ -129,16 +133,17 @@ onMounted(() => {
 
 .order-card {
   background: #fff;
-  margin: 12px;
+  margin: 10px 12px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .order-no {
@@ -149,11 +154,28 @@ onMounted(() => {
 .order-body {
   display: flex;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.order-cover-placeholder {
+  width: 56px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+}
+
+.order-course-info {
+  flex: 1;
 }
 
 .order-course-info h5 {
-  font-size: 15px;
+  font-size: 14px;
   margin-bottom: 6px;
 }
 
@@ -173,7 +195,7 @@ onMounted(() => {
 
 .order-time {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .order-actions {

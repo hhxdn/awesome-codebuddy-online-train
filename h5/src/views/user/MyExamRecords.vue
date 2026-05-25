@@ -1,19 +1,22 @@
 <template>
   <div class="my-exam-records-page">
-    <van-nav-bar title="考试记录" left-text="返回" left-arrow @click-left="$router.back()" />
+    <van-nav-bar title="考试记录" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-      <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多记录">
+      <van-list v-model:loading="loading" :finished="finished" finished-text="— 没有更多记录 —">
         <div v-for="record in records" :key="record.id" class="record-card" @click="viewDetail(record)">
           <div class="record-header">
-            <h4>{{ record.paperName }}</h4>
-            <van-tag :type="record.passed ? 'success' : 'danger'" size="medium">
+            <div class="record-name">
+              <van-icon name="certificate" size="18" color="var(--primary)" />
+              <h4>{{ record.paperName }}</h4>
+            </div>
+            <van-tag :type="record.passed ? 'success' : 'danger'" size="medium" round>
               {{ record.passed ? '通过' : '未通过' }}
             </van-tag>
           </div>
-          <div class="record-info">
-            <span>得分：{{ record.score }}/{{ record.totalScore }}</span>
-            <span>用时：{{ record.duration }}分钟</span>
+          <div class="record-stats">
+            <span class="record-stat"><van-icon name="gold-coin-o" size="14" /> {{ record.score }}/{{ record.totalScore }}分</span>
+            <span class="record-stat"><van-icon name="clock-o" size="14" /> {{ record.duration }}分钟</span>
           </div>
           <div class="record-time">{{ record.createTime }}</div>
         </div>
@@ -73,33 +76,54 @@ onMounted(() => {
 
 .record-card {
   background: #fff;
-  margin: 12px;
+  margin: 10px 12px;
   padding: 16px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.record-card:active {
+  transform: scale(0.98);
 }
 
 .record-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
+}
+
+.record-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.record-name h4 {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.record-stats {
+  display: flex;
+  gap: 20px;
   margin-bottom: 10px;
 }
 
-.record-header h4 {
-  font-size: 15px;
-}
-
-.record-info {
-  display: flex;
-  gap: 24px;
+.record-stat {
   font-size: 13px;
   color: var(--text-secondary);
-  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .record-time {
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 </style>
