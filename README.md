@@ -39,7 +39,7 @@ awesome-codebuddy-online-train/
 ### 1. 数据库初始化
 
 ```bash
-# 执行SQL脚本创建数据库和表结构
+# 一键执行：建库 + 建表 + 管理员账号 + 测试数据（课程/章节/题目/试卷/订单等）
 mysql -u root -p < backend/src/main/resources/db/schema.sql
 ```
 
@@ -48,8 +48,8 @@ mysql -u root -p < backend/src/main/resources/db/schema.sql
 ```bash
 cd backend
 mvn spring-boot:run
-# 后端运行在 http://localhost:8080
-# API文档: http://localhost:8080/doc.html
+# 后端运行在 http://localhost:8088
+# API文档: http://localhost:8088/doc.html
 ```
 
 ### 3. 启动管理后台
