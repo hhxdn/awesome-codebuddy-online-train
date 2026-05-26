@@ -15,27 +15,27 @@ INSERT INTO `user` (`phone`, `nickname`, `avatar`, `password`, `role`, `status`,
 
 -- 2. 课程分类
 INSERT INTO `course_category` (`name`, `cover`, `sort_order`, `status`) VALUES
-('Java开发', 'https://img.alicdn.com/imgextra/i3/O1CN01Kj5T1U1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 1, 1),
-('前端开发', 'https://img.alicdn.com/imgextra/i2/O1CN01QZxJ5R1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 2, 1),
-('Python开发', 'https://img.alicdn.com/imgextra/i4/O1CN01XZxJ5R1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 3, 1),
-('AI与大模型', 'https://img.alicdn.com/imgextra/i1/O1CN01YZxJ5R1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 4, 1),
-('数据库', 'https://img.alicdn.com/imgextra/i3/O1CN01ZZxJ5R1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 5, 1),
-('云计算与DevOps', 'https://img.alicdn.com/imgextra/i2/O1CN01AZxJ5R1qGvqJqVqXc_!!6000000005472-2-tps-240-240.png', 6, 1);
+('Java开发', 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=240&h=240&fit=crop', 1, 1),
+('前端开发', 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=240&h=240&fit=crop', 2, 1),
+('Python开发', 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=240&h=240&fit=crop', 3, 1),
+('AI与大模型', 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=240&h=240&fit=crop', 4, 1),
+('数据库', 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=240&h=240&fit=crop', 5, 1),
+('云计算与DevOps', 'https://images.unsplash.com/photo-1605745341112-85968b19335b?w=240&h=240&fit=crop', 6, 1);
 
 -- 3. 课程
 INSERT INTO `course` (`title`, `cover`, `description`, `category_id`, `price`, `is_free`, `sort_order`, `is_recommend`, `status`, `student_count`, `update_status`) VALUES
-('Spring Boot 从入门到精通', 'https://img.alicdn.com/imgextra/i1/O1CN01course001_!!6000000005472-2-tps-360-200.png', '全面讲解Spring Boot框架的使用，包括自动配置、Web开发、数据访问、安全认证等核心知识点', 1, 0.00, 1, 1, 1, 'UP', 1250, '已完结'),
-('Spring Cloud 微服务实战', 'https://img.alicdn.com/imgextra/i2/O1CN01course002_!!6000000005472-2-tps-360-200.png', '深入讲解Spring Cloud Alibaba微服务架构，涵盖Nacos、Sentinel、Seata、Gateway等组件', 1, 199.00, 0, 2, 1, 'UP', 680, '更新中'),
-('Vue3 + TypeScript 实战', 'https://img.alicdn.com/imgextra/i3/O1CN01course003_!!6000000005472-2-tps-360-200.png', '从零到一掌握Vue3+TypeScript开发，包含Composition API、Pinia状态管理、Vite构建工具', 2, 0.00, 1, 1, 1, 'UP', 2100, '已完结'),
-('React18 全家桶实战', 'https://img.alicdn.com/imgextra/i4/O1CN01course004_!!6000000005472-2-tps-360-200.png', 'React18新特性全面解析，Hooks、Redux Toolkit、Next.js、React Router全覆盖', 2, 149.00, 0, 2, 1, 'UP', 890, '已完结'),
-('Python 数据分析与可视化', 'https://img.alicdn.com/imgextra/i1/O1CN01course005_!!6000000005472-2-tps-360-200.png', '使用Pandas、NumPy、Matplotlib、Seaborn进行数据分析和可视化展示', 3, 0.00, 1, 1, 1, 'UP', 1520, '已完结'),
-('Django 企业级开发', 'https://img.alicdn.com/imgextra/i2/O1CN01course006_!!6000000005472-2-tps-360-200.png', 'Django REST Framework + Celery + Redis + Docker企业级项目实战', 3, 129.00, 0, 2, 0, 'UP', 340, '已完结'),
-('ChatGPT 应用开发实战', 'https://img.alicdn.com/imgextra/i3/O1CN01course007_!!6000000005472-2-tps-360-200.png', '学习如何调用OpenAI API，开发智能聊天机器人、AI写作助手、代码生成器等应用', 4, 299.00, 0, 1, 1, 'UP', 1850, '更新中'),
-('LangChain 框架深度解析', 'https://img.alicdn.com/imgextra/i4/O1CN01course008_!!6000000005472-2-tps-360-200.png', '全面掌握LangChain框架，构建RAG应用、Agent智能体、多模态AI应用', 4, 399.00, 0, 2, 1, 'UP', 760, '更新中'),
-('MySQL 性能优化实战', 'https://img.alicdn.com/imgextra/i1/O1CN01course009_!!6000000005472-2-tps-360-200.png', '索引优化、SQL调优、分库分表、主从复制、高可用架构一网打尽', 5, 0.00, 1, 1, 1, 'UP', 980, '已完结'),
-('Redis 深度剖析', 'https://img.alicdn.com/imgextra/i2/O1CN01course010_!!6000000005472-2-tps-360-200.png', 'Redis数据结构、持久化、哨兵、集群、缓存穿透/击穿/雪崩解决方案', 5, 99.00, 0, 2, 0, 'UP', 520, '已完结'),
-('Docker + K8s 云原生入门', 'https://img.alicdn.com/imgextra/i3/O1CN01course011_!!6000000005472-2-tps-360-200.png', '从Docker基础到Kubernetes编排，手把手教你构建云原生应用', 6, 0.00, 1, 1, 1, 'UP', 1100, '已完结'),
-('Jenkins + GitLab CI/CD 实战', 'https://img.alicdn.com/imgextra/i4/O1CN01course012_!!6000000005472-2-tps-360-200.png', '搭建企业级CI/CD流水线，自动化构建、测试、部署全流程', 6, 89.00, 0, 2, 1, 'UP', 430, '已完结');
+('Spring Boot 从入门到精通', 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=360&h=200&fit=crop', '全面讲解Spring Boot框架的使用，包括自动配置、Web开发、数据访问、安全认证等核心知识点', 1, 0.00, 1, 1, 1, 'UP', 1250, '已完结'),
+('Spring Cloud 微服务实战', 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=360&h=200&fit=crop', '深入讲解Spring Cloud Alibaba微服务架构，涵盖Nacos、Sentinel、Seata、Gateway等组件', 1, 199.00, 0, 2, 1, 'UP', 680, '更新中'),
+('Vue3 + TypeScript 实战', 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=360&h=200&fit=crop', '从零到一掌握Vue3+TypeScript开发，包含Composition API、Pinia状态管理、Vite构建工具', 2, 0.00, 1, 1, 1, 'UP', 2100, '已完结'),
+('React18 全家桶实战', 'https://images.unsplash.com/photo-1633356122102-3fe601e05bd2?w=360&h=200&fit=crop', 'React18新特性全面解析，Hooks、Redux Toolkit、Next.js、React Router全覆盖', 2, 149.00, 0, 2, 1, 'UP', 890, '已完结'),
+('Python 数据分析与可视化', 'https://images.unsplash.com/photo-1526379095098-d400fd0bf935?w=360&h=200&fit=crop', '使用Pandas、NumPy、Matplotlib、Seaborn进行数据分析和可视化展示', 3, 0.00, 1, 1, 1, 'UP', 1520, '已完结'),
+('Django 企业级开发', 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=360&h=200&fit=crop', 'Django REST Framework + Celery + Redis + Docker企业级项目实战', 3, 129.00, 0, 2, 0, 'UP', 340, '已完结'),
+('ChatGPT 应用开发实战', 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=360&h=200&fit=crop', '学习如何调用OpenAI API，开发智能聊天机器人、AI写作助手、代码生成器等应用', 4, 299.00, 0, 1, 1, 'UP', 1850, '更新中'),
+('LangChain 框架深度解析', 'https://images.unsplash.com/photo-1674027444485-cec3da58eef4?w=360&h=200&fit=crop', '全面掌握LangChain框架，构建RAG应用、Agent智能体、多模态AI应用', 4, 399.00, 0, 2, 1, 'UP', 760, '更新中'),
+('MySQL 性能优化实战', 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=360&h=200&fit=crop', '索引优化、SQL调优、分库分表、主从复制、高可用架构一网打尽', 5, 0.00, 1, 1, 1, 'UP', 980, '已完结'),
+('Redis 深度剖析', 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=360&h=200&fit=crop', 'Redis数据结构、持久化、哨兵、集群、缓存穿透/击穿/雪崩解决方案', 5, 99.00, 0, 2, 0, 'UP', 520, '已完结'),
+('Docker + K8s 云原生入门', 'https://images.unsplash.com/photo-1605745341112-85968b19335b?w=360&h=200&fit=crop', '从Docker基础到Kubernetes编排，手把手教你构建云原生应用', 6, 0.00, 1, 1, 1, 'UP', 1100, '已完结'),
+('Jenkins + GitLab CI/CD 实战', 'https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=360&h=200&fit=crop', '搭建企业级CI/CD流水线，自动化构建、测试、部署全流程', 6, 89.00, 0, 2, 1, 'UP', 430, '已完结');
 
 -- 4. 章节（每个课程4-6个章节）
 -- 课程1: Spring Boot从入门到精通 (course_id=1)
