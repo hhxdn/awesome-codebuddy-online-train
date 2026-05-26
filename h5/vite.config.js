@@ -3,7 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { VantResolver } from '@vant/auto-import-resolver'
 import AutoImport from 'unplugin-auto-import/vite'
-import pxtovw from 'postcss-px-to-viewport-8-plugin'
+import pxtorem from 'postcss-pxtorem'
 
 export default defineConfig({
   plugins: [
@@ -20,14 +20,15 @@ export default defineConfig({
   css: {
     postcss: {
       plugins: [
-        pxtovw({
-          viewportWidth: 375,
+        pxtorem({
+          rootValue: 37.5,
           unitPrecision: 5,
-          viewportUnit: 'vw',
-          selectorBlackList: ['body'],
-          minPixelValue: 1,
+          propList: ['*'],
+          selectorBlackList: [],
+          replace: true,
           mediaQuery: false,
-          propList: ['*']
+          minPixelValue: 1,
+          exclude: /node_modules/i
         })
       ]
     }
