@@ -69,6 +69,37 @@ awesome-codebuddy-online-train/
 |----------|
 | ![确认订单](screenshots/18-order-confirm.png) |
 
+## 管理后台页面展示
+
+### 登录与仪表盘
+| 登录 | 仪表盘 |
+|------|--------|
+| ![登录](screenshots/admin-01-login.png) | ![仪表盘](screenshots/admin-03-dashboard.png) |
+
+### 内容管理
+| 课程分类 | 课程管理 | 课程编辑 |
+|----------|----------|----------|
+| ![课程分类](screenshots/admin-04-category-list.png) | ![课程管理](screenshots/admin-05-course-list.png) | ![课程编辑](screenshots/admin-06-course-edit.png) |
+
+### 题库与试卷
+| 题库管理 | 题目导入 | 试卷管理 |
+|----------|----------|----------|
+| ![题库管理](screenshots/admin-07-question-list.png) | ![题目导入](screenshots/admin-08-question-import.png) | ![试卷管理](screenshots/admin-09-exam-list.png) |
+
+| 试卷编辑 | 考试记录 |
+|----------|----------|
+| ![试卷编辑](screenshots/admin-10-exam-edit.png) | ![考试记录](screenshots/admin-11-exam-records.png) |
+
+### 学员与订单
+| 学员管理 | 学员详情 | 订单管理 |
+|----------|----------|----------|
+| ![学员管理](screenshots/admin-12-student-list.png) | ![学员详情](screenshots/admin-13-student-detail.png) | ![订单管理](screenshots/admin-14-order-list.png) |
+
+### 数据统计
+| 营收统计 | 学情统计 | 考试统计 |
+|----------|----------|----------|
+| ![营收统计](screenshots/admin-15-revenue-stats.png) | ![学情统计](screenshots/admin-16-learning-stats.png) | ![考试统计](screenshots/admin-17-exam-stats.png) |
+
 ## 快速开始
 
 ### 1. 数据库初始化
