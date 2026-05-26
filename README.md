@@ -34,6 +34,41 @@ awesome-codebuddy-online-train/
 - Axios + Pinia + Vue Router
 - 响应式适配 (max-width: 750px)
 
+## H5 学员端页面展示
+
+### 登录与首页
+| 登录 | 首页 |
+|------|------|
+| ![登录](screenshots/01-login.png) | ![首页](screenshots/03-home.png) |
+
+### 课程学习
+| 课程列表 | 课程详情 | 课程目录 |
+|----------|----------|----------|
+| ![课程列表](screenshots/04-course-list.png) | ![课程详情](screenshots/05-course-detail.png) | ![课程目录](screenshots/06-chapter-list.png) |
+
+| 视频播放 | 章节练习 | 练习答题 |
+|----------|----------|----------|
+| ![视频播放](screenshots/07-video-player.png) | ![章节练习](screenshots/08-practice-home.png) | ![练习答题](screenshots/09-practice-question.png) |
+
+### 在线考试
+| 考试列表 | 考试确认 |
+|----------|----------|
+| ![考试列表](screenshots/10-exam-list.png) | ![考试确认](screenshots/11-exam-start.png) |
+
+### 个人中心
+| 我的 | 我的课程 | 我的订单 |
+|------|----------|----------|
+| ![我的](screenshots/12-profile.png) | ![我的课程](screenshots/13-my-courses.png) | ![我的订单](screenshots/14-orders.png) |
+
+| 我的错题 | 考试记录 | 学习记录 |
+|----------|----------|----------|
+| ![我的错题](screenshots/15-wrong-questions.png) | ![考试记录](screenshots/16-exam-records.png) | ![学习记录](screenshots/17-learning-records.png) |
+
+### 付费购买
+| 确认订单 |
+|----------|
+| ![确认订单](screenshots/18-order-confirm.png) |
+
 ## 快速开始
 
 ### 1. 数据库初始化
