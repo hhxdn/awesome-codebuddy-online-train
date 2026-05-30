@@ -81,7 +81,8 @@ const menuGroups = [
   [
     { title: '错题回顾', icon: 'cross', iconClass: 'm-red', path: '/my-wrong' },
     { title: '考试记录', icon: 'certificate', iconClass: 'm-green', path: '/my-exams' },
-    { title: '学习记录', icon: 'clock-o', iconClass: 'm-purple', path: '/my-learning' }
+    { title: '学习记录', icon: 'clock-o', iconClass: 'm-purple', path: '/my-learning' },
+    { title: '我的证书', icon: 'medal-o', iconClass: 'm-gold', path: '/my-certificates' }
   ]
 ]
 
@@ -169,6 +170,7 @@ onMounted(() => {
 .m-red { background: var(--danger-light); color: #E34D59; }
 .m-green { background: var(--success-light); color: #00A870; }
 .m-purple { background: #F3F0FF; color: #7C3AED; }
+.m-gold { background: #FFF7E6; color: #E37318; }
 
 .logout-wrap { padding: 40px 20px; }
 .logout-btn {

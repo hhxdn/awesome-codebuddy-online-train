@@ -18,6 +18,7 @@
             {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
           </span>
           <span class="banner-tag tag-cat">{{ course.categoryName }}</span>
+          <span v-if="course.courseType === 'OFFLINE'" class="banner-tag tag-offline">线下课程</span>
         </div>
         <div class="banner-stats">
           <span>{{ course.studentCount || 0 }}人在学</span>
@@ -84,7 +85,19 @@
 
     <!-- Bottom Bar -->
     <div class="bottom-bar safe-bottom">
-      <template v-if="(course.price || 0) === 0">
+      <!-- 线下课程：打卡按钮 -->
+      <template v-if="course.courseType === 'OFFLINE'">
+        <van-button v-if="!checkedIn" type="warning" block round size="large" @click="goCheckin" class="bottom-btn checkin-btn">
+          <van-icon name="location-o" size="18" />
+          线下打卡
+        </van-button>
+        <van-button v-else type="success" block round size="large" disabled class="bottom-btn">
+          <van-icon name="success" size="18" />
+          已打卡
+        </van-button>
+      </template>
+      <!-- 线上课程 -->
+      <template v-else-if="(course.price || 0) === 0">
         <van-button type="primary" block round size="large" @click="startLearn" class="bottom-btn">
           开始学习
         </van-button>
@@ -120,6 +133,7 @@ const chapters = ref([])
 const purchased = ref(false)
 const isPaid = ref(false)
 const descExpanded = ref(false)
+const checkedIn = ref(false)
 
 async function fetchDetail() {
   try {
@@ -137,6 +151,13 @@ async function fetchDetail() {
     const res = await get('/courses/' + courseId + '/access')
     if (res.data) purchased.value = res.data.purchased
   } catch (e) { purchased.value = false }
+  // 检查线下课程打卡状态
+  if (course.value.courseType === 'OFFLINE') {
+    try {
+      const res = await get('/checkin/status/' + courseId)
+      if (res.data) checkedIn.value = res.data.checkedIn
+    } catch (e) { checkedIn.value = false }
+  }
 }
 
 function goChapter(ch) {
@@ -152,6 +173,7 @@ function startLearn() {
   else showToast('暂无章节内容')
 }
 function buyNow() { router.push('/order/confirm/' + courseId) }
+function goCheckin() { router.push('/checkin/' + courseId) }
 
 onMounted(() => fetchDetail())
 </script>
@@ -201,6 +223,7 @@ onMounted(() => fetchDetail())
 .tag-free { background: rgba(0, 168, 112, 0.3); }
 .tag-paid { background: rgba(227, 77, 89, 0.3); }
 .tag-cat { background: rgba(255, 255, 255, 0.12); }
+.tag-offline { background: rgba(237, 123, 47, 0.35); }
 
 .banner-stats {
   font-size: 12px;
@@ -306,6 +329,10 @@ onMounted(() => fetchDetail())
   font-weight: 600;
   padding: 0 28px;
   background: var(--primary) !important;
+  border: none !important;
+}
+.checkin-btn {
+  background: linear-gradient(135deg, #ED7B2F, #E37318) !important;
   border: none !important;
 }
 .bottom-left { flex: 1; }

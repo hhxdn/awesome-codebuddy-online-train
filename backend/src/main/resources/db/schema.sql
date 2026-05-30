@@ -46,6 +46,7 @@ CREATE TABLE `course` (
     `cover` VARCHAR(500) COMMENT '封面图',
     `description` TEXT COMMENT '课程描述',
     `category_id` BIGINT COMMENT '分类ID',
+    `course_type` ENUM('ONLINE','OFFLINE') DEFAULT 'ONLINE' COMMENT '课程类型: ONLINE线上 OFFLINE线下',
     `price` DECIMAL(10,2) DEFAULT 0.00 COMMENT '价格',
     `is_free` TINYINT DEFAULT 1 COMMENT '是否免费',
     `sort_order` INT DEFAULT 0 COMMENT '排序',
@@ -53,6 +54,10 @@ CREATE TABLE `course` (
     `status` ENUM('UP','DOWN') DEFAULT 'UP' COMMENT '状态 UP上架 DOWN下架',
     `student_count` INT DEFAULT 0 COMMENT '学习人数',
     `update_status` VARCHAR(50) COMMENT '更新状态',
+    `longitude` DECIMAL(11,8) COMMENT '经度(线下课程打卡位置)',
+    `latitude` DECIMAL(10,8) COMMENT '纬度(线下课程打卡位置)',
+    `checkin_radius` INT DEFAULT 3000 COMMENT '打卡半径(米)，默认3000',
+    `prerequisite_course_id` BIGINT COMMENT '前置线上课程ID，学完才能打卡此线下课程',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除'
@@ -608,3 +613,40 @@ INSERT INTO `payment_log` (`order_id`, `order_no`, `transaction_id`, `pay_method
 (3, 'OT20260420001', 'WX20260420110200001', 'WECHAT', 129.00, 'SUCCESS', '{"return_code":"SUCCESS","result_code":"SUCCESS"}'),
 (4, 'OT20260505001', 'ALI20260505160500001', 'ALIPAY', 299.00, 'SUCCESS', '{"code":"10000","msg":"Success"}'),
 (5, 'OT20260510001', 'WX20260510090300001', 'WECHAT', 399.00, 'SUCCESS', '{"return_code":"SUCCESS","result_code":"SUCCESS"}');
+
+-- ============================================
+-- 新功能表：线下课程打卡、结业证书
+-- ============================================
+
+-- 线下课程打卡记录表
+DROP TABLE IF EXISTS `offline_checkin`;
+CREATE TABLE `offline_checkin` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `course_id` BIGINT NOT NULL COMMENT '线下课程ID',
+    `checkin_longitude` DECIMAL(11,8) COMMENT '打卡时经度',
+    `checkin_latitude` DECIMAL(10,8) COMMENT '打卡时纬度',
+    `distance` INT COMMENT '打卡距离(米)',
+    `checkin_type` ENUM('SELF','ADMIN') DEFAULT 'SELF' COMMENT '打卡方式: SELF自主打卡 ADMIN后台代打卡',
+    `operator_id` BIGINT COMMENT '操作人ID(后台代打卡时记录)',
+    `status` TINYINT DEFAULT 1 COMMENT '状态 1有效',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '打卡时间',
+    UNIQUE KEY `uk_user_course` (`user_id`, `course_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='线下课程打卡记录表';
+
+-- 结业证书表
+DROP TABLE IF EXISTS `certificate`;
+CREATE TABLE `certificate` (
+    `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `course_id` BIGINT COMMENT '课程ID(单个课程结业)',
+    `cert_type` ENUM('COURSE','ALL') DEFAULT 'COURSE' COMMENT '证书类型: COURSE单课程 ALL全课程结业',
+    `title` VARCHAR(200) NOT NULL COMMENT '证书标题',
+    `content` TEXT COMMENT '证书内容描述',
+    `cert_no` VARCHAR(50) NOT NULL COMMENT '证书编号',
+    `issue_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '颁发时间',
+    `status` TINYINT DEFAULT 1 COMMENT '状态 1有效 0撤销',
+    `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
+    UNIQUE KEY `uk_cert_no` (`cert_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='结业证书表';

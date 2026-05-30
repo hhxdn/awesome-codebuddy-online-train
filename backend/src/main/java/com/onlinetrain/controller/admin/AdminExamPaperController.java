@@ -4,13 +4,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.ExamPaper;
+import com.onlinetrain.entity.Question;
 import com.onlinetrain.service.ExamPaperService;
+import com.onlinetrain.service.QuestionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -23,6 +26,9 @@ public class AdminExamPaperController {
 
     @Autowired
     private ExamPaperService examPaperService;
+
+    @Autowired
+    private QuestionService questionService;
 
     /**
      * 试卷列表
@@ -164,5 +170,84 @@ public class AdminExamPaperController {
             examPaperService.updateById(paper);
         }
         return Result.ok();
+    }
+
+    /**
+     * 随机组卷 - 从题库随机抽取指定数量的题目生成试卷
+     * body: { courseId, title, singleCount(默认60), multipleCount(默认20), judgeCount(默认20),
+     *         durationMinutes, passScore, maxAttempts }
+     */
+    @PostMapping("/exams/random")
+    @ApiOperation("随机组卷")
+    public Result<Map<String, Object>> randomGenerate(@RequestBody Map<String, Object> params) {
+        Long courseId = Long.valueOf(params.get("courseId").toString());
+        int singleCount = params.get("singleCount") != null ? Integer.parseInt(params.get("singleCount").toString()) : 60;
+        int multipleCount = params.get("multipleCount") != null ? Integer.parseInt(params.get("multipleCount").toString()) : 20;
+        int judgeCount = params.get("judgeCount") != null ? Integer.parseInt(params.get("judgeCount").toString()) : 20;
+
+        // 随机抽取单选题
+        List<Question> singleQuestions = questionService.lambdaQuery()
+                .eq(Question::getCourseId, courseId)
+                .eq(Question::getType, "SINGLE")
+                .eq(Question::getStatus, 1)
+                .list();
+        Collections.shuffle(singleQuestions);
+        List<Question> selectedSingle = singleQuestions.stream().limit(singleCount).collect(Collectors.toList());
+
+        // 随机抽取多选题
+        List<Question> multipleQuestions = questionService.lambdaQuery()
+                .eq(Question::getCourseId, courseId)
+                .eq(Question::getType, "MULTIPLE")
+                .eq(Question::getStatus, 1)
+                .list();
+        Collections.shuffle(multipleQuestions);
+        List<Question> selectedMultiple = multipleQuestions.stream().limit(multipleCount).collect(Collectors.toList());
+
+        // 随机抽取判断题
+        List<Question> judgeQuestions = questionService.lambdaQuery()
+                .eq(Question::getCourseId, courseId)
+                .eq(Question::getType, "JUDGE")
+                .eq(Question::getStatus, 1)
+                .list();
+        Collections.shuffle(judgeQuestions);
+        List<Question> selectedJudge = judgeQuestions.stream().limit(judgeCount).collect(Collectors.toList());
+
+        // 计算总分
+        int totalScore = 0;
+        for (Question q : selectedSingle) totalScore += q.getScore() != null ? q.getScore() : 1;
+        for (Question q : selectedMultiple) totalScore += q.getScore() != null ? q.getScore() : 1;
+        for (Question q : selectedJudge) totalScore += q.getScore() != null ? q.getScore() : 1;
+
+        // 创建试卷
+        String title = params.get("title") != null ? params.get("title").toString()
+                : "随机组卷 - 单选" + selectedSingle.size() + " 多选" + selectedMultiple.size() + " 判断" + selectedJudge.size();
+
+        ExamPaper paper = new ExamPaper();
+        paper.setCourseId(courseId);
+        paper.setTitle(title);
+        paper.setDurationMinutes(params.get("durationMinutes") != null ? Integer.parseInt(params.get("durationMinutes").toString()) : 120);
+        paper.setTotalScore(totalScore);
+        paper.setPassScore(params.get("passScore") != null ? Integer.parseInt(params.get("passScore").toString()) : 60);
+        paper.setMaxAttempts(params.get("maxAttempts") != null ? Integer.parseInt(params.get("maxAttempts").toString()) : 1);
+        paper.setStatus("PUBLISHED");
+        examPaperService.save(paper);
+
+        // 组合所有题目并保存关联
+        List<Long> allQuestionIds = new ArrayList<>();
+        selectedSingle.forEach(q -> allQuestionIds.add(q.getId()));
+        selectedMultiple.forEach(q -> allQuestionIds.add(q.getId()));
+        selectedJudge.forEach(q -> allQuestionIds.add(q.getId()));
+        examPaperService.savePaperQuestions(paper.getId(), allQuestionIds);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("paperId", paper.getId());
+        result.put("title", paper.getTitle());
+        result.put("totalScore", totalScore);
+        result.put("singleCount", selectedSingle.size());
+        result.put("multipleCount", selectedMultiple.size());
+        result.put("judgeCount", selectedJudge.size());
+        result.put("totalQuestions", allQuestionIds.size());
+        result.put("message", "随机组卷成功！单选" + selectedSingle.size() + "道、多选" + selectedMultiple.size() + "道、判断" + selectedJudge.size() + "道，共" + allQuestionIds.size() + "题，总分" + totalScore + "分");
+        return Result.ok(result);
     }
 }

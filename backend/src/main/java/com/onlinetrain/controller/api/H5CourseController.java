@@ -52,6 +52,7 @@ public class H5CourseController {
     public Result<PageResult<Course>> list(
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String courseType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -65,6 +66,9 @@ public class H5CourseController {
         }
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(Course::getTitle, keyword);
+        }
+        if (courseType != null && !courseType.isEmpty()) {
+            wrapper.eq(Course::getCourseType, courseType);
         }
         wrapper.orderByDesc(Course::getSortOrder).orderByDesc(Course::getCreateTime);
 

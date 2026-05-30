@@ -21,6 +21,12 @@
             <el-option label="下架" value="DOWN" />
           </el-select>
         </el-form-item>
+        <el-form-item label="类型">
+          <el-select v-model="query.courseType" placeholder="全部类型" clearable style="width: 140px;" @change="fetchData">
+            <el-option label="线上课程" value="ONLINE" />
+            <el-option label="线下课程" value="OFFLINE" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="fetchData">搜索</el-button>
           <el-button @click="resetQuery">重置</el-button>
@@ -46,6 +52,12 @@
         </el-table-column>
         <el-table-column prop="title" label="课程名称" min-width="180" show-overflow-tooltip />
         <el-table-column prop="categoryName" label="分类" width="120" />
+        <el-table-column label="类型" width="90">
+          <template #default="{ row }">
+            <el-tag v-if="row.courseType === 'OFFLINE'" type="warning" size="small">线下</el-tag>
+            <el-tag v-else type="primary" size="small">线上</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="价格" width="100">
           <template #default="{ row }">
             <el-tag v-if="row.isFree === 1" type="success" size="small">免费</el-tag>
@@ -109,7 +121,8 @@ const total = ref(0)
 const query = reactive({
   keyword: '',
   categoryId: null,
-  status: ''
+  status: '',
+  courseType: ''
 })
 
 async function fetchCategories() {
@@ -143,6 +156,7 @@ function resetQuery() {
   query.keyword = ''
   query.categoryId = null
   query.status = ''
+  query.courseType = ''
   page.value = 1
   fetchData()
 }

@@ -28,6 +28,9 @@ public class Course {
     /** 分类ID */
     private Long categoryId;
 
+    /** 课程类型: ONLINE线上 / OFFLINE线下 */
+    private String courseType;
+
     /** 价格 */
     private BigDecimal price;
 
@@ -48,6 +51,18 @@ public class Course {
 
     /** 更新状态 */
     private String updateStatus;
+
+    /** 经度(线下课程打卡位置) */
+    private BigDecimal longitude;
+
+    /** 纬度(线下课程打卡位置) */
+    private BigDecimal latitude;
+
+    /** 打卡半径(米)，默认3000 */
+    private Integer checkinRadius;
+
+    /** 前置线上课程ID，学完才能打卡此线下课程 */
+    private Long prerequisiteCourseId;
 
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)

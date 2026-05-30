@@ -4,9 +4,31 @@
       <div class="icon-wrapper">
         <van-icon name="clock-o" size="64" color="#0052D9" />
       </div>
-      <h2>审核中</h2>
-      <p class="desc">已经提交，我们会尽快联系您</p>
-      <p class="sub-desc">后台人员审核后开通账号，可以使用小程序</p>
+      <h2>资料已提交</h2>
+      <p class="desc">已收到您的申请，我们会尽快电话联系您</p>
+      <p class="sub-desc">沟通后购买课程即可开通学习账号</p>
+
+      <div class="flow-steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-text">提交资料</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-text">电话沟通</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-text">购买课程</div>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <div class="step-num active">4</div>
+          <div class="step-text">开通账号</div>
+        </div>
+      </div>
 
       <div class="status-card">
         <van-icon name="info-o" size="18" color="#0052D9" />
@@ -128,6 +150,52 @@ h2 {
   color: #0052D9;
   margin-bottom: 32px;
   text-align: left;
+}
+
+.flow-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+  gap: 0;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #E5E6EB;
+  color: #969799;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.step-num.active {
+  background: #0052D9;
+  color: #fff;
+}
+
+.step-text {
+  font-size: 11px;
+  color: #969799;
+  white-space: nowrap;
+}
+
+.step-arrow {
+  font-size: 14px;
+  color: #C9CDD4;
+  margin: 0 2px;
+  margin-top: -14px;
 }
 
 .check-btn {

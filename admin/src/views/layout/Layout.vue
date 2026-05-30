@@ -33,6 +33,7 @@
             <span>考试管理</span>
           </template>
           <el-menu-item index="/exams">试卷管理</el-menu-item>
+          <el-menu-item index="/exams/random">随机组卷</el-menu-item>
           <el-menu-item index="/exams/records">考试记录</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="user">
@@ -41,6 +42,8 @@
             <span>用户管理</span>
           </template>
           <el-menu-item index="/students">学员管理</el-menu-item>
+          <el-menu-item index="/checkins">线下打卡</el-menu-item>
+          <el-menu-item index="/certificates">结业证书</el-menu-item>
           <el-menu-item index="/orders">订单管理</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="stats">
@@ -124,8 +127,13 @@ const activeMenu = computed(() => {
   const path = route.path
   if (path.startsWith('/courses')) return '/courses'
   if (path.startsWith('/exams/edit')) return '/exams'
+  if (path.startsWith('/exams/random')) return '/exams/random'
+  if (path.startsWith('/exams/records')) return '/exams/records'
+  if (path.startsWith('/exams')) return '/exams'
   if (path.startsWith('/questions')) return '/questions'
   if (path.startsWith('/students')) return '/students'
+  if (path.startsWith('/checkins')) return '/checkins'
+  if (path.startsWith('/certificates')) return '/certificates'
   return path
 })
 

@@ -154,6 +154,18 @@ const routes = [
     name: 'MyLearningRecords',
     component: () => import('../views/user/MyLearningRecords.vue'),
     meta: { title: '学习记录' }
+  },
+  {
+    path: '/checkin/:courseId',
+    name: 'OfflineCheckin',
+    component: () => import('../views/course/OfflineCheckin.vue'),
+    meta: { title: '线下打卡' }
+  },
+  {
+    path: '/my-certificates',
+    name: 'MyCertificates',
+    component: () => import('../views/user/MyCertificates.vue'),
+    meta: { title: '我的证书' }
   }
 ]
 

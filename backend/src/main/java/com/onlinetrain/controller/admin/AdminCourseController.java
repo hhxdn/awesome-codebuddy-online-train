@@ -31,6 +31,7 @@ public class AdminCourseController {
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String courseType,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -41,6 +42,7 @@ public class AdminCourseController {
         if (categoryId != null) wrapper.eq(Course::getCategoryId, categoryId);
         if (keyword != null && !keyword.isEmpty()) wrapper.like(Course::getTitle, keyword);
         if (status != null && !status.isEmpty()) wrapper.eq(Course::getStatus, status);
+        if (courseType != null && !courseType.isEmpty()) wrapper.eq(Course::getCourseType, courseType);
         wrapper.orderByDesc(Course::getCreateTime);
 
         return Result.ok(PageResult.of(courseService.page(pageParam, wrapper)));

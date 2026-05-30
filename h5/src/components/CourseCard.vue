@@ -8,6 +8,7 @@
       <div class="cover-badge" :class="(course.price || 0) === 0 ? 'free' : 'paid'">
         {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
       </div>
+      <div v-if="course.courseType === 'OFFLINE'" class="cover-type-badge">线下</div>
     </div>
     <div class="card-body">
       <h3 class="card-title text-ellipsis-2">{{ course.title }}</h3>
@@ -118,6 +119,19 @@ function goDetail() {
 .cover-badge.paid {
   background: rgba(227, 77, 89, 0.88);
   color: #fff;
+}
+
+.cover-type-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(237, 123, 47, 0.88);
+  color: #fff;
+  backdrop-filter: blur(8px);
 }
 
 .card-body {

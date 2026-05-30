@@ -29,6 +29,12 @@
             </el-form-item>
           </el-col>
         </el-row>
+        <el-form-item label="课程类型" prop="courseType">
+          <el-radio-group v-model="form.courseType">
+            <el-radio value="ONLINE">线上课程</el-radio>
+            <el-radio value="OFFLINE">线下课程</el-radio>
+          </el-radio-group>
+        </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
           <el-input v-model="form.coverUrl" placeholder="请输入封面图片URL" />
         </el-form-item>
@@ -38,6 +44,42 @@
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" :min="0" />
         </el-form-item>
+
+        <!-- 线下课程设置 -->
+        <template v-if="form.courseType === 'OFFLINE'">
+          <div class="card-title">线下打卡设置</div>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="打卡经度">
+                <el-input v-model="form.longitude" placeholder="例如：116.397428" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="打卡纬度">
+                <el-input v-model="form.latitude" placeholder="例如：39.90923" />
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="打卡半径(米)">
+                <el-input-number v-model="form.checkinRadius" :min="100" :max="10000" :step="100" />
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="前置线上课程">
+                <el-select v-model="form.prerequisiteCourseId" placeholder="不限制" clearable filterable style="width: 100%;">
+                  <el-option
+                    v-for="item in onlineCourses"
+                    :key="item.id"
+                    :label="item.title"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </template>
 
         <div class="card-title">价格设置</div>
         <el-form-item label="是否免费" prop="isFree">
@@ -105,16 +147,22 @@ const loading = ref(false)
 const submitting = ref(false)
 const formRef = ref(null)
 const categories = ref([])
+const onlineCourses = ref([])
 
 const form = reactive({
   title: '',
   categoryId: null,
+  courseType: 'ONLINE',
   coverUrl: '',
   description: '',
   sortOrder: 0,
   isFree: 0,
   price: 0,
   isRecommend: 0,
+  longitude: '',
+  latitude: '',
+  checkinRadius: 3000,
+  prerequisiteCourseId: null,
   chapters: []
 })
 
@@ -157,6 +205,16 @@ async function fetchCategories() {
   }
 }
 
+async function fetchOnlineCourses() {
+  try {
+    const res = await get('/admin/courses', { pageSize: 999, status: 'UP' })
+    const all = res.data?.records || res.data?.list || []
+    onlineCourses.value = all.filter(c => c.courseType === 'ONLINE' || !c.courseType)
+  } catch {
+    onlineCourses.value = []
+  }
+}
+
 async function fetchCourse() {
   if (!isEdit.value) return
   loading.value = true
@@ -165,12 +223,17 @@ async function fetchCourse() {
     const data = res.data
     form.title = data.title || ''
     form.categoryId = data.categoryId
+    form.courseType = data.courseType || 'ONLINE'
     form.coverUrl = data.coverUrl || ''
     form.description = data.description || ''
     form.sortOrder = data.sortOrder || 0
     form.isFree = data.isFree || 0
     form.price = data.price || 0
     form.isRecommend = data.isRecommend || 0
+    form.longitude = data.longitude || ''
+    form.latitude = data.latitude || ''
+    form.checkinRadius = data.checkinRadius || 3000
+    form.prerequisiteCourseId = data.prerequisiteCourseId || null
     form.chapters = data.chapters || []
   } catch {
     ElMessage.error('获取课程信息失败')
@@ -203,6 +266,7 @@ async function handleSubmit() {
 
 onMounted(() => {
   fetchCategories()
+  fetchOnlineCourses()
   fetchCourse()
 })
 </script>

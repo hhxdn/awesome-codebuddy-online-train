@@ -103,6 +103,24 @@ const routes = [
         name: 'ExamStats',
         component: () => import('@/views/statistics/ExamStats.vue'),
         meta: { title: '考试统计' }
+      },
+      {
+        path: '/checkins',
+        name: 'OfflineCheckinList',
+        component: () => import('@/views/checkin/OfflineCheckinList.vue'),
+        meta: { title: '线下打卡' }
+      },
+      {
+        path: '/certificates',
+        name: 'CertificateList',
+        component: () => import('@/views/certificate/CertificateList.vue'),
+        meta: { title: '结业证书' }
+      },
+      {
+        path: '/exams/random',
+        name: 'RandomExam',
+        component: () => import('@/views/exam/RandomExam.vue'),
+        meta: { title: '随机组卷' }
       }
     ]
   }
