@@ -41,6 +41,17 @@ jwt:
 upload:
   path: ./uploads/
 
+# 微信支付配置
+wx:
+  pay:
+    app-id: your_wx_appid
+    app-secret: your_wx_app_secret
+    mch-id: your_mchid
+    api-v3-key: your_api_v3_key
+    private-key-path: classpath:apiclient_key.pem
+    serial-no: your_cert_serial_no
+    notify-url: http://127.0.0.1:8088/api/payment/callback/wechat
+
 logging:
   level:
     com.onlinetrain: debug

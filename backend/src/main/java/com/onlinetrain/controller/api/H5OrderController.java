@@ -6,8 +6,11 @@ import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.Course;
 import com.onlinetrain.entity.Order;
+import com.onlinetrain.entity.User;
 import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.OrderService;
+import com.onlinetrain.service.UserService;
+import com.onlinetrain.service.WxPayService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,12 @@ public class H5OrderController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private WxPayService wxPayService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 创建订单
@@ -115,11 +124,11 @@ public class H5OrderController {
     }
 
     /**
-     * 发起支付（模拟）
+     * 发起微信JSAPI支付（真实支付）
      */
     @PostMapping("/{id}/pay")
-    @ApiOperation("发起支付")
-    public Result<Map<String, Object>> pay(@PathVariable Long id, HttpServletRequest request) {
+    @ApiOperation("发起微信JSAPI支付")
+    public Result<Map<String, String>> pay(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
 
         Order order = orderService.getById(id);
@@ -130,17 +139,23 @@ public class H5OrderController {
             throw new BusinessException("订单状态不允许支付");
         }
 
-        // 模拟支付 - 直接标记为已支付
-        order.setStatus("PAID");
-        order.setPayTime(LocalDateTime.now());
-        orderService.updateById(order);
+        // 获取用户openid
+        User user = userService.getById(userId);
+        if (user == null || user.getOpenid() == null || user.getOpenid().isEmpty()) {
+            throw new BusinessException("请先在微信中授权后再支付");
+        }
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("orderNo", order.getOrderNo());
-        result.put("amount", order.getAmount());
-        result.put("payMethod", "WECHAT");
-        result.put("status", "PAID");
+        // 获取课程信息作为商品描述
+        Course course = courseService.getById(order.getCourseId());
+        String description = course != null ? course.getTitle() : "在线课程";
 
-        return Result.ok(result);
+        // 金额：元转分
+        int amountInFen = order.getAmount().multiply(new BigDecimal(100)).intValue();
+
+        // 调用微信JSAPI下单
+        Map<String, String> payParams = wxPayService.jsapiPrepay(
+                order.getOrderNo(), amountInFen, description, user.getOpenid());
+
+        return Result.ok(payParams);
     }
 }
