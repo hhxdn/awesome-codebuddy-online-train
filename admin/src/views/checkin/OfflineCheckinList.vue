@@ -166,7 +166,11 @@ async function handleDelete(row) {
     await del(`/admin/checkins/${row.id}`)
     ElMessage.success('删除成功')
     fetchData()
-  } catch { /* cancel */ }
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '删除失败')
+    }
+  }
 }
 
 onMounted(() => {

@@ -118,7 +118,10 @@ async function fetchData() {
     if (data.scoreDistribution) {
       scoreDistOption.value.series[0].data = data.scoreDistribution
     }
-  } catch { } finally { loading.value = false }
+  } catch {
+    stats.value = { totalExams: 0, avgScore: 0, passRate: 0 }
+    examPaperStats.value = []
+  } finally { loading.value = false }
 }
 
 onMounted(() => { fetchData() })

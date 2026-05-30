@@ -321,9 +321,9 @@ async function handleEdit(row) {
     if (data.options) {
       form.options = data.options.map(o => ({
         content: o.content || o.optionContent || '',
-        isCorrect: o.isCorrect === 1 || o.isCorrect === true
+        isCorrect: o.isCorrect === 1 || o.isCorrect === true || o.isCorrect === '1' || o.isCorrect === 'true'
       }))
-      form.correctIndex = data.options.findIndex(o => o.isCorrect === 1 || o.isCorrect === true)
+      form.correctIndex = data.options.findIndex(o => o.isCorrect === 1 || o.isCorrect === true || o.isCorrect === '1' || o.isCorrect === 'true')
       if (form.correctIndex < 0) form.correctIndex = 0
     }
     if (data.type === 'JUDGE') {

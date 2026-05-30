@@ -176,7 +176,11 @@ async function handleRevoke(row) {
     await put(`/admin/certificates/${row.id}/revoke`)
     ElMessage.success('证书已撤销')
     fetchData()
-  } catch { /* cancel */ }
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '撤销失败')
+    }
+  }
 }
 
 async function handleDelete(row) {
@@ -185,7 +189,11 @@ async function handleDelete(row) {
     await del(`/admin/certificates/${row.id}`)
     ElMessage.success('删除成功')
     fetchData()
-  } catch { /* cancel */ }
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '删除失败')
+    }
+  }
 }
 
 onMounted(() => {

@@ -92,7 +92,11 @@ async function fetchData() {
     courseStats.value = data.courseStats || []
     chapterStats.value = data.chapterStats || []
     wrongQuestions.value = data.wrongQuestions || data.topWrongQuestions || []
-  } catch { } finally { loading.value = false }
+  } catch {
+    courseStats.value = []
+    chapterStats.value = []
+    wrongQuestions.value = []
+  } finally { loading.value = false }
 }
 
 onMounted(() => { fetchData() })

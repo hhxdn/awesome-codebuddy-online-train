@@ -88,9 +88,6 @@ const stats = reactive({
   todayRevenue: 0,
   monthlyNewStudents: 0
 })
-const revenueData = ref([])
-const studentData = ref([])
-
 const revenueChartOption = ref({
   tooltip: { trigger: 'axis' },
   grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },

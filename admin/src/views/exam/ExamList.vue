@@ -140,8 +140,11 @@
 
 <script setup>
 import { ref, reactive, onMounted, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { get, post, put, del } from '@/api'
+
+const router = useRouter()
 
 const loading = ref(false)
 const tableData = ref([])
@@ -265,34 +268,7 @@ function handleAdd() {
 
 async function handleEdit(row) {
   // edit via full page, not dialog
-  isEdit.value = true
-  editId.value = row.id
-  dialogTitle.value = '编辑试卷'
-  try {
-    const res = await get(`/admin/exams/${row.id}`)
-    const data = res.data
-    form.title = data.title
-    form.courseId = data.courseId
-    form.durationMinutes = data.durationMinutes
-    form.totalScore = data.totalScore
-    form.passScore = data.passScore
-    form.maxAttempts = data.maxAttempts || 1
-    form.examType = data.examType || 'ONLINE'
-    form.questionIds = (data.questionIds || data.questions || []).map(q => q.id || q.questionId || q)
-
-    if (form.courseId) {
-      await onCourseChange(form.courseId)
-      await nextTick()
-      await loadQuestions()
-      await nextTick()
-      availableQuestions.value.forEach(row => {
-        if (form.questionIds.includes(row.id)) {
-          questionTableRef.value?.toggleRowSelection(row, true)
-        }
-      })
-    }
-    dialogVisible.value = true
-  } catch { ElMessage.error('获取试卷信息失败') }
+  router.push(`/exams/edit/${row.id}`)
 }
 
 async function handlePublish(row) {

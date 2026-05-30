@@ -111,7 +111,11 @@ async function handleApprove(row) {
     await put(`/admin/students/${row.id}/approve`)
     ElMessage.success('已审核通过')
     fetchData()
-  } catch { /* 取消操作 */ }
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '操作失败')
+    }
+  }
 }
 
 async function handleReject(row) {
@@ -120,7 +124,11 @@ async function handleReject(row) {
     await put(`/admin/students/${row.id}/reject`)
     ElMessage.success('已拒绝')
     fetchData()
-  } catch { /* 取消操作 */ }
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '操作失败')
+    }
+  }
 }
 
 function resetQuery() {

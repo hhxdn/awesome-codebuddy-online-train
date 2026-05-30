@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast, showConfirmDialog } from 'vant'
 import { get, post } from '../../api'
@@ -78,8 +78,6 @@ async function autoSubmit() {
 }
 
 function handleSubmit() {
-  const adata = viewerRef.value?.answers || {}
-  const answers = reactive(adata)
   const unanswered = questions.value.filter(q => !viewerRef.value?.isAnswered(q.id)).length
   const msg = unanswered > 0
     ? `还有${unanswered}题未作答，确定交卷吗？`
