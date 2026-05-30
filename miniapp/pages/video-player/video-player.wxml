@@ -1,0 +1,82 @@
+<!--pages/video-player/video-player.wxml-->
+<view class="video-page">
+  <!-- Video Area -->
+  <view class="video-area">
+    <video
+      wx:if="{{chapter.videoUrl}}"
+      src="{{chapter.videoUrl}}"
+      controls
+      autoplay
+      show-center-play-btn
+      show-fullscreen-btn
+      object-fit="contain"
+      bindtimeupdate="onTimeUpdate"
+      bindended="onEnded"
+      bindplay="onPlay"
+      style="width:100%;height:100%;"
+    />
+    <view wx:else class="no-video">
+      <text class="no-video-icon">📺</text>
+      <text class="no-video-text">暂无视频资源</text>
+      <text class="no-video-sub">当前章节为图文或其他形式内容</text>
+    </view>
+  </view>
+
+  <!-- Chapter Info -->
+  <view class="chapter-info-bar">
+    <view class="chapter-title">{{chapter.title}}</view>
+    <view class="chapter-course">{{courseName}}</view>
+  </view>
+
+  <!-- Speed Control -->
+  <view class="speed-bar">
+    <text class="speed-label">播放速度</text>
+    <view class="speed-options">
+      <view
+        wx:for="{{speeds}}"
+        wx:key="*this"
+        class="speed-chip {{playbackRate === item ? 'active' : ''}}"
+        bindtap="setSpeed"
+        data-rate="{{item}}"
+      >{{item}}x</view>
+    </view>
+  </view>
+
+  <!-- Chapter Navigation -->
+  <view class="chapter-nav">
+    <view class="nav-section-title">课程目录</view>
+    <scroll-view class="chapter-scroll" scroll-y>
+      <view
+        wx:for="{{chapters}}"
+        wx:key="id"
+        class="nav-chapter-item {{item.id === chapterId ? 'current' : ''}}"
+        bindtap="switchChapter"
+        data-id="{{item.id}}"
+      >
+        <view class="nav-chapter-num">{{index < 9 ? '0' + (index+1) : index+1}}</view>
+        <view class="nav-chapter-text">
+          <view class="nav-chapter-name text-ellipsis">{{item.title}}</view>
+          <view class="nav-chapter-dur">{{item.duration || '视频'}}</view>
+        </view>
+        <view wx:if="{{item.completed}}" class="nav-chapter-done">✅</view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Bottom Actions -->
+  <view class="bottom-actions safe-bottom">
+    <button
+      wx:if="{{prevChapter}}"
+      class="nav-btn prev-btn"
+      bindtap="switchChapter"
+      data-id="{{prevChapter.id}}"
+    >← 上一节</button>
+    <view wx:else style="flex:1"></view>
+    <button
+      wx:if="{{nextChapter}}"
+      class="nav-btn next-btn"
+      bindtap="switchChapter"
+      data-id="{{nextChapter.id}}"
+    >下一节 →</button>
+  </view>
+</view>

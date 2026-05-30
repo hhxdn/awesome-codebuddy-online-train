@@ -1,0 +1,29 @@
+<!--pages/offline-checkin/offline-checkin.wxml-->
+<view class="page page-fade-in">
+  <view class="info-card">
+    <view class="info-icon">📍</view>
+    <view class="info-title">线下课程打卡</view>
+    <view class="info-desc">请到达指定地点后进行打卡签到</view>
+  </view>
+
+  <view class="location-card" wx:if="{{location.latitude}}">
+    <view class="location-item">
+      <text class="loc-label">经度</text>
+      <text class="loc-value">{{location.longitude.toFixed(6)}}</text>
+    </view>
+    <view class="location-item">
+      <text class="loc-label">纬度</text>
+      <text class="loc-value">{{location.latitude.toFixed(6)}}</text>
+    </view>
+    <view class="location-status {{withinRange ? 'in-range' : 'out-range'}}">
+      {{withinRange ? '✅ 在打卡范围内' : '❌ 不在打卡范围内'}}
+    </view>
+  </view>
+
+  <view class="action-section">
+    <button class="locate-btn" bindtap="getLocation">获取当前位置</button>
+    <button class="checkin-btn" disabled="{{!withinRange}}" loading="{{checkingIn}}" bindtap="doCheckin">
+      {{checkedIn ? '已打卡' : '立即打卡'}}
+    </button>
+  </view>
+</view>

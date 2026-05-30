@@ -1,0 +1,244 @@
+/* pages/practice-question/practice-question.wxss */
+.practice-question-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding-bottom: 160rpx;
+}
+
+.practice-header {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 32rpx;
+  background: #fff;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 12rpx;
+  background: var(--border-color);
+  border-radius: 6rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 6rpx;
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* Question Body */
+.question-body {
+  background: #fff;
+  margin: 20rpx 24rpx;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.question-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32rpx;
+}
+
+.question-type-tag {
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.type-SINGLE { background: var(--primary-bg); color: var(--primary); }
+.type-MULTIPLE { background: #FFF3E8; color: var(--warning); }
+.type-JUDGE { background: #E6F9EE; color: var(--success); }
+.type-ESSAY { background: var(--bg-color); color: var(--text-secondary); }
+
+.question-score {
+  font-size: 26rpx;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.question-content {
+  font-size: 32rpx;
+  line-height: 1.7;
+  margin-bottom: 40rpx;
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.question-number {
+  color: var(--primary);
+  margin-right: 8rpx;
+}
+
+/* Options */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  padding: 28rpx 32rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid var(--border-color);
+  background: #fafafa;
+}
+
+.option-item:active {
+  transform: scale(0.98);
+}
+
+.option-selected {
+  border-color: var(--primary);
+  background: #e8f4ff;
+}
+
+.option-label {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #e5e5e5;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  margin-right: 24rpx;
+  flex-shrink: 0;
+}
+
+.option-selected .option-label {
+  background: var(--primary);
+  color: #fff;
+}
+
+.option-text {
+  flex: 1;
+  font-size: 30rpx;
+  color: var(--text-color);
+}
+
+/* Judge */
+.judge-options {
+  display: flex;
+  gap: 32rpx;
+}
+
+.judge-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+  padding: 40rpx;
+  border-radius: 24rpx;
+  border: 3rpx solid var(--border-color);
+  background: #fafafa;
+  font-size: 30rpx;
+  font-weight: 500;
+}
+
+.judge-btn:active {
+  transform: scale(0.96);
+}
+
+.judge-icon {
+  font-size: 56rpx;
+}
+
+.judge-true.active {
+  border-color: var(--success);
+  background: #e6f9ee;
+  color: var(--success);
+}
+
+.judge-false.active {
+  border-color: var(--danger);
+  background: #fde8ec;
+  color: var(--danger);
+}
+
+/* Essay */
+.essay-option {
+  margin-top: 8rpx;
+}
+
+.essay-textarea {
+  width: 100%;
+  min-height: 200rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  border: 2rpx solid var(--border-color);
+  background: #fafafa;
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+
+/* Navigation */
+.question-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  box-shadow: 0 -4rpx 24rpx rgba(0,0,0,0.06);
+  z-index: 100;
+}
+
+.nav-btn-prev,
+.nav-btn-next {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 80rpx;
+  font-size: 28rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-color);
+  color: var(--text-secondary);
+}
+
+.nav-btn-next {
+  background: var(--primary);
+  color: #fff;
+}
+
+.nav-btn-submit {
+  flex: 1;
+  height: 80rpx;
+  border-radius: 80rpx;
+  font-size: 28rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--danger);
+  color: #fff;
+}
+
+.nav-progress {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}

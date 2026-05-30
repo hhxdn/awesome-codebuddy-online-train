@@ -1,0 +1,80 @@
+<!--pages/courses/courses.wxml-->
+<view class="course-list-page page-fade-in">
+  <!-- Search -->
+  <view class="search-bar">
+    <view class="search-box" bindtap="goSearch">
+      <text class="search-icon">🔍</text>
+      <text class="search-placeholder">搜索课程、知识点</text>
+    </view>
+  </view>
+
+  <!-- Category Bar: 多级分类 -->
+  <view class="category-bar">
+    <!-- 一级 -->
+    <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="cat-chip {{activeL1 === 0 ? 'active' : ''}}" bindtap="selectL1" data-id="{{0}}">全部</view>
+      <view wx:for="{{categories}}" wx:key="id" class="cat-chip {{activeL1 === item.id ? 'active' : ''}}" bindtap="selectL1" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+    <!-- 二级 -->
+    <scroll-view wx:if="{{activeL2List.length > 0}}" class="sub-category-bar" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="sub-cat-chip {{activeL2 === 0 ? 'active' : ''}}" bindtap="selectL2" data-id="{{0}}">全部</view>
+      <view wx:for="{{activeL2List}}" wx:key="id" class="sub-cat-chip {{activeL2 === item.id ? 'active' : ''}}" bindtap="selectL2" data-id="{{item.id}}">
+        {{item.name}}
+        <text wx:if="{{item.isFree === 1}}" class="free-badge">免费</text>
+        <text wx:elif="{{item.price > 0}}" class="price-badge">¥{{item.price}}</text>
+      </view>
+    </scroll-view>
+    <!-- 三级 -->
+    <scroll-view wx:if="{{activeL3List.length > 0}}" class="sub-category-bar level3-bar" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="sub-cat-chip {{activeL3 === 0 ? 'active' : ''}}" bindtap="selectL3" data-id="{{0}}">全部</view>
+      <view wx:for="{{activeL3List}}" wx:key="id" class="sub-cat-chip {{activeL3 === item.id ? 'active' : ''}}" bindtap="selectL3" data-id="{{item.id}}">
+        {{item.name}}
+        <text wx:if="{{item.isFree === 1}}" class="free-badge">免费</text>
+        <text wx:elif="{{item.price > 0}}" class="price-badge">¥{{item.price}}</text>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- Course List -->
+  <scroll-view class="course-scroll" scroll-y enhanced bindscrolltolower="onLoadMore" lower-threshold="100">
+    <view class="course-grid" wx:if="{{courseList.length > 0}}">
+      <view wx:for="{{courseList}}" wx:key="id" class="course-card-wrap">
+        <view class="course-card" bindtap="goDetail" data-id="{{item.id}}">
+          <view class="card-cover">
+            <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" class="cover-img" />
+            <view wx:else class="cover-placeholder" style="background:{{gradients[item.id % 6]}};">
+              <text class="cover-text">{{item.title ? item.title[0] : '课'}}</text>
+            </view>
+            <view class="cover-badge {{(item.price || 0) === 0 ? 'free' : 'paid'}}">
+              {{(item.price || 0) === 0 ? '免费' : '¥' + item.price}}
+            </view>
+            <view wx:if="{{item.courseType === 'OFFLINE'}}" class="cover-type-badge">线下</view>
+          </view>
+          <view class="card-body">
+            <view class="card-title text-ellipsis-2">{{item.title}}</view>
+            <view class="card-meta">
+              <text class="meta-category">{{item.categoryName || '通用'}}</text>
+              <text class="meta-students">{{item.studentCount || 0}}人学习</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Loading -->
+    <view wx:if="{{loading}}" class="load-more">
+      <text class="load-text">加载中...</text>
+    </view>
+
+    <!-- No more -->
+    <view wx:if="{{!hasMore && courseList.length > 0}}" class="load-more">
+      <text class="load-text">没有更多了</text>
+    </view>
+
+    <!-- Empty -->
+    <view wx:if="{{!loading && courseList.length === 0}}" class="empty-wrap">
+      <text class="empty-text">暂无课程</text>
+      <text class="empty-sub-text">换个分类试试</text>
+    </view>
+  </scroll-view>
+</view>

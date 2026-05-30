@@ -1,0 +1,38 @@
+<!--pages/exam-start/exam-start.wxml-->
+<view class="exam-start-page page-fade-in">
+  <view class="exam-info-card">
+    <view class="exam-icon">📝</view>
+    <view class="exam-title">{{exam.title || exam.name}}</view>
+    <view class="exam-stats">
+      <view class="stat-item">
+        <text class="stat-value">{{exam.questionCount || 0}}</text>
+        <text class="stat-label">题目数量</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{exam.duration || 0}}分钟</text>
+        <text class="stat-label">考试时长</text>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{exam.totalScore || 100}}分</text>
+        <text class="stat-label">总分</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="rules-card">
+    <view class="rules-title">考试须知</view>
+    <view class="rule-item">1. 考试开始后将进入倒计时，请合理安排答题时间</view>
+    <view class="rule-item">2. 请勿切出考试页面，系统会记录切出次数</view>
+    <view class="rule-item">3. 考试时间到将自动交卷</view>
+    <view class="rule-item">4. 交卷后将立即显示成绩</view>
+    <view wx:if="{{exam.passScore}}" class="rule-item">5. 及格分数：{{exam.passScore}}分</view>
+  </view>
+
+  <view class="start-section">
+    <button class="start-btn" loading="{{starting}}" bindtap="startExam">
+      开始考试
+    </button>
+  </view>
+</view>

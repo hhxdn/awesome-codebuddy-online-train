@@ -1,6 +1,6 @@
-# H5 在线学习平台
+# 在线学习平台
 
-全手机自适应H5在线学习系统，集成课程视频学习、章节题库练习、线上正式考试、课程付费购买、双渠道支付、全维度学情&营收数据统计能力。
+全终端在线学习系统（H5 + 微信小程序），集成课程视频学习、章节题库练习、线上正式考试、课程付费购买、双渠道支付、全维度学情&营收数据统计能力。
 
 ## 项目架构
 
@@ -9,6 +9,7 @@ awesome-codebuddy-online-train/
 ├── backend/          # Java Spring Boot 后端
 ├── admin/            # Vue 3 + Element Plus 管理后台
 ├── h5/               # Vue 3 + Vant 4 H5学员端
+├── miniapp/          # 微信小程序学员端
 └── README.md
 ```
 
@@ -33,6 +34,11 @@ awesome-codebuddy-online-train/
 - Vant 4 移动端UI组件库
 - Axios + Pinia + Vue Router
 - 响应式适配 (max-width: 750px)
+
+### 微信小程序学员端
+- 原生微信小程序框架
+- 微信开发者工具
+- 与 H5 端共用同一后端 API
 
 ## H5 学员端页面展示
 
@@ -136,6 +142,15 @@ npm run dev
 # H5学员端运行在 http://localhost:3001
 ```
 
+### 5. 启动微信小程序学员端
+
+```bash
+# 使用微信开发者工具打开 miniapp 目录
+# 或命令行：
+/Applications/wechatwebdevtools.app/Contents/MacOS/cli open --project miniapp
+# 注意：真机调试时需修改 app.js 中 globalData.baseUrl 为局域网IP
+```
+
 ## 测试账号
 
 ### 管理员
@@ -226,3 +241,4 @@ npm run dev
 ✅ 后端 Spring Boot 完整实现
 ✅ 管理后台 Vue 3 + Element Plus 完整实现
 ✅ H5 学员端 Vue 3 + Vant 4 完整实现
+✅ 微信小程序学员端 原生开发完整实现

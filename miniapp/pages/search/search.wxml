@@ -1,0 +1,31 @@
+<!--pages/search/search.wxml-->
+<view class="search-page page-fade-in">
+  <view class="search-bar">
+    <view class="search-box">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" focus placeholder="搜索课程、知识点" value="{{keyword}}" bindinput="onInput" bindconfirm="doSearch" confirm-type="search" />
+      <text wx:if="{{keyword}}" class="search-clear" bindtap="clearSearch">✕</text>
+    </view>
+    <text class="search-cancel" bindtap="goBack">取消</text>
+  </view>
+
+  <scroll-view class="result-scroll" scroll-y wx:if="{{keyword}}">
+    <view class="result-list" wx:if="{{results.length > 0}}">
+      <view wx:for="{{results}}" wx:key="id" class="result-item" bindtap="goDetail" data-id="{{item.id}}">
+        <text class="result-title text-ellipsis">{{item.title}}</text>
+        <text class="result-cat">{{item.categoryName || '通用'}}</text>
+      </view>
+    </view>
+    <view wx:elif="{{!loading}}" class="empty-wrap">
+      <text class="empty-text">未找到相关课程</text>
+    </view>
+  </scroll-view>
+
+  <!-- Hot Search -->
+  <view class="hot-section" wx:if="{{!keyword}}">
+    <view class="hot-title">热门搜索</view>
+    <view class="hot-tags">
+      <text class="hot-tag" wx:for="{{hotTags}}" wx:key="*this" bindtap="searchTag" data-tag="{{item}}">{{item}}</text>
+    </view>
+  </view>
+</view>

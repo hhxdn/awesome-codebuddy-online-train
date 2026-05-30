@@ -1,0 +1,24 @@
+<!--pages/my-wrong/my-wrong.wxml-->
+<view class="page page-fade-in">
+  <view class="list" wx:if="{{wrongList.length > 0}}">
+    <view wx:for="{{wrongList}}" wx:key="id" class="item">
+      <view class="item-header">
+        <text class="item-type type-{{item.type}}">{{item.type === 'SINGLE' ? '单选' : item.type === 'MULTIPLE' ? '多选' : item.type === 'JUDGE' ? '判断' : '简答'}}</text>
+        <text class="item-course">{{item.courseName || ''}}</text>
+      </view>
+      <view class="item-content">{{item.content}}</view>
+      <view class="item-answer">
+        <text class="label">你的答案：</text>
+        <text class="value wrong">{{item.myAnswer}}</text>
+      </view>
+      <view class="item-answer">
+        <text class="label">正确答案：</text>
+        <text class="value correct">{{item.correctAnswer}}</text>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="empty-wrap"><text class="empty-text">暂无错题</text></view>
+  <view wx:if="{{wrongList.length > 0}}" class="clear-section">
+    <button class="clear-btn" bindtap="clearAll">清空错题本</button>
+  </view>
+</view>

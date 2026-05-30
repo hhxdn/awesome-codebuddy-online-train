@@ -1,0 +1,19 @@
+<!--pages/pending-approval/pending-approval.wxml-->
+<view class="page page-fade-in">
+  <view class="approval-card">
+    <view class="approval-icon">{{status === 'REJECTED' ? '❌' : '⏳'}}</view>
+    <view class="approval-title">{{status === 'REJECTED' ? '审核未通过' : '审核中'}}</view>
+    <view class="approval-desc">{{status === 'REJECTED' ? '您的资料审核未通过，请联系管理员或重新提交资料。' : '您的资料正在审核中，请耐心等待管理员审核。'}}</view>
+    <view class="steps">
+      <view class="step done"><view class="step-dot">✓</view><text>提交资料</text></view>
+      <view class="step-line done"></view>
+      <view class="step {{status === 'REJECTED' ? 'rejected' : 'active'}}"><view class="step-dot">{{status === 'REJECTED' ? '✗' : '2'}}</view><text>{{status === 'REJECTED' ? '审核未通过' : '审核中'}}</text></view>
+      <view class="step-line"></view>
+      <view class="step"><view class="step-dot">3</view><text>审核通过</text></view>
+    </view>
+  </view>
+  <view class="action-section">
+    <button wx:if="{{status === 'REJECTED'}}" class="action-btn" bindtap="reSubmit">重新提交资料</button>
+    <button class="refresh-btn" bindtap="checkStatus">刷新状态</button>
+  </view>
+</view>

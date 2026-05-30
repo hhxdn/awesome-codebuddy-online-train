@@ -1,0 +1,19 @@
+<!--pages/my-courses/my-courses.wxml-->
+<view class="page page-fade-in">
+  <view class="course-list" wx:if="{{courseList.length > 0}}">
+    <view wx:for="{{courseList}}" wx:key="id" class="course-item" bindtap="goDetail" data-id="{{item.id}}">
+      <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" class="course-cover" />
+      <view wx:else class="course-cover-placeholder">
+        <text class="cover-letter">{{item.title ? item.title[0] : '课'}}</text>
+      </view>
+      <view class="course-info">
+        <view class="course-title text-ellipsis-2">{{item.title}}</view>
+        <view class="progress-bar">
+          <view class="progress-fill" style="width:{{item.progress || 0}}%"></view>
+        </view>
+        <text class="progress-text">已学 {{item.progress || 0}}%</text>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="empty-wrap"><text class="empty-text">暂无课程</text></view>
+</view>

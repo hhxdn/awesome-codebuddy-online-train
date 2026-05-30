@@ -1,0 +1,92 @@
+<!--pages/practice-question/practice-question.wxml-->
+<view class="practice-question-page">
+  <!-- Progress -->
+  <view class="practice-header">
+    <view class="progress-bar">
+      <view class="progress-fill" style="width:{{(currentIndex+1)/questions.length*100}}%"></view>
+    </view>
+    <view class="progress-text">{{currentIndex + 1}} / {{questions.length}}</view>
+  </view>
+
+  <!-- Question Body -->
+  <view class="question-body" wx:if="{{currentQuestion}}">
+    <view class="question-header">
+      <text class="question-type-tag type-{{currentQuestion.type}}">{{typeLabel}}</text>
+      <text wx:if="{{currentQuestion.score}}" class="question-score">{{currentQuestion.score}}分</text>
+    </view>
+
+    <view class="question-content">
+      <text class="question-number">{{currentIndex + 1}}.</text>
+      {{currentQuestion.content}}
+    </view>
+
+    <!-- Single Choice -->
+    <view wx:if="{{currentQuestion.type === 'SINGLE'}}" class="options-list">
+      <view
+        wx:for="{{currentQuestion.options}}"
+        wx:key="*this"
+        class="option-item {{answers[currentQuestion.id] === index ? 'option-selected' : ''}}"
+        bindtap="selectSingle"
+        data-idx="{{index}}"
+      >
+        <text class="option-label">{{optionLabels[index]}}</text>
+        <text class="option-text">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- Multiple Choice -->
+    <view wx:if="{{currentQuestion.type === 'MULTIPLE'}}" class="options-list">
+      <view
+        wx:for="{{currentQuestion.options}}"
+        wx:key="*this"
+        class="option-item {{utils.isMultiSelected(answers[currentQuestion.id], index) ? 'option-selected' : ''}}"
+        bindtap="toggleMultiple"
+        data-idx="{{index}}"
+      >
+        <text class="option-label">{{optionLabels[index]}}</text>
+        <text class="option-text">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- Judge -->
+    <view wx:if="{{currentQuestion.type === 'JUDGE'}}" class="judge-options">
+      <view class="judge-btn judge-true {{answers[currentQuestion.id] === '0' ? 'active' : ''}}" bindtap="selectJudge" data-val="0">
+        <text class="judge-icon">✅</text>
+        <text>正确</text>
+      </view>
+      <view class="judge-btn judge-false {{answers[currentQuestion.id] === '1' ? 'active' : ''}}" bindtap="selectJudge" data-val="1">
+        <text class="judge-icon">❌</text>
+        <text>错误</text>
+      </view>
+    </view>
+
+    <!-- Essay -->
+    <view wx:if="{{currentQuestion.type === 'ESSAY'}}" class="essay-option">
+      <textarea
+        value="{{answers[currentQuestion.id] || ''}}"
+        placeholder="请输入你的答案..."
+        maxlength="2000"
+        auto-height
+        bindinput="onEssayInput"
+        class="essay-textarea"
+      />
+    </view>
+  </view>
+
+  <!-- Navigation -->
+  <view class="question-nav safe-bottom">
+    <button class="nav-btn-prev" disabled="{{currentIndex === 0}}" bindtap="prevQuestion">← 上一题</button>
+    <view class="nav-progress">{{currentIndex + 1}} / {{questions.length}}</view>
+    <button
+      wx:if="{{currentIndex < questions.length - 1}}"
+      class="nav-btn-next"
+      bindtap="nextQuestion"
+    >下一题 →</button>
+    <button
+      wx:else
+      class="nav-btn-submit"
+      loading="{{submitting}}"
+      bindtap="submitAnswer"
+    >提交</button>
+  </view>
+</view>

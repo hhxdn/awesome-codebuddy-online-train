@@ -1,0 +1,66 @@
+<!--pages/login/login.wxml-->
+<view class="login-page">
+  <view class="login-bg">
+    <view class="bg-blur b1"></view>
+    <view class="bg-blur b2"></view>
+  </view>
+
+  <view class="login-content">
+    <!-- Brand -->
+    <view class="login-brand">
+      <view class="brand-icon">
+        <image src="/static/logo.png" mode="aspectFit" style="width:80rpx;height:80rpx;" />
+      </view>
+      <view class="app-name">在线学习</view>
+      <view class="app-desc">系统化学习，提升专业技能</view>
+    </view>
+
+    <!-- Form Card -->
+    <view class="login-card">
+      <view class="card-tabs">
+        <view class="tab {{activeTab === 'login' ? 'active' : ''}}" bindtap="switchTab" data-tab="login">登录</view>
+        <view class="tab {{activeTab === 'register' ? 'active' : ''}}" bindtap="switchTab" data-tab="register">注册</view>
+      </view>
+
+      <!-- Login Form -->
+      <view class="form-wrap" wx:if="{{activeTab === 'login'}}">
+        <view class="form-group">
+          <view class="form-item">
+            <text class="form-icon">📱</text>
+            <input class="form-input" type="number" maxlength="11" placeholder="手机号" value="{{loginForm.phone}}" bindinput="onLoginPhoneInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-icon">🔒</text>
+            <input class="form-input" type="password" placeholder="密码" value="{{loginForm.password}}" bindinput="onLoginPwdInput" />
+          </view>
+        </view>
+        <view class="form-action">
+          <button class="action-btn" bindtap="onLogin" loading="{{loading}}" disabled="{{loading}}">登录</button>
+        </view>
+      </view>
+
+      <!-- Register Form -->
+      <view class="form-wrap" wx:else>
+        <view class="form-group">
+          <view class="form-item">
+            <text class="form-icon">📱</text>
+            <input class="form-input" type="number" maxlength="11" placeholder="手机号" value="{{registerForm.phone}}" bindinput="onRegPhoneInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-icon">🔒</text>
+            <input class="form-input" type="password" placeholder="设置密码（至少6位）" value="{{registerForm.password}}" bindinput="onRegPwdInput" />
+          </view>
+          <view class="form-item">
+            <text class="form-icon">✅</text>
+            <input class="form-input" type="password" placeholder="确认密码" value="{{registerForm.confirmPassword}}" bindinput="onRegCpwdInput" />
+          </view>
+        </view>
+        <view class="form-action">
+          <button class="action-btn" bindtap="onRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="login-agreement">登录即表示同意 <text class="agreement-link">用户协议</text> 和 <text class="agreement-link">隐私政策</text></view>
+  </view>
+</view>

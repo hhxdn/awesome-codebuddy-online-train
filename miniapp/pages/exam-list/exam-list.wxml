@@ -1,0 +1,54 @@
+<!--pages/exam-list/exam-list.wxml-->
+<view class="exam-list-page page-fade-in">
+  <!-- Category Bar -->
+  <view class="category-bar">
+    <scroll-view class="category-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="cat-chip {{activeL1 === 0 ? 'active' : ''}}" bindtap="selectL1" data-id="{{0}}">全部</view>
+      <view wx:for="{{categories}}" wx:key="id" class="cat-chip {{activeL1 === item.id ? 'active' : ''}}" bindtap="selectL1" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+    <scroll-view wx:if="{{activeL2List.length > 0}}" class="sub-category-bar" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="sub-cat-chip {{activeL2 === 0 ? 'active' : ''}}" bindtap="selectL2" data-id="{{0}}">全部</view>
+      <view wx:for="{{activeL2List}}" wx:key="id" class="sub-cat-chip {{activeL2 === item.id ? 'active' : ''}}" bindtap="selectL2" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+    <scroll-view wx:if="{{activeL3List.length > 0}}" class="sub-category-bar level3-bar" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="sub-cat-chip {{activeL3 === 0 ? 'active' : ''}}" bindtap="selectL3" data-id="{{0}}">全部</view>
+      <view wx:for="{{activeL3List}}" wx:key="id" class="sub-cat-chip {{activeL3 === item.id ? 'active' : ''}}" bindtap="selectL3" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+  </view>
+
+  <!-- Exam List -->
+  <scroll-view class="exam-scroll" scroll-y enhanced bindscrolltolower="onLoadMore" lower-threshold="100">
+    <view class="exam-list" wx:if="{{examList.length > 0}}">
+      <view wx:for="{{examList}}" wx:key="id" class="exam-card" bindtap="goExamStart" data-id="{{item.id}}">
+        <view class="exam-card-top">
+          <view class="exam-card-left">
+            <view class="exam-title text-ellipsis">{{item.title || item.name}}</view>
+            <view class="exam-info">
+              <text class="exam-info-item">📝 {{item.questionCount || 0}}题</text>
+              <text class="exam-info-item">⏱ {{item.duration || 0}}分钟</text>
+              <text class="exam-info-item">📊 {{item.totalScore || 100}}分</text>
+            </view>
+          </view>
+          <view class="exam-card-right">
+            <text wx:if="{{item.myStatus === 'PASSED'}}" class="exam-status status-passed">已通过</text>
+            <text wx:elif="{{item.myStatus === 'FAILED'}}" class="exam-status status-failed">未通过</text>
+            <text wx:elif="{{item.myStatus === 'ATTENDED'}}" class="exam-status status-attended">已参加</text>
+            <text wx:else class="exam-status status-new">新考试</text>
+          </view>
+        </view>
+        <view class="exam-card-bottom" wx:if="{{item.courseName}}">
+          <text class="exam-course">📚 {{item.courseName}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="load-more">
+      <text class="load-text">加载中...</text>
+    </view>
+
+    <view wx:if="{{!loading && examList.length === 0}}" class="empty-wrap">
+      <text class="empty-text">暂无考试</text>
+      <text class="empty-sub-text">换个分类试试</text>
+    </view>
+  </scroll-view>
+</view>

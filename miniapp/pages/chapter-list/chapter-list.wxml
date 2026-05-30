@@ -1,0 +1,28 @@
+<!--pages/chapter-list/chapter-list.wxml-->
+<view class="page page-fade-in">
+  <view class="course-header">
+    <view class="course-title">{{courseName}}</view>
+    <view class="progress-bar">
+      <view class="progress-fill" style="width:{{progress}}%"></view>
+    </view>
+    <text class="progress-text">已学 {{progress}}%（{{finishedCount}}/{{chapters.length}}节）</text>
+  </view>
+  <view class="list" wx:if="{{chapters.length > 0}}">
+    <view wx:for="{{chapters}}" wx:key="id" class="chapter-item" bindtap="goChapter" data-id="{{item.id}}">
+      <view class="chapter-num {{item.completed ? 'done' : ''}}">
+        {{item.completed ? '✓' : (index < 9 ? '0' + (index+1) : index+1)}}
+      </view>
+      <view class="chapter-info">
+        <view class="chapter-name text-ellipsis-2">{{item.title}}</view>
+        <view class="chapter-bottom">
+          <text class="chapter-dur">▶ {{item.duration || '视频'}}</text>
+          <text wx:if="{{item.completed}}" class="chapter-done">✅ 已学完</text>
+        </view>
+      </view>
+      <view class="chapter-right">
+        <button class="practice-btn" size="mini" catchtap="goPractice" data-id="{{item.id}}">练习</button>
+      </view>
+    </view>
+  </view>
+  <view wx:else class="empty-wrap"><text class="empty-text">暂无章节</text></view>
+</view>

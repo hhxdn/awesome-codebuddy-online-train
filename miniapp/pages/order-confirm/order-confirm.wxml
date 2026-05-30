@@ -1,0 +1,32 @@
+<!--pages/order-confirm/order-confirm.wxml-->
+<view class="order-confirm-page page-fade-in">
+  <view class="product-info-card">
+    <view class="product-label">{{productType === 'CATEGORY' ? '分类购买' : '课程购买'}}</view>
+    <view class="product-name">{{productInfo.title || productInfo.name}}</view>
+    <view wx:if="{{productInfo.description}}" class="product-desc">{{productInfo.description}}</view>
+    <view class="product-price-row">
+      <text class="price-label">支付金额</text>
+      <text class="price-value">¥{{productInfo.price || 0}}</text>
+    </view>
+  </view>
+
+  <view class="pay-method-card">
+    <view class="method-title">选择支付方式</view>
+    <view class="method-item {{payMethod === 'WECHAT' ? 'active' : ''}}" bindtap="selectPayMethod" data-method="WECHAT">
+      <text class="method-icon">💚</text>
+      <text class="method-text">微信支付</text>
+      <view class="method-check" wx:if="{{payMethod === 'WECHAT'}}">✓</view>
+    </view>
+    <view class="method-item {{payMethod === 'ALIPAY' ? 'active' : ''}}" bindtap="selectPayMethod" data-method="ALIPAY">
+      <text class="method-icon">💙</text>
+      <text class="method-text">支付宝</text>
+      <view class="method-check" wx:if="{{payMethod === 'ALIPAY'}}">✓</view>
+    </view>
+  </view>
+
+  <view class="confirm-section">
+    <button class="confirm-btn" loading="{{submitting}}" bindtap="createOrder">
+      确认支付 ¥{{productInfo.price || 0}}
+    </button>
+  </view>
+</view>

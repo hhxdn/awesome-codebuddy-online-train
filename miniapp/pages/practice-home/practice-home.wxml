@@ -1,0 +1,44 @@
+<!--pages/practice-home/practice-home.wxml-->
+<view class="practice-home page-fade-in">
+  <!-- Stats -->
+  <view class="stats-card">
+    <view class="stats-title">{{chapter.title || '章节练习'}}</view>
+    <view class="stats-row">
+      <view class="stat-item">
+        <view class="stat-value">{{stats.totalQuestions || 0}}</view>
+        <view class="stat-label">题目数量</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-value">{{stats.bestScore || '--'}}</view>
+        <view class="stat-label">最佳成绩</view>
+      </view>
+      <view class="stat-divider"></view>
+      <view class="stat-item">
+        <view class="stat-value">{{stats.practiceCount || 0}}</view>
+        <view class="stat-label">练习次数</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Start Button -->
+  <view class="start-section">
+    <button class="start-btn" bindtap="startPractice">
+      {{stats.practiceCount > 0 ? '再次练习' : '开始练习'}}
+    </button>
+  </view>
+
+  <!-- History -->
+  <view class="history-card" wx:if="{{historyList.length > 0}}">
+    <view class="history-title">练习记录</view>
+    <view wx:for="{{historyList}}" wx:key="id" class="history-item">
+      <view class="history-left">
+        <view class="history-date">{{item.createTime || ''}}</view>
+        <view class="history-info">正确 {{item.correctCount || 0}} / {{item.totalCount || 0}} 题</view>
+      </view>
+      <view class="history-right">
+        <text class="history-score {{item.passed ? 'passed' : 'failed'}}">{{item.score || 0}}分</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,33 @@
+<!--pages/order-list/order-list.wxml-->
+<view class="order-list-page page-fade-in">
+  <view class="tab-bar">
+    <view class="tab {{activeTab === 'ALL' ? 'active' : ''}}" bindtap="switchTab" data-tab="ALL">全部</view>
+    <view class="tab {{activeTab === 'PENDING' ? 'active' : ''}}" bindtap="switchTab" data-tab="PENDING">待支付</view>
+    <view class="tab {{activeTab === 'PAID' ? 'active' : ''}}" bindtap="switchTab" data-tab="PAID">已支付</view>
+    <view class="tab {{activeTab === 'CANCELLED' ? 'active' : ''}}" bindtap="switchTab" data-tab="CANCELLED">已取消</view>
+  </view>
+
+  <scroll-view class="order-scroll" scroll-y enhanced bindscrolltolower="onLoadMore" lower-threshold="100">
+    <view wx:for="{{orderList}}" wx:key="id" class="order-card">
+      <view class="order-header">
+        <text class="order-type">{{item.productType === 'CATEGORY' ? '分类购买' : '课程购买'}}</text>
+        <text class="order-status status-{{item.status}}">
+          {{item.status === 'PENDING' ? '待支付' : item.status === 'PAID' ? '已支付' : item.status === 'CANCELLED' ? '已取消' : item.status}}
+        </text>
+      </view>
+      <view class="order-body">
+        <text class="order-name">{{item.productName || '--'}}</text>
+        <text class="order-price">¥{{item.amount || 0}}</text>
+      </view>
+      <view class="order-footer" wx:if="{{item.status === 'PENDING'}}">
+        <button class="cancel-btn" size="mini" bindtap="cancelOrder" data-id="{{item.id}}">取消订单</button>
+        <button class="pay-btn" size="mini" bindtap="payOrder" data-id="{{item.id}}">立即支付</button>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="load-more"><text class="load-text">加载中...</text></view>
+    <view wx:if="{{!loading && orderList.length === 0}}" class="empty-wrap">
+      <text class="empty-text">暂无订单</text>
+    </view>
+  </scroll-view>
+</view>

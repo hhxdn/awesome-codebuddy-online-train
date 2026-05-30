@@ -1,0 +1,121 @@
+/* pages/order-confirm/order-confirm.wxss */
+.order-confirm-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  padding: 24rpx;
+}
+
+.product-info-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 40rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.product-label {
+  font-size: 24rpx;
+  color: var(--primary);
+  background: var(--primary-bg);
+  display: inline-block;
+  padding: 4rpx 16rpx;
+  border-radius: 8rpx;
+  margin-bottom: 16rpx;
+}
+
+.product-name {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 12rpx;
+}
+
+.product-desc {
+  font-size: 26rpx;
+  color: var(--text-muted);
+  margin-bottom: 24rpx;
+}
+
+.product-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 24rpx;
+  border-top: 1rpx solid var(--border-light);
+}
+
+.price-label {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+}
+
+.price-value {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: var(--danger);
+}
+
+.pay-method-card {
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 36rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.method-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 24rpx;
+}
+
+.method-item {
+  display: flex;
+  align-items: center;
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+.method-item:last-child { border-bottom: none; }
+.method-item.active { color: var(--primary); }
+
+.method-icon {
+  font-size: 40rpx;
+  margin-right: 24rpx;
+}
+
+.method-text {
+  flex: 1;
+  font-size: 30rpx;
+}
+
+.method-check {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+}
+
+.confirm-section {
+  padding-top: 40rpx;
+}
+
+.confirm-btn {
+  width: 100%;
+  height: 96rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 96rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

@@ -1,0 +1,80 @@
+<!--pages/mine/mine.wxml-->
+<view class="mine-page page-fade-in">
+  <!-- Header -->
+  <view class="mine-header">
+    <view class="header-bg">
+      <view class="bg-blur b1"></view>
+      <view class="bg-blur b2"></view>
+    </view>
+    <view class="header-content">
+      <view class="avatar-wrap">
+        <view class="avatar">{{userInfo.realName ? userInfo.realName[0] : '学'}}</view>
+      </view>
+      <view class="user-name">{{userInfo.realName || '学员'}}</view>
+      <view class="user-phone">{{userInfo.phone || ''}}</view>
+    </view>
+  </view>
+
+  <!-- Stats -->
+  <view class="stats-card">
+    <view class="stat-item" bindtap="goMyCourses">
+      <view class="stat-value stat-blue">{{stats.courseCount || 0}}</view>
+      <view class="stat-label">我的课程</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goMyOrders">
+      <view class="stat-value stat-green">{{stats.orderCount || 0}}</view>
+      <view class="stat-label">我的订单</view>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item" bindtap="goMyWrong">
+      <view class="stat-value stat-orange">{{stats.wrongCount || 0}}</view>
+      <view class="stat-label">错题</view>
+    </view>
+  </view>
+
+  <!-- Menu: 学习管理 -->
+  <view class="menu-group">
+    <view class="menu-group-title">学习管理</view>
+    <view class="menu-item" bindtap="goMyCourses">
+      <view class="menu-icon menu-icon-blue">📚</view>
+      <text class="menu-text">我的课程</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goMyOrders">
+      <view class="menu-icon menu-icon-orange">📋</view>
+      <text class="menu-text">我的订单</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goMyWrong">
+      <view class="menu-icon menu-icon-red">📝</view>
+      <text class="menu-text">错题本</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- Menu: 学习记录 -->
+  <view class="menu-group">
+    <view class="menu-group-title">学习记录</view>
+    <view class="menu-item" bindtap="goMyExams">
+      <view class="menu-icon menu-icon-green">📊</view>
+      <text class="menu-text">考试记录</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goMyLearning">
+      <view class="menu-icon menu-icon-purple">📖</view>
+      <text class="menu-text">学习记录</text>
+      <text class="menu-arrow">›</text>
+    </view>
+    <view class="menu-item" bindtap="goMyCertificates">
+      <view class="menu-icon menu-icon-gold">🎓</view>
+      <text class="menu-text">我的证书</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- Logout -->
+  <view class="logout-section">
+    <button class="logout-btn" bindtap="logout">退出登录</button>
+  </view>
+</view>

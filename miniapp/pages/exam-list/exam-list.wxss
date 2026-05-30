@@ -1,0 +1,150 @@
+/* pages/exam-list/exam-list.wxss */
+.exam-list-page {
+  min-height: 100vh;
+  background: var(--bg-color);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Category Bar */
+.category-bar {
+  background: #fff;
+  border-bottom: 1rpx solid var(--border-light);
+}
+
+.category-scroll {
+  display: flex;
+  white-space: nowrap;
+  padding: 20rpx 28rpx;
+}
+
+.cat-chip {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 14rpx 30rpx;
+  border-radius: 12rpx;
+  background: var(--bg-color);
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-right: 8rpx;
+}
+
+.cat-chip.active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.sub-category-bar {
+  display: flex;
+  white-space: nowrap;
+  padding: 12rpx 28rpx 20rpx;
+  background: #fff;
+  border-top: 1rpx solid var(--border-light);
+}
+
+.level3-bar {
+  background: #FAFBFC;
+}
+
+.sub-cat-chip {
+  flex-shrink: 0;
+  display: inline-block;
+  padding: 10rpx 24rpx;
+  border-radius: 28rpx;
+  background: var(--bg-color);
+  font-size: 24rpx;
+  color: var(--text-secondary);
+  margin-right: 8rpx;
+}
+
+.sub-cat-chip.active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* Exam Scroll */
+.exam-scroll {
+  flex: 1;
+  height: 0;
+}
+
+.exam-list {
+  padding: 24rpx;
+}
+
+.exam-card {
+  background: #fff;
+  border-radius: 20rpx;
+  padding: 36rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+}
+
+.exam-card-top {
+  display: flex;
+  align-items: flex-start;
+}
+
+.exam-card-left {
+  flex: 1;
+  min-width: 0;
+}
+
+.exam-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 16rpx;
+}
+
+.exam-info {
+  display: flex;
+  gap: 24rpx;
+}
+
+.exam-info-item {
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+.exam-card-right {
+  flex-shrink: 0;
+  margin-left: 20rpx;
+}
+
+.exam-status {
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 8rpx 20rpx;
+  border-radius: 8rpx;
+}
+
+.status-passed { background: #E6F9EE; color: var(--success); }
+.status-failed { background: #FDE8EC; color: var(--danger); }
+.status-attended { background: #E8F2FF; color: var(--primary); }
+.status-new { background: var(--primary-bg); color: var(--primary); }
+
+.exam-card-bottom {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid var(--border-light);
+}
+
+.exam-course {
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+.load-more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+
+.load-text {
+  font-size: 26rpx;
+  color: var(--text-muted);
+}

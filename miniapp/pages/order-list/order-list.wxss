@@ -1,0 +1,22 @@
+/* pages/order-list/order-list.wxss */
+.order-list-page { min-height:100vh;background:var(--bg-color);display:flex;flex-direction:column; }
+.tab-bar { display:flex;background:#fff;padding:16rpx 24rpx;border-bottom:1rpx solid var(--border-light); }
+.tab { flex:1;text-align:center;font-size:26rpx;color:var(--text-secondary);padding:16rpx 0;position:relative; }
+.tab.active { color:var(--primary);font-weight:600; }
+.tab.active::after { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40rpx;height:4rpx;border-radius:2rpx;background:var(--primary); }
+.order-scroll { flex:1;height:0;padding:24rpx; }
+.order-card { background:#fff;border-radius:20rpx;padding:32rpx;margin-bottom:20rpx;box-shadow:0 4rpx 16rpx rgba(0,0,0,0.04); }
+.order-header { display:flex;justify-content:space-between;margin-bottom:16rpx; }
+.order-type { font-size:24rpx;color:var(--text-muted); }
+.order-status { font-size:24rpx;font-weight:600; }
+.status-PENDING { color:var(--warning); }
+.status-PAID { color:var(--success); }
+.status-CANCELLED { color:var(--text-muted); }
+.order-body { display:flex;justify-content:space-between;align-items:center;margin-bottom:20rpx; }
+.order-name { font-size:30rpx;color:var(--text-color);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+.order-price { font-size:36rpx;font-weight:700;color:var(--danger);margin-left:20rpx; }
+.order-footer { display:flex;gap:16rpx;justify-content:flex-end;padding-top:20rpx;border-top:1rpx solid var(--border-light); }
+.cancel-btn { font-size:24rpx;color:var(--text-muted);background:var(--bg-color);border:none;border-radius:48rpx;padding:10rpx 32rpx; }
+.pay-btn { font-size:24rpx;color:#fff;background:var(--primary);border:none;border-radius:48rpx;padding:10rpx 32rpx; }
+.load-more { text-align:center;padding:40rpx 0; }
+.load-text { font-size:26rpx;color:var(--text-muted); }

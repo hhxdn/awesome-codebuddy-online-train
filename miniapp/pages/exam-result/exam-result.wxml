@@ -1,0 +1,45 @@
+<!--pages/exam-result/exam-result.wxml-->
+<view class="result-page page-fade-in">
+  <!-- Score Circle -->
+  <view class="result-header">
+    <view class="score-circle {{result.passed ? 'passed' : 'failed'}}">
+      <view class="score-value">{{result.score || 0}}</view>
+      <view class="score-label">分</view>
+    </view>
+    <view class="result-msg">{{result.passed ? '恭喜！考试通过' : '很遗憾，未通过'}}</view>
+    <view class="result-stats">
+      <text class="stat-text">正确 {{result.correctCount || 0}} / {{result.totalCount || 0}} 题</text>
+      <text class="stat-text" wx:if="{{result.timeUsed}}">用时 {{result.timeUsed}}</text>
+    </view>
+  </view>
+
+  <!-- Answer Review -->
+  <view class="review-card" wx:if="{{result.details && result.details.length > 0}}">
+    <view class="review-title">答题回顾</view>
+    <view wx:for="{{result.details}}" wx:key="questionId" class="review-item">
+      <view class="review-header">
+        <text class="review-num">{{index + 1}}.</text>
+        <text class="review-type-tag">{{item.type || '单选题'}}</text>
+        <text class="review-result {{item.correct ? 'correct' : 'wrong'}}">{{item.correct ? '✓ 正确' : '✗ 错误'}}</text>
+      </view>
+      <view class="review-content">{{item.content || item.questionContent}}</view>
+      <view class="review-answer" wx:if="{{item.myAnswer !== undefined}}">
+        <text class="answer-label">你的答案：</text>
+        <text class="answer-value {{item.correct ? 'text-correct' : 'text-wrong'}}">{{item.myAnswer}}</text>
+      </view>
+      <view class="review-answer" wx:if="{{!item.correct && item.correctAnswer}}">
+        <text class="answer-label">正确答案：</text>
+        <text class="answer-value text-correct">{{item.correctAnswer}}</text>
+      </view>
+      <view class="review-analysis" wx:if="{{item.analysis}}">
+        <text class="analysis-label">解析：</text>
+        <text class="analysis-text">{{item.analysis}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- Actions -->
+  <view class="result-actions safe-bottom">
+    <button class="action-btn-secondary" bindtap="goBack">返回考试列表</button>
+  </view>
+</view>

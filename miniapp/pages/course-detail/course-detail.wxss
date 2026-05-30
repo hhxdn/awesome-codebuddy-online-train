@@ -1,0 +1,275 @@
+/* pages/course-detail/course-detail.wxss */
+.course-detail-page {
+  background: var(--bg-color);
+  min-height: 100vh;
+  padding-bottom: 160rpx;
+}
+
+/* Banner */
+.detail-banner {
+  background: linear-gradient(160deg, #003CAB, #0052D9 50%, #366EF4 100%);
+  padding-bottom: 48rpx;
+}
+
+.banner-body {
+  padding: 8rpx 40rpx 0;
+}
+
+.banner-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+  margin-bottom: 24rpx;
+}
+
+.banner-tags {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.banner-tag {
+  font-size: 24rpx;
+  font-weight: 600;
+  padding: 6rpx 20rpx;
+  border-radius: 8rpx;
+  color: #fff;
+}
+
+.tag-free { background: rgba(0, 168, 112, 0.3); }
+.tag-paid { background: rgba(227, 77, 89, 0.3); }
+.tag-cat { background: rgba(255, 255, 255, 0.12); }
+.tag-offline { background: rgba(237, 123, 47, 0.35); }
+
+.banner-stats {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+/* Section Card */
+.section-card {
+  background: #fff;
+  margin: 20rpx 24rpx;
+  border-radius: 24rpx;
+  padding: 36rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+}
+
+.chapter-total {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  font-weight: 400;
+  background: var(--bg-color);
+  padding: 4rpx 20rpx;
+  border-radius: 8rpx;
+  margin-left: 8rpx;
+}
+
+/* Description */
+.desc-text {
+  font-size: 28rpx;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  max-height: 160rpx;
+  overflow: hidden;
+  transition: max-height 0.35s;
+}
+
+.desc-text.expanded {
+  max-height: none;
+}
+
+.desc-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: var(--primary);
+  padding: 12rpx;
+  border-radius: 12rpx;
+}
+
+.toggle-arrow {
+  font-size: 20rpx;
+}
+
+/* Chapter */
+.chapter-item {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid var(--border-light);
+  gap: 24rpx;
+}
+
+.chapter-item:last-child {
+  border-bottom: none;
+}
+
+.chapter-num {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  background: var(--primary-bg);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  font-weight: 600;
+  flex-shrink: 0;
+  font-family: monospace;
+}
+
+.chapter-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chapter-name {
+  font-size: 28rpx;
+  color: var(--text-color);
+  margin-bottom: 8rpx;
+}
+
+.chapter-bottom {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.chapter-dur {
+  font-size: 24rpx;
+  color: var(--text-muted);
+}
+
+.chapter-done {
+  font-size: 24rpx;
+  color: #00A870;
+}
+
+.chapter-right {
+  flex-shrink: 0;
+}
+
+.practice-btn {
+  font-size: 24rpx;
+  color: var(--primary);
+  background: var(--primary-bg);
+  border: none;
+  border-radius: 48rpx;
+  padding: 8rpx 24rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+}
+
+.lock-icon {
+  font-size: 32rpx;
+}
+
+/* Bottom Bar */
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  padding: 20rpx 32rpx;
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  box-shadow: 0 -2rpx 24rpx rgba(0, 0, 0, 0.04);
+  z-index: 100;
+}
+
+.bottom-btn {
+  flex: 1;
+  height: 92rpx;
+  background: var(--primary);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 92rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottom-btn-half {
+  height: 92rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 0 56rpx;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 92rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-btn {
+  background: transparent;
+  color: var(--warning);
+  border: 2rpx solid var(--warning);
+}
+
+.checkin-btn {
+  flex: 1;
+  height: 92rpx;
+  background: linear-gradient(135deg, #ED7B2F, #E37318);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 92rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.checked-in-btn {
+  flex: 1;
+  height: 92rpx;
+  background: var(--success);
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 600;
+  border-radius: 92rpx;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.bottom-left {
+  flex: 1;
+}
+
+.price-label {
+  font-size: 24rpx;
+  color: var(--text-muted);
+  display: block;
+}
+
+.price-value {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--danger);
+}
