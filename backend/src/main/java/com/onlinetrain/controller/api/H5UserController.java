@@ -77,6 +77,7 @@ public class H5UserController {
         result.put("token", token);
         user.setPassword(null);
         result.put("user", user);
+        result.put("approvalStatus", user.getApprovalStatus() != null ? user.getApprovalStatus() : "APPROVED");
         return Result.ok(result);
     }
 
@@ -114,6 +115,7 @@ public class H5UserController {
         user.setNickname("用户" + phone.substring(Math.max(0, phone.length() - 4)));
         user.setRole("STUDENT");
         user.setStatus(1);
+        user.setApprovalStatus("PENDING");
         user.setRegisterTime(LocalDateTime.now());
         userService.save(user);
 
@@ -123,6 +125,7 @@ public class H5UserController {
         result.put("token", token);
         user.setPassword(null);
         result.put("user", user);
+        result.put("approvalStatus", "PENDING");
         return Result.ok(result);
     }
 
@@ -276,5 +279,63 @@ public class H5UserController {
         }
 
         return Result.ok(result);
+    }
+
+    /**
+     * 提交用户资料（注册后的信息补充）
+     */
+    @PostMapping("/submit-profile")
+    @ApiOperation("提交用户资料")
+    public Result<String> submitProfile(@RequestBody Map<String, String> params, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        User user = userService.getById(userId);
+        if (user == null) {
+            return Result.notFound("用户不存在");
+        }
+
+        String realName = params.get("realName");
+        String gender = params.get("gender");
+        String ageStr = params.get("age");
+        String education = params.get("education");
+        String major = params.get("major");
+        String contactPhone = params.get("contactPhone") != null ? params.get("contactPhone") : params.get("phone");
+
+        if (realName == null || realName.isEmpty()) {
+            return Result.error("姓名不能为空");
+        }
+        if (gender == null || gender.isEmpty()) {
+            return Result.error("性别不能为空");
+        }
+
+        user.setRealName(realName);
+        user.setGender(gender);
+        user.setEducation(education);
+        user.setMajor(major);
+        user.setPhone(contactPhone);
+        if (ageStr != null && !ageStr.isEmpty()) {
+            try { user.setAge(Integer.parseInt(ageStr)); } catch (NumberFormatException ignored) {}
+        }
+        user.setApprovalStatus("PENDING");
+        userService.updateById(user);
+
+        return Result.ok("提交成功");
+    }
+
+    /**
+     * 检查用户审核状态
+     */
+    @GetMapping("/check-status")
+    @ApiOperation("检查审核状态")
+    public Result<Map<String, Object>> checkStatus(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        User user = userService.getById(userId);
+        if (user == null) {
+            return Result.notFound("用户不存在");
+        }
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("approvalStatus", user.getApprovalStatus() != null ? user.getApprovalStatus() : "APPROVED");
+        data.put("hasProfile", user.getRealName() != null && !user.getRealName().isEmpty());
+        return Result.ok(data);
     }
 }

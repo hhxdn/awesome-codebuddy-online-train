@@ -40,6 +40,7 @@ public class AdminStudentController {
     @ApiOperation("学员列表")
     public Result<PageResult<User>> list(
             @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String approvalStatus,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -50,6 +51,9 @@ public class AdminStudentController {
 
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.and(w -> w.like(User::getNickname, keyword).or().like(User::getPhone, keyword));
+        }
+        if (approvalStatus != null && !approvalStatus.isEmpty()) {
+            wrapper.eq(User::getApprovalStatus, approvalStatus);
         }
         wrapper.orderByDesc(User::getCreateTime);
 
@@ -161,5 +165,48 @@ public class AdminStudentController {
                 .orderByDesc(Order::getCreateTime)
                 .list();
         return Result.ok(orders);
+    }
+
+    @PutMapping("/students/{id}/approve")
+    @ApiOperation("审核通过学员")
+    public Result<String> approve(@PathVariable Long id) {
+        User user = userService.getById(id);
+        if (user == null) {
+            return Result.notFound("学员不存在");
+        }
+        user.setApprovalStatus("APPROVED");
+        userService.updateById(user);
+        return Result.ok("审核通过");
+    }
+
+    @PutMapping("/students/{id}/reject")
+    @ApiOperation("拒绝学员")
+    public Result<String> reject(@PathVariable Long id) {
+        User user = userService.getById(id);
+        if (user == null) {
+            return Result.notFound("学员不存在");
+        }
+        user.setApprovalStatus("REJECTED");
+        userService.updateById(user);
+        return Result.ok("已拒绝");
+    }
+
+    /**
+     * 单独获取待审核学员列表，包含资料信息
+     */
+    @GetMapping("/students/pending")
+    @ApiOperation("待审核学员列表")
+    public Result<PageResult<User>> pendingList(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        Page<User> pageParam = new Page<>(page, size);
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<User> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        wrapper.eq(User::getRole, "STUDENT")
+               .eq(User::getApprovalStatus, "PENDING")
+               .orderByDesc(User::getRegisterTime);
+        Page<User> result = userService.page(pageParam, wrapper);
+        result.getRecords().forEach(u -> u.setPassword(null));
+        return Result.ok(PageResult.of(result));
     }
 }

@@ -36,6 +36,24 @@ public class User {
     /** 状态: 1正常 0禁用 */
     private Integer status;
 
+    /** 审核状态: APPROVED/PENDING/REJECTED */
+    private String approvalStatus;
+
+    /** 真实姓名 */
+    private String realName;
+
+    /** 性别 */
+    private String gender;
+
+    /** 年龄 */
+    private Integer age;
+
+    /** 学历 */
+    private String education;
+
+    /** 专业 */
+    private String major;
+
     /** 注册时间 */
     private LocalDateTime registerTime;
 

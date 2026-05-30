@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { getToken } from '../utils/auth'
+import { get } from '../api'
 
 const routes = [
   {
@@ -7,6 +8,18 @@ const routes = [
     name: 'Login',
     component: () => import('../views/login/Login.vue'),
     meta: { title: '登录' }
+  },
+  {
+    path: '/register-profile',
+    name: 'RegisterProfile',
+    component: () => import('../views/user/RegisterProfile.vue'),
+    meta: { title: '完善资料' }
+  },
+  {
+    path: '/pending-approval',
+    name: 'PendingApproval',
+    component: () => import('../views/user/PendingApproval.vue'),
+    meta: { title: '审核中' }
   },
   {
     path: '/',
@@ -153,13 +166,74 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+let approvalChecked = false
+let currentApprovalStatus = null
+let hasProfileFlag = false
+
+router.beforeEach(async (to, from, next) => {
   const token = getToken()
-  if (to.path !== '/login' && !token) {
-    next('/login')
-  } else {
-    next()
+
+  // 放行不需要拦截的页面
+  if (to.path === '/login' || to.path === '/register-profile' || to.path === '/pending-approval') {
+    if (to.path === '/login' && token) {
+      // 已登录但去登录页，检查状态后决定
+      if (!approvalChecked) {
+        try {
+          const res = await get('/user/check-status')
+          currentApprovalStatus = res.data?.approvalStatus
+          hasProfileFlag = res.data?.hasProfile
+          approvalChecked = true
+        } catch (e) { /* ignore */ }
+      }
+      if (currentApprovalStatus === 'PENDING') {
+        if (hasProfileFlag) {
+          return next('/pending-approval')
+        }
+        return next('/register-profile')
+      }
+      return next('/')
+    }
+    return next()
   }
+
+  // 未登录 → 跳转登录
+  if (!token) {
+    return next('/login')
+  }
+
+  // 已登录，检查审核状态
+  if (!approvalChecked) {
+    try {
+      const res = await get('/user/check-status')
+      currentApprovalStatus = res.data?.approvalStatus
+      hasProfileFlag = res.data?.hasProfile
+      approvalChecked = true
+
+      if (currentApprovalStatus === 'PENDING') {
+        if (hasProfileFlag) {
+          return next('/pending-approval')
+        }
+        return next('/register-profile')
+      }
+      if (currentApprovalStatus === 'REJECTED') {
+        return next('/pending-approval')
+      }
+    } catch (e) {
+      // 网络错误时放行
+    }
+  } else {
+    if (currentApprovalStatus === 'PENDING') {
+      if (hasProfileFlag) {
+        return next('/pending-approval')
+      }
+      return next('/register-profile')
+    }
+    if (currentApprovalStatus === 'REJECTED') {
+      return next('/pending-approval')
+    }
+  }
+
+  next()
 })
 
 export default router

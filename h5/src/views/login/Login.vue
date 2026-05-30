@@ -108,7 +108,14 @@ async function onLogin() {
     const res = await post('/user/login', { phone: loginForm.phone, password: loginForm.password })
     if (res.data?.token) {
       setToken(res.data.token); setUser(res.data.user)
-      showToast('登录成功'); router.replace('/')
+      showToast('登录成功')
+      const approvalStatus = res.data?.approvalStatus || 'APPROVED'
+      const hasProfile = res.data?.user?.realName != null && res.data?.user?.realName !== ''
+      if (approvalStatus === 'PENDING') {
+        router.replace(hasProfile ? '/pending-approval' : '/register-profile')
+      } else {
+        router.replace('/')
+      }
     } else { showToast(res.message || '登录失败') }
   } catch (e) { showToast(e.message || '登录失败') }
   loading.value = false
@@ -124,7 +131,8 @@ async function onRegister() {
     })
     if (res.data?.token) {
       setToken(res.data.token); setUser(res.data.user)
-      showToast('注册成功'); router.replace('/')
+      showToast('注册成功')
+      router.replace('/register-profile')
     } else { showToast(res.message || '注册失败') }
   } catch (e) { showToast(e.message || '注册失败') }
   loading.value = false
