@@ -18,14 +18,14 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="课程分类" prop="categoryId">
-              <el-select v-model="form.categoryId" placeholder="请选择分类" style="width: 100%;">
-                <el-option
-                  v-for="item in categories"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"
-                />
-              </el-select>
+              <el-cascader
+                v-model="form.categoryId"
+                :options="categoryOptions"
+                :props="{ value: 'id', label: 'name', children: 'children', checkStrictly: true, emitPath: false }"
+                placeholder="请选择末级分类"
+                style="width: 100%;"
+                clearable
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -147,6 +147,7 @@ const loading = ref(false)
 const submitting = ref(false)
 const formRef = ref(null)
 const categories = ref([])
+const categoryOptions = ref([])
 const onlineCourses = ref([])
 
 const form = reactive({
@@ -198,9 +199,20 @@ function removeChapter(index) {
 
 async function fetchCategories() {
   try {
-    const res = await get('/admin/categories', { pageSize: 999 })
-    categories.value = res.data?.records || res.data?.list || []
+    const res = await get('/admin/categories/tree')
+    categoryOptions.value = res.data || []
+    // 扁平化用于验证
+    const flat = []
+    function walk(nodes) {
+      nodes.forEach(n => {
+        flat.push(n)
+        if (n.children && n.children.length) walk(n.children)
+      })
+    }
+    walk(categoryOptions.value)
+    categories.value = flat
   } catch {
+    categoryOptions.value = []
     categories.value = []
   }
 }

@@ -2,28 +2,56 @@
   <div class="order-confirm-page page-fade-in">
     <van-nav-bar title="确认订单" left-text="返回" left-arrow @click-left="$router.back()" :border="false" />
 
-    <div class="course-card" v-if="course.title">
-      <div class="course-cover">
-        <van-image :src="course.cover" width="88" height="60" fit="cover" radius="8">
-          <template #error>
-            <div class="cover-ph">{{ course.title?.charAt(0) }}</div>
-          </template>
-        </van-image>
+    <!-- 课程购买 -->
+    <template v-if="productType === 'COURSE'">
+      <div class="course-card" v-if="course.title">
+        <div class="course-cover">
+          <van-image :src="course.cover" width="88" height="60" fit="cover" radius="8">
+            <template #error>
+              <div class="cover-ph">{{ course.title?.charAt(0) }}</div>
+            </template>
+          </van-image>
+        </div>
+        <div class="course-info">
+          <h4>{{ course.title }}</h4>
+          <span class="cat-tag">{{ course.categoryName }}</span>
+          <span class="price-text">¥{{ course.price }}</span>
+        </div>
       </div>
-      <div class="course-info">
-        <h4>{{ course.title }}</h4>
-        <span class="cat-tag">{{ course.categoryName }}</span>
-        <span class="price-text">¥{{ course.price }}</span>
-      </div>
-    </div>
+      <van-cell-group inset style="margin-top:12px;">
+        <van-cell title="商品类型" value="单个课程" />
+        <van-cell title="课程价格" :value="'¥' + (course.price || 0)" />
+        <van-cell title="实付金额" class="total-cell">
+          <template #value><span class="total-price">¥{{ course.price || 0 }}</span></template>
+        </van-cell>
+      </van-cell-group>
+    </template>
 
-    <van-cell-group inset style="margin-top:12px;">
-      <van-cell title="课程价格" :value="'¥' + (course.price || 0)" />
-      <van-cell title="优惠" value="暂无优惠" />
-      <van-cell title="实付金额" class="total-cell">
-        <template #value><span class="total-price">¥{{ course.price || 0 }}</span></template>
-      </van-cell>
-    </van-cell-group>
+    <!-- 分类购买 -->
+    <template v-else>
+      <div class="course-card" v-if="category.name">
+        <div class="course-cover">
+          <van-image :src="category.cover" width="88" height="60" fit="cover" radius="8">
+            <template #error>
+              <div class="cover-ph">{{ category.name?.charAt(0) }}</div>
+            </template>
+          </van-image>
+        </div>
+        <div class="course-info">
+          <h4>{{ category.name }}</h4>
+          <span class="cat-tag">购买分类</span>
+          <span class="price-text">¥{{ category.price || 0 }}</span>
+        </div>
+      </div>
+      <van-cell-group inset style="margin-top:12px;">
+        <van-cell title="商品类型" value="分类包" />
+        <van-cell title="分类描述" :value="category.description || '包含该分类下所有课程和试题'" />
+        <van-cell title="分类价格" :value="'¥' + (category.price || 0)" />
+        <van-cell title="实付金额" class="total-cell">
+          <template #value><span class="total-price">¥{{ category.price || 0 }}</span></template>
+        </van-cell>
+      </van-cell-group>
+    </template>
 
     <van-cell-group inset title="支付方式" style="margin-top:12px;">
       <van-cell title="微信支付" clickable @click="payMethod = 'wechat'" center>
@@ -46,7 +74,7 @@
 
     <div class="pay-action">
       <van-button type="primary" block round size="large" :loading="paying" @click="pay" class="pay-btn">
-        确认支付 <span class="btn-price">¥{{ course.price || 0 }}</span>
+        确认支付 <span class="btn-price">¥{{ productType === 'CATEGORY' ? (category.price || 0) : (course.price || 0) }}</span>
       </van-button>
       <p class="pay-legal">支付即表示同意 <a href="#">《付费服务协议》</a></p>
     </div>
@@ -61,17 +89,32 @@ import { get, post } from '../../api'
 
 const route = useRoute()
 const router = useRouter()
+
+// 支持两种路由: /order/confirm/:courseId 和 /order/confirm-category/:categoryId
 const courseId = route.params.courseId
+const categoryId = route.params.categoryId
+
+const productType = ref(categoryId ? 'CATEGORY' : 'COURSE')
 const course = ref({})
+const category = ref({})
 const payMethod = ref('wechat')
 const paying = ref(false)
 
-async function fetchCourse() {
-  try {
-    const res = await get('/courses/' + courseId)
-    if (res.data) course.value = res.data
-  } catch (e) {
-    course.value = { id: courseId, title: '加载中...', price: 0 }
+async function fetchData() {
+  if (productType.value === 'CATEGORY') {
+    try {
+      const res = await get('/categories/' + categoryId)
+      if (res.data) category.value = res.data
+    } catch (e) {
+      category.value = { id: categoryId, name: '加载中...', price: 0 }
+    }
+  } else {
+    try {
+      const res = await get('/courses/' + courseId)
+      if (res.data) course.value = res.data
+    } catch (e) {
+      course.value = { id: courseId, title: '加载中...', price: 0 }
+    }
   }
 }
 
@@ -79,10 +122,18 @@ async function pay() {
   paying.value = true
   try {
     // 1. 创建订单
-    const orderRes = await post('/orders', {
-      courseId: parseInt(courseId),
+    const orderParams = {
       payMethod: payMethod.value
-    })
+    }
+    if (productType.value === 'CATEGORY') {
+      orderParams.productType = 'CATEGORY'
+      orderParams.categoryId = parseInt(categoryId)
+    } else {
+      orderParams.productType = 'COURSE'
+      orderParams.courseId = parseInt(courseId)
+    }
+
+    const orderRes = await post('/orders', orderParams)
     const order = orderRes.data
     if (!order || !order.id) {
       showFailToast('创建订单失败')
@@ -103,7 +154,7 @@ async function pay() {
 }
 
 onMounted(() => {
-  fetchCourse()
+  fetchData()
 })
 </script>
 

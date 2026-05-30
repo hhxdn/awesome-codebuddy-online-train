@@ -22,11 +22,16 @@
       </div>
     </div>
 
-    <!-- Category Chips -->
+    <!-- Category Bar: 一级分类横向滚动 -->
     <div class="category-bar">
       <div class="category-scroll">
         <div
-          v-for="cat in visibleCategories"
+          class="cat-chip"
+          :class="{ active: activeCategory === 0 }"
+          @click="selectCategory(0)"
+        >全部</div>
+        <div
+          v-for="cat in categories"
           :key="cat.id"
           class="cat-chip"
           :class="{ active: activeCategory === cat.id }"
@@ -34,36 +39,53 @@
         >
           {{ cat.name }}
         </div>
+      </div>
+      <!-- 二级分类（点击一级后展开） -->
+      <div v-if="activeSubCategories.length > 0" class="sub-category-bar">
         <div
-          v-if="hasMoreCategories"
-          class="cat-chip cat-more"
-          @click="showAllCategories = true"
+          class="sub-cat-chip"
+          :class="{ active: activeSubCategory === 0 }"
+          @click="selectSubCategory(0)"
+        >全部</div>
+        <div
+          v-for="sub in activeSubCategories"
+          :key="sub.id"
+          class="sub-cat-chip"
+          :class="{ active: activeSubCategory === sub.id }"
+          @click="selectSubCategory(sub.id)"
         >
-          更多
-          <van-icon name="arrow-down" size="12" />
+          {{ sub.name }}
+          <span v-if="sub.isFree === 1" class="free-badge">免费</span>
+          <span v-else-if="sub.price > 0" class="price-badge">¥{{ sub.price }}</span>
         </div>
       </div>
     </div>
 
-    <!-- Category Popup -->
+    <!-- Category Popup: 展示所有一级和二级 -->
     <van-popup
       v-model:show="showAllCategories"
       position="bottom"
       round
-      :style="{ maxHeight: '50vh' }"
+      :style="{ maxHeight: '60vh' }"
     >
       <div class="category-popup">
         <h3 class="popup-title">全部分类</h3>
-        <div class="popup-grid">
-          <div
-            v-for="cat in categories"
-            :key="cat.id"
-            class="popup-cat-item"
-            :class="{ active: activeCategory === cat.id }"
-            @click="selectCategoryFromPopup(cat.id)"
-          >
+        <div v-for="cat in categories" :key="cat.id" class="popup-cat-group">
+          <div class="popup-cat-parent" :class="{ active: activeCategory === cat.id }" @click="selectCategoryFromPopup(cat.id)">
             <span>{{ cat.name }}</span>
             <van-icon v-if="activeCategory === cat.id" name="success" color="var(--primary)" size="16" />
+          </div>
+          <div v-if="cat.children && cat.children.length" class="popup-cat-children">
+            <div
+              v-for="sub in cat.children"
+              :key="sub.id"
+              class="popup-sub-item"
+              :class="{ active: activeSubCategory === sub.id }"
+              @click="selectSubFromPopup(cat.id, sub.id)"
+            >
+              <span>{{ sub.name }}</span>
+              <span class="sub-price">{{ sub.isFree === 1 ? '免费' : '¥' + (sub.price || 0) }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -109,35 +131,27 @@ import EmptyState from '../../components/EmptyState.vue'
 const router = useRouter()
 const keyword = ref('')
 const activeCategory = ref(0)
+const activeSubCategory = ref(0)
 const refreshing = ref(false)
 const loading = ref(false)
-const categories = ref([{ id: 0, name: '全部' }])
+const categories = ref([])
 const courseList = ref([])
 const showAllCategories = ref(false)
 
-const MAX_VISIBLE = 5
-const hasMoreCategories = computed(() => categories.value.length > MAX_VISIBLE)
-const visibleCategories = computed(() => categories.value.slice(0, MAX_VISIBLE))
+const activeSubCategories = computed(() => {
+  if (activeCategory.value === 0) return []
+  const cat = categories.value.find(c => c.id === activeCategory.value)
+  return cat?.children || []
+})
 
 async function fetchCategories() {
   try {
-    const res = await get('/categories')
+    const res = await get('/categories/tree')
     if (res.data && res.data.length > 0) {
-      categories.value = [
-        { id: 0, name: '全部' },
-        ...res.data.map(c => ({ id: c.id, name: c.name }))
-      ]
+      categories.value = res.data
     }
   } catch (e) {
-    categories.value = [
-      { id: 0, name: '全部' },
-      { id: 1, name: 'Java开发' },
-      { id: 2, name: '前端开发' },
-      { id: 3, name: 'Python' },
-      { id: 4, name: 'AI与大模型' },
-      { id: 5, name: '数据库' },
-      { id: 6, name: '云计算' }
-    ]
+    categories.value = []
   }
 }
 
@@ -145,7 +159,9 @@ async function fetchCourses() {
   loading.value = true
   try {
     const params = {}
-    if (activeCategory.value > 0) params.categoryId = activeCategory.value
+    // 优先用二级分类筛选
+    const cid = activeSubCategory.value > 0 ? activeSubCategory.value : activeCategory.value
+    if (cid > 0) params.categoryId = cid
     if (keyword.value) params.keyword = keyword.value
     const res = await get('/courses', params)
     if (res.data) {
@@ -159,11 +175,25 @@ async function fetchCourses() {
 
 function selectCategory(id) {
   activeCategory.value = id
+  activeSubCategory.value = 0
+  fetchCourses()
+}
+
+function selectSubCategory(id) {
+  activeSubCategory.value = id
   fetchCourses()
 }
 
 function selectCategoryFromPopup(id) {
   activeCategory.value = id
+  activeSubCategory.value = 0
+  showAllCategories.value = false
+  fetchCourses()
+}
+
+function selectSubFromPopup(parentId, subId) {
+  activeCategory.value = parentId
+  activeSubCategory.value = subId
   showAllCategories.value = false
   fetchCourses()
 }
@@ -290,9 +320,51 @@ onMounted(() => {
   color: var(--text-muted);
 }
 
+/* Sub Category Bar */
+.sub-category-bar {
+  display: flex;
+  gap: 4px;
+  padding: 6px 14px 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: #fff;
+  border-top: 1px solid var(--border-light);
+}
+.sub-category-bar::-webkit-scrollbar { display: none; }
+.sub-cat-chip {
+  flex-shrink: 0;
+  padding: 5px 12px;
+  border-radius: 14px;
+  background: var(--bg-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.sub-cat-chip.active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 500;
+}
+.free-badge {
+  font-size: 10px;
+  background: #00A870;
+  color: #fff;
+  padding: 0 5px;
+  border-radius: 3px;
+}
+.price-badge {
+  font-size: 10px;
+  color: #E34D59;
+}
+
 /* Category Popup */
 .category-popup {
-  padding-top: 16px; padding-left: 16px; padding-right: 16px; padding-bottom: 30px;
+  padding: 16px;
+  padding-bottom: 30px;
 }
 .popup-title {
   font-size: 16px;
@@ -301,32 +373,54 @@ onMounted(() => {
   margin-bottom: 16px;
   text-align: center;
 }
-.popup-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+.popup-cat-group {
+  margin-bottom: 14px;
 }
-.popup-cat-item {
+.popup-cat-parent {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 11px 16px;
+  padding: 12px 14px;
   border-radius: 8px;
+  background: var(--primary-bg);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--primary);
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.popup-cat-parent.active {
+  background: var(--primary);
+  color: #fff;
+}
+.popup-cat-children {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 8px;
+}
+.popup-sub-item {
+  padding: 8px 14px;
+  border-radius: 6px;
   background: var(--bg-color);
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text-color);
   cursor: pointer;
-  transition: all var(--transition);
-  flex: 0 0 calc(50% - 5px);
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
-.popup-cat-item:active {
-  transform: scale(0.97);
-}
-.popup-cat-item.active {
+.popup-sub-item.active {
   background: var(--primary-bg);
   color: var(--primary);
-  font-weight: 600;
+  font-weight: 500;
+}
+.sub-price {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.popup-sub-item.active .sub-price {
+  color: var(--primary);
 }
 
 /* Pull Refresh */

@@ -5,8 +5,10 @@ import com.onlinetrain.common.BusinessException;
 import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.Course;
+import com.onlinetrain.entity.CourseCategory;
 import com.onlinetrain.entity.Order;
 import com.onlinetrain.entity.User;
+import com.onlinetrain.service.CourseCategoryService;
 import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.OrderService;
 import com.onlinetrain.service.UserService;
@@ -38,46 +40,78 @@ public class H5OrderController {
     private CourseService courseService;
 
     @Autowired
+    private CourseCategoryService categoryService;
+
+    @Autowired
     private WxPayService wxPayService;
 
     @Autowired
     private UserService userService;
 
     /**
-     * 创建订单
+     * 创建订单（支持购买课程或分类）
      */
     @PostMapping
     @ApiOperation("创建订单")
     public Result<Order> createOrder(@RequestBody Map<String, Object> params, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
-        Long courseId = Long.valueOf(params.get("courseId").toString());
-
-        Course course = courseService.getById(courseId);
-        if (course == null) {
-            throw new BusinessException("课程不存在");
-        }
-
-        // 检查是否已有未支付订单
-        Order existOrder = orderService.lambdaQuery()
-                .eq(Order::getUserId, userId)
-                .eq(Order::getCourseId, courseId)
-                .eq(Order::getStatus, "PENDING")
-                .one();
-        if (existOrder != null) {
-            return Result.ok(existOrder);
-        }
+        String productType = params.get("productType") != null ? params.get("productType").toString() : "COURSE";
 
         Order order = new Order();
         order.setOrderNo(UUID.randomUUID().toString().replace("-", "").substring(0, 32));
         order.setUserId(userId);
-        order.setCourseId(courseId);
-        order.setAmount(course.getPrice() != null ? course.getPrice() : BigDecimal.ZERO);
         order.setPayMethod(params.get("payMethod") != null ? params.get("payMethod").toString() : "WECHAT");
         order.setStatus("PENDING");
         order.setCreateTime(LocalDateTime.now());
         order.setExpireTime(LocalDateTime.now().plusMinutes(30));
-        orderService.save(order);
 
+        if ("CATEGORY".equals(productType)) {
+            // 购买分类
+            Long categoryId = Long.valueOf(params.get("categoryId").toString());
+            CourseCategory category = categoryService.getById(categoryId);
+            if (category == null) {
+                throw new BusinessException("分类不存在");
+            }
+            order.setProductType("CATEGORY");
+            order.setProductId(categoryId);
+            order.setCourseId(categoryId); // 兼容老字段
+            order.setAmount(category.getPrice() != null ? category.getPrice() : BigDecimal.ZERO);
+
+            // 检查是否已有未支付订单
+            Order existOrder = orderService.lambdaQuery()
+                    .eq(Order::getUserId, userId)
+                    .eq(Order::getProductType, "CATEGORY")
+                    .eq(Order::getProductId, categoryId)
+                    .eq(Order::getStatus, "PENDING")
+                    .one();
+            if (existOrder != null) {
+                return Result.ok(existOrder);
+            }
+        } else {
+            // 购买课程
+            Long courseId = Long.valueOf(params.get("courseId").toString());
+            Course course = courseService.getById(courseId);
+            if (course == null) {
+                throw new BusinessException("课程不存在");
+            }
+            order.setProductType("COURSE");
+            order.setProductId(courseId);
+            order.setCourseId(courseId);
+            order.setAmount(course.getPrice() != null ? course.getPrice() : BigDecimal.ZERO);
+
+            // 检查是否已有未支付订单
+            Order existOrder = orderService.lambdaQuery()
+                    .eq(Order::getUserId, userId)
+                    .eq(Order::getProductType, "COURSE")
+                    .eq(Order::getProductId, courseId)
+                    .eq(Order::getStatus, "PENDING")
+                    .one();
+            if (existOrder != null) {
+                return Result.ok(existOrder);
+            }
+        }
+
+        orderService.save(order);
         return Result.ok(order);
     }
 

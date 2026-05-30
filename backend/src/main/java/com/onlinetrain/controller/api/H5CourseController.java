@@ -21,8 +21,10 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * H5课程控制器
@@ -43,6 +45,9 @@ public class H5CourseController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private CourseCategoryService categoryService;
 
     /**
      * 课程列表（带筛选）
@@ -123,7 +128,7 @@ public class H5CourseController {
     }
 
     /**
-     * 检查课程访问权限
+     * 检查课程访问权限（支持分类购买模式）
      */
     @GetMapping("/{id}/access")
     @ApiOperation("检查课程访问权限")
@@ -144,8 +149,8 @@ public class H5CourseController {
             return Result.ok(result);
         }
 
-        // 检查是否已购买
         if (userId != null) {
+            // 方式1：直接购买了该课程
             long paidCount = orderService.lambdaQuery()
                     .eq(Order::getUserId, userId)
                     .eq(Order::getCourseId, id)
@@ -153,13 +158,37 @@ public class H5CourseController {
                     .count();
             if (paidCount > 0) {
                 result.put("accessible", true);
-                result.put("reason", "已购买");
+                result.put("reason", "已购买课程");
                 return Result.ok(result);
+            }
+
+            // 方式2：购买了课程所属的末级分类（或其祖先分类）
+            if (course.getCategoryId() != null) {
+                // 收集该分类及其所有祖先分类ID
+                Set<Long> categoryIds = new HashSet<>();
+                Long catId = course.getCategoryId();
+                CourseCategory cat = categoryService.getById(catId);
+                while (cat != null) {
+                    categoryIds.add(cat.getId());
+                    cat = cat.getParentId() != null ? categoryService.getById(cat.getParentId()) : null;
+                }
+
+                long categoryPaidCount = orderService.lambdaQuery()
+                        .eq(Order::getUserId, userId)
+                        .eq(Order::getProductType, "CATEGORY")
+                        .in(Order::getProductId, categoryIds)
+                        .eq(Order::getStatus, "PAID")
+                        .count();
+                if (categoryPaidCount > 0) {
+                    result.put("accessible", true);
+                    result.put("reason", "已购买分类");
+                    return Result.ok(result);
+                }
             }
         }
 
         result.put("accessible", false);
-        result.put("reason", "需要购买");
+        result.put("reason", "需要购买课程或对应分类");
         return Result.ok(result);
     }
 }

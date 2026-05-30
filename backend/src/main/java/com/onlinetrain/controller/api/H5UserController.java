@@ -38,6 +38,9 @@ public class H5UserController {
     private CourseService courseService;
 
     @Autowired
+    private CourseCategoryService categoryService;
+
+    @Autowired
     private JwtUtils jwtUtils;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
@@ -222,7 +225,7 @@ public class H5UserController {
     }
 
     /**
-     * 我的课程列表（已购买或免费的）
+     * 我的课程列表（已购课程 + 已购分类下的课程 + 免费课程）
      */
     @GetMapping("/courses")
     @ApiOperation("我的课程")
@@ -238,30 +241,53 @@ public class H5UserController {
         List<Map<String, Object>> result = new ArrayList<>();
         Set<Long> addedCourseIds = new HashSet<>();
 
+        // 1. 处理直接购买的课程
+        // 2. 处理购买了分类 → 获取分类下所有课程
+        Set<Long> purchasedCategoryIds = new HashSet<>();
         for (Order order : paidOrders) {
-            if (addedCourseIds.contains(order.getCourseId())) continue;
-            Course course = courseService.getById(order.getCourseId());
-            if (course != null) {
-                Map<String, Object> item = new HashMap<>();
-                item.put("id", course.getId());
-                item.put("title", course.getTitle());
-                item.put("coverUrl", course.getCover());
-                item.put("price", course.getPrice());
-
-                // 学习进度
-                long finishedChapters = learningRecordService.lambdaQuery()
-                        .eq(LearningRecord::getUserId, userId)
-                        .eq(LearningRecord::getCourseId, course.getId())
-                        .eq(LearningRecord::getIsFinished, 1)
-                        .count();
-                item.put("finishedChapters", finishedChapters);
-
-                result.add(item);
-                addedCourseIds.add(order.getCourseId());
+            if ("CATEGORY".equals(order.getProductType())) {
+                purchasedCategoryIds.add(order.getProductId());
+            } else {
+                // 直接购买的课程
+                if (!addedCourseIds.contains(order.getCourseId())) {
+                    Course course = courseService.getById(order.getCourseId());
+                    if (course != null) {
+                        addCourseToResult(result, addedCourseIds, course, userId);
+                    }
+                }
             }
         }
 
-        // 也包含免费课程
+        // 3. 通过分类购买 → 获取该分类及其子分类下的所有课程
+        if (!purchasedCategoryIds.isEmpty()) {
+            // 收集所有叶子分类（包括已购分类的所有子孙分类）
+            Set<Long> allCategoryIds = new HashSet<>(purchasedCategoryIds);
+            List<CourseCategory> allCategories = categoryService.list();
+            for (CourseCategory cat : allCategories) {
+                Long currentId = cat.getParentId();
+                while (currentId != null) {
+                    if (purchasedCategoryIds.contains(currentId)) {
+                        allCategoryIds.add(cat.getId());
+                        break;
+                    }
+                    final Long cid = currentId;
+                    CourseCategory parent = allCategories.stream().filter(c -> c.getId().equals(cid)).findFirst().orElse(null);
+                    currentId = parent != null ? parent.getParentId() : null;
+                }
+            }
+
+            List<Course> categoryCourses = courseService.lambdaQuery()
+                    .in(Course::getCategoryId, allCategoryIds)
+                    .eq(Course::getStatus, "UP")
+                    .list();
+            for (Course course : categoryCourses) {
+                if (!addedCourseIds.contains(course.getId())) {
+                    addCourseToResult(result, addedCourseIds, course, userId);
+                }
+            }
+        }
+
+        // 4. 也包含免费课程
         List<Course> freeCourses = courseService.lambdaQuery()
                 .and(w -> w.isNull(Course::getPrice).or().eq(Course::getPrice, java.math.BigDecimal.ZERO))
                 .eq(Course::getStatus, "UP")
@@ -279,6 +305,26 @@ public class H5UserController {
         }
 
         return Result.ok(result);
+    }
+
+    private void addCourseToResult(List<Map<String, Object>> result, Set<Long> addedCourseIds, Course course, Long userId) {
+        if (addedCourseIds.contains(course.getId())) return;
+        Map<String, Object> item = new HashMap<>();
+        item.put("id", course.getId());
+        item.put("title", course.getTitle());
+        item.put("coverUrl", course.getCover());
+        item.put("price", course.getPrice());
+
+        // 学习进度
+        long finishedChapters = learningRecordService.lambdaQuery()
+                .eq(LearningRecord::getUserId, userId)
+                .eq(LearningRecord::getCourseId, course.getId())
+                .eq(LearningRecord::getIsFinished, 1)
+                .count();
+        item.put("finishedChapters", finishedChapters);
+
+        result.add(item);
+        addedCourseIds.add(course.getId());
     }
 
     /**

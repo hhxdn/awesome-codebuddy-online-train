@@ -120,6 +120,12 @@ const routes = [
     meta: { title: '确认订单' }
   },
   {
+    path: '/order/confirm-category/:categoryId',
+    name: 'OrderConfirmCategory',
+    component: () => import('../views/order/OrderConfirm.vue'),
+    meta: { title: '购买分类' }
+  },
+  {
     path: '/orders',
     name: 'OrderList',
     component: () => import('../views/order/OrderList.vue'),

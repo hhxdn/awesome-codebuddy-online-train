@@ -107,7 +107,8 @@
           <span class="price-label">价格</span>
           <span class="price-value">¥{{ course.price }}</span>
         </div>
-        <van-button type="primary" round @click="buyNow" class="bottom-btn-half">立即购买</van-button>
+        <van-button type="primary" round @click="buyNow" class="bottom-btn-half">购买课程</van-button>
+        <van-button v-if="belongCategory" type="warning" round plain @click="buyCategory" class="bottom-btn-half">购买分类 ¥{{ belongCategory.price }}</van-button>
       </template>
       <template v-else>
         <van-button type="primary" block round size="large" @click="startLearn" class="bottom-btn">
@@ -134,12 +135,22 @@ const purchased = ref(false)
 const isPaid = ref(false)
 const descExpanded = ref(false)
 const checkedIn = ref(false)
+const belongCategory = ref(null)
 
 async function fetchDetail() {
   try {
     const res = await get('/courses/' + courseId)
     if (res.data) course.value = res.data
     isPaid.value = (course.value.price || 0) > 0
+    // 获取课程所属末级分类信息
+    if (course.value.categoryId) {
+      try {
+        const catRes = await get('/categories/' + course.value.categoryId)
+        if (catRes.data && catRes.data.parentId != null) {
+          belongCategory.value = catRes.data
+        }
+      } catch (e) {}
+    }
   } catch (e) {
     course.value = { id: courseId, title: '加载中...', price: 0, categoryName: '', studentCount: 0, description: '' }
   }
@@ -149,9 +160,8 @@ async function fetchDetail() {
   } catch (e) { chapters.value = [] }
   try {
     const res = await get('/courses/' + courseId + '/access')
-    if (res.data) purchased.value = res.data.purchased
+    if (res.data) purchased.value = res.data.accessible
   } catch (e) { purchased.value = false }
-  // 检查线下课程打卡状态
   if (course.value.courseType === 'OFFLINE') {
     try {
       const res = await get('/checkin/status/' + courseId)
@@ -173,6 +183,11 @@ function startLearn() {
   else showToast('暂无章节内容')
 }
 function buyNow() { router.push('/order/confirm/' + courseId) }
+function buyCategory() {
+  if (belongCategory.value) {
+    router.push({ path: '/order/confirm-category/' + belongCategory.value.id })
+  }
+}
 function goCheckin() { router.push('/checkin/' + courseId) }
 
 onMounted(() => fetchDetail())
