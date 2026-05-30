@@ -31,16 +31,39 @@
   --transition: 0.2s cubic-bezier(0.38, 0, 0.24, 1);
 }
 
-/* Desktop: cap layout width at 750px (design draft × 2) */
+/* Desktop: cap layout width at 750px (design draft × 2), phone-like centered container */
 @media (min-width: 750px) {
   html {
     font-size: 75px !important;
+    background: #E8EDF2;
   }
   body {
     max-width: 750px;
+    margin: 0 auto;
+    min-height: 100vh;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+    position: relative;
+  }
+  #app {
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--bg-color);
   }
   .bottom-fixed-bar {
     max-width: 750px;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+  /* 桌面端隐藏移动端滚动手势提示 */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 2px;
   }
 }
 

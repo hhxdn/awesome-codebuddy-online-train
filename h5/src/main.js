@@ -2,9 +2,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
-import 'amfe-flexible'
 import 'vant/lib/index.css'
 import './styles/global.css'
+import './utils/flexible.js'
 
 const app = createApp(App)
 app.use(createPinia())
