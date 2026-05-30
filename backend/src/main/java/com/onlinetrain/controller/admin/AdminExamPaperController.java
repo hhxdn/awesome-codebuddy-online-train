@@ -37,11 +37,15 @@ public class AdminExamPaperController {
     @ApiOperation("试卷列表")
     public Result<PageResult<ExamPaper>> list(
             @RequestParam(defaultValue = "1") Integer page,
-            @RequestParam(defaultValue = "10") Integer size) {
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String examType) {
 
         Page<ExamPaper> pageParam = new Page<>(page, size);
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ExamPaper> wrapper =
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        if (examType != null && !examType.isEmpty()) {
+            wrapper.eq(ExamPaper::getExamType, examType);
+        }
         wrapper.orderByDesc(ExamPaper::getCreateTime);
         return Result.ok(PageResult.of(examPaperService.page(pageParam, wrapper)));
     }
@@ -67,6 +71,7 @@ public class AdminExamPaperController {
         result.put("passScore", paper.getPassScore());
         result.put("maxAttempts", paper.getMaxAttempts());
         result.put("status", paper.getStatus());
+        result.put("examType", paper.getExamType() != null ? paper.getExamType() : "ONLINE");
         result.put("questionIds", questionIds != null ? questionIds : Collections.emptyList());
         return Result.ok(result);
     }
@@ -86,6 +91,7 @@ public class AdminExamPaperController {
         if (params.get("passScore") != null) paper.setPassScore(Integer.parseInt(params.get("passScore").toString()));
         if (params.get("maxAttempts") != null) paper.setMaxAttempts(Integer.parseInt(params.get("maxAttempts").toString()));
         paper.setStatus(params.get("status") != null ? params.get("status").toString() : "DRAFT");
+        paper.setExamType(params.get("examType") != null ? params.get("examType").toString() : "ONLINE");
         examPaperService.save(paper);
 
         List<Long> questionIds = (List<Long>) params.get("questionIds");
@@ -175,7 +181,7 @@ public class AdminExamPaperController {
     /**
      * 随机组卷 - 从题库随机抽取指定数量的题目生成试卷
      * body: { courseId, title, singleCount(默认60), multipleCount(默认20), judgeCount(默认20),
-     *         durationMinutes, passScore, maxAttempts }
+     *         durationMinutes, passScore, maxAttempts, examType }
      */
     @PostMapping("/exams/random")
     @ApiOperation("随机组卷")
@@ -230,6 +236,7 @@ public class AdminExamPaperController {
         paper.setPassScore(params.get("passScore") != null ? Integer.parseInt(params.get("passScore").toString()) : 60);
         paper.setMaxAttempts(params.get("maxAttempts") != null ? Integer.parseInt(params.get("maxAttempts").toString()) : 1);
         paper.setStatus("PUBLISHED");
+        paper.setExamType(params.get("examType") != null ? params.get("examType").toString() : "ONLINE");
         examPaperService.save(paper);
 
         // 组合所有题目并保存关联

@@ -3,12 +3,25 @@
     <div class="card-container">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3>试卷管理</h3>
-        <el-button type="primary" @click="handleAdd">新增试卷</el-button>
+        <div style="display: flex; gap: 10px;">
+          <el-select v-model="filterExamType" placeholder="考试类型" clearable style="width: 140px;" @change="fetchData">
+            <el-option label="线上考试" value="ONLINE" />
+            <el-option label="线下考试" value="OFFLINE" />
+          </el-select>
+          <el-button type="primary" @click="handleAdd">新增试卷</el-button>
+        </div>
       </div>
       <el-table :data="tableData" border stripe>
         <el-table-column prop="id" label="ID" width="70" />
         <el-table-column prop="title" label="试卷名称" min-width="180" show-overflow-tooltip />
         <el-table-column prop="courseName" label="所属课程" width="140" show-overflow-tooltip />
+        <el-table-column label="考试类型" width="90">
+          <template #default="{ row }">
+            <el-tag :type="row.examType === 'OFFLINE' ? 'warning' : 'primary'" size="small">
+              {{ row.examType === 'OFFLINE' ? '线下' : '线上' }}
+            </el-tag>
+          </template>
+        </el-table-column>
         <el-table-column prop="durationMinutes" label="考试时长(分)" width="110" />
         <el-table-column prop="totalScore" label="总分" width="80" />
         <el-table-column prop="passScore" label="及格分" width="80" />
@@ -86,6 +99,15 @@
         <el-form-item label="最大考试次数" prop="maxAttempts">
           <el-input-number v-model="form.maxAttempts" :min="1" :max="99" />
         </el-form-item>
+        <el-form-item label="考试类型" prop="examType">
+          <el-radio-group v-model="form.examType">
+            <el-radio value="ONLINE">线上考试</el-radio>
+            <el-radio value="OFFLINE">线下考试</el-radio>
+          </el-radio-group>
+          <span style="margin-left: 8px; font-size: 12px; color: #909399;">
+            {{ form.examType === 'OFFLINE' ? '线下考试学员不能在线参加，需管理员录入成绩后颁发证书' : '学员在线参加，系统自动评分' }}
+          </span>
+        </el-form-item>
 
         <div v-if="form.courseId" style="margin-top: 16px;">
           <div class="card-title">选择题目（按章节筛选）</div>
@@ -127,6 +149,7 @@ const courses = ref([])
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
+const filterExamType = ref('')
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增试卷')
@@ -148,6 +171,7 @@ const form = reactive({
   totalScore: 100,
   passScore: 60,
   maxAttempts: 1,
+  examType: 'ONLINE',
   questionIds: []
 })
 
@@ -179,6 +203,7 @@ function resetForm() {
   form.totalScore = 100
   form.passScore = 60
   form.maxAttempts = 1
+  form.examType = 'ONLINE'
   form.questionIds = []
   examChapters.value = []
   availableQuestions.value = []
@@ -225,7 +250,9 @@ async function loadQuestions() {
 async function fetchData() {
   loading.value = true
   try {
-    const res = await get('/admin/exams', { page: page.value, pageSize: pageSize.value })
+    const params = { page: page.value, pageSize: pageSize.value }
+    if (filterExamType.value) params.examType = filterExamType.value
+    const res = await get('/admin/exams', params)
     tableData.value = res.data?.records || res.data?.list || []
     total.value = res.data?.total || 0
   } catch { tableData.value = [] } finally { loading.value = false }
@@ -250,6 +277,7 @@ async function handleEdit(row) {
     form.totalScore = data.totalScore
     form.passScore = data.passScore
     form.maxAttempts = data.maxAttempts || 1
+    form.examType = data.examType || 'ONLINE'
     form.questionIds = (data.questionIds || data.questions || []).map(q => q.id || q.questionId || q)
 
     if (form.courseId) {

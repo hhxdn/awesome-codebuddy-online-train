@@ -21,6 +21,9 @@ public class Certificate {
     /** 课程ID(单个课程结业)，null表示全课程结业 */
     private Long courseId;
 
+    /** 关联的考试记录ID（线下考试通过后颁发） */
+    private Long examRecordId;
+
     /** 证书类型: COURSE单课程 / ALL全课程结业 */
     private String certType;
 

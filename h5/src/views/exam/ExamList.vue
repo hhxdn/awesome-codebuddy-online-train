@@ -6,12 +6,15 @@
       <div v-if="examList.length > 0">
         <div v-for="exam in examList" :key="exam.id" class="exam-card" @click="goExam(exam)">
           <div class="exam-top">
-            <div class="exam-icon">
-              <van-icon name="certificate" size="20" color="#fff" />
+            <div class="exam-icon" :class="{ offline: exam.examType === 'OFFLINE' }">
+              <van-icon :name="exam.examType === 'OFFLINE' ? 'location-o' : 'certificate'" size="20" color="#fff" />
             </div>
             <div class="exam-main">
               <h3 class="exam-name">{{ exam.name }}</h3>
-              <span class="exam-status" :class="'s-' + getStatusType(exam)">{{ getStatusText(exam) }}</span>
+              <div style="display: flex; gap: 4px; flex-shrink: 0;">
+                <span v-if="exam.examType === 'OFFLINE'" class="exam-tag offline-tag">线下</span>
+                <span class="exam-status" :class="'s-' + getStatusType(exam)">{{ getStatusText(exam) }}</span>
+              </div>
             </div>
           </div>
           <div class="exam-meta">
@@ -21,6 +24,7 @@
           </div>
           <div class="exam-bottom" v-if="exam.questionCount">
             <span>共{{ exam.questionCount }}题</span>
+            <span v-if="exam.examType === 'OFFLINE'" style="color: #E37318;">线下考试，由管理员录入成绩</span>
             <van-icon name="arrow" size="14" />
           </div>
         </div>
@@ -65,7 +69,13 @@ function getStatusText(exam) {
   if (exam.userScore !== undefined) return '未通过'
   return '未参加'
 }
-function goExam(exam) { router.push('/exam/start/' + exam.id) }
+function goExam(exam) {
+  if (exam.examType === 'OFFLINE') {
+    // 线下考试不能在线参加
+    return
+  }
+  router.push('/exam/start/' + exam.id)
+}
 function onRefresh() { refreshing.value = true; fetchExams().finally(() => { refreshing.value = false }) }
 
 onMounted(() => fetchExams())
@@ -87,6 +97,15 @@ onMounted(() => fetchExams())
   background: linear-gradient(135deg, #0052D9, #366EF4);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
+}
+.exam-icon.offline {
+  background: linear-gradient(135deg, #E37318, #FF9800);
+}
+.exam-tag {
+  font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 3px;
+}
+.offline-tag {
+  background: #FFF3E0; color: #E37318; border: 1px solid #FFCC80;
 }
 .exam-main { flex: 1; display: flex; align-items: center; justify-content: space-between; min-width: 0; }
 .exam-name { font-size: 16px; font-weight: 600; color: var(--text-color); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

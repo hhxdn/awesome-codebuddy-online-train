@@ -37,6 +37,16 @@
 
         <el-divider content-position="left">考试设置</el-divider>
 
+        <el-form-item label="考试类型">
+          <el-radio-group v-model="form.examType">
+            <el-radio value="ONLINE">线上考试</el-radio>
+            <el-radio value="OFFLINE">线下考试</el-radio>
+          </el-radio-group>
+          <span style="margin-left: 8px; font-size: 12px; color: #909399;">
+            {{ form.examType === 'OFFLINE' ? '线下考试学员不能在线参加，需管理员录入成绩' : '学员在线参加，系统自动评分' }}
+          </span>
+        </el-form-item>
+
         <el-form-item label="考试时长(分钟)" prop="durationMinutes">
           <el-input-number v-model="form.durationMinutes" :min="1" :max="300" />
         </el-form-item>
@@ -97,7 +107,8 @@ const form = reactive({
   judgeCount: 20,
   durationMinutes: 120,
   passScore: 60,
-  maxAttempts: 1
+  maxAttempts: 1,
+  examType: 'ONLINE'
 })
 
 const result = reactive({
@@ -152,7 +163,8 @@ async function handleGenerate() {
       judgeCount: form.judgeCount,
       durationMinutes: form.durationMinutes,
       passScore: form.passScore,
-      maxAttempts: form.maxAttempts
+      maxAttempts: form.maxAttempts,
+      examType: form.examType
     })
     Object.assign(result, res.data)
     resultVisible.value = true

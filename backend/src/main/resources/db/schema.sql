@@ -113,6 +113,7 @@ CREATE TABLE `exam_paper` (
     `pass_score` INT DEFAULT 60 COMMENT '及格分',
     `max_attempts` INT DEFAULT 1 COMMENT '最大考试次数',
     `status` ENUM('DRAFT','PUBLISHED','ENDED') DEFAULT 'DRAFT' COMMENT '状态',
+    `exam_type` ENUM('ONLINE','OFFLINE') DEFAULT 'ONLINE' COMMENT '考试类型: ONLINE线上考试 OFFLINE线下考试',
     `create_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='试卷表';
@@ -640,6 +641,7 @@ CREATE TABLE `certificate` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `course_id` BIGINT COMMENT '课程ID(单个课程结业)',
+    `exam_record_id` BIGINT COMMENT '关联的线下考试记录ID(线下考试通过后颁发)',
     `cert_type` ENUM('COURSE','ALL') DEFAULT 'COURSE' COMMENT '证书类型: COURSE单课程 ALL全课程结业',
     `title` VARCHAR(200) NOT NULL COMMENT '证书标题',
     `content` TEXT COMMENT '证书内容描述',

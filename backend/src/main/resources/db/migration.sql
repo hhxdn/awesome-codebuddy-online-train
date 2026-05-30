@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `certificate` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY,
     `user_id` BIGINT NOT NULL COMMENT '用户ID',
     `course_id` BIGINT COMMENT '课程ID(单个课程结业)',
+    `exam_record_id` BIGINT COMMENT '关联的线下考试记录ID(线下考试通过后颁发)',
     `cert_type` ENUM('COURSE','ALL') DEFAULT 'COURSE' COMMENT '证书类型: COURSE单课程 ALL全课程结业',
     `title` VARCHAR(200) NOT NULL COMMENT '证书标题',
     `content` TEXT COMMENT '证书内容描述',
@@ -51,3 +52,14 @@ CREATE TABLE IF NOT EXISTS `certificate` (
     `deleted` TINYINT DEFAULT 0 COMMENT '逻辑删除',
     UNIQUE KEY `uk_cert_no` (`cert_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='结业证书表';
+
+-- 试卷表新增考试类型字段
+ALTER TABLE `exam_paper`
+    ADD COLUMN IF NOT EXISTS `exam_type` ENUM('ONLINE','OFFLINE') DEFAULT 'ONLINE' COMMENT '考试类型: ONLINE线上考试 OFFLINE线下考试' AFTER `status`;
+
+-- 将现有试卷设为线上考试
+UPDATE `exam_paper` SET `exam_type` = 'ONLINE' WHERE `exam_type` IS NULL;
+
+-- 证书表新增考试记录关联字段
+ALTER TABLE `certificate`
+    ADD COLUMN IF NOT EXISTS `exam_record_id` BIGINT COMMENT '关联的线下考试记录ID(线下考试通过后颁发)' AFTER `course_id`;

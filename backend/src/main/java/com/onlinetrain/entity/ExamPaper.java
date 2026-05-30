@@ -18,6 +18,8 @@ public class ExamPaper {
     private Integer passScore;
     private Integer maxAttempts;
     private String status;
+    /** 考试类型: ONLINE线上考试 / OFFLINE线下考试 */
+    private String examType;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

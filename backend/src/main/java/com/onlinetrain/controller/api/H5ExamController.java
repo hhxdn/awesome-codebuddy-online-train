@@ -45,18 +45,15 @@ public class H5ExamController {
     @GetMapping("/exams")
     @ApiOperation("试卷列表")
     public Result<List<Map<String, Object>>> listExams(
-            @RequestParam(required = false) Long courseId) {
+            @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) String examType) {
         List<ExamPaper> papers;
-        if (courseId != null) {
-            papers = examPaperService.lambdaQuery()
-                    .eq(ExamPaper::getCourseId, courseId)
-                    .eq(ExamPaper::getStatus, "PUBLISHED")
-                    .list();
-        } else {
-            papers = examPaperService.lambdaQuery()
-                    .eq(ExamPaper::getStatus, "PUBLISHED")
-                    .list();
-        }
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ExamPaper> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        wrapper.eq(ExamPaper::getStatus, "PUBLISHED");
+        if (courseId != null) wrapper.eq(ExamPaper::getCourseId, courseId);
+        if (examType != null && !examType.isEmpty()) wrapper.eq(ExamPaper::getExamType, examType);
+        papers = examPaperService.list(wrapper);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (ExamPaper paper : papers) {
@@ -70,6 +67,7 @@ public class H5ExamController {
             item.put("totalScore", paper.getTotalScore());
             item.put("passScore", paper.getPassScore());
             item.put("questionCount", qCount);
+            item.put("examType", paper.getExamType() != null ? paper.getExamType() : "ONLINE");
             result.add(item);
         }
         return Result.ok(result);
@@ -111,6 +109,11 @@ public class H5ExamController {
         ExamPaper paper = examPaperService.getById(paperId);
         if (paper == null || !"PUBLISHED".equals(paper.getStatus())) {
             throw new BusinessException("试卷不可用");
+        }
+
+        // 线下考试不能在线参加，只能由管理员录入成绩
+        if ("OFFLINE".equals(paper.getExamType())) {
+            throw new BusinessException("此考试为线下考试，请参加线下考试，成绩将由管理员录入");
         }
 
         // 检查是否超过最大考试次数
@@ -390,6 +393,6 @@ public class H5ExamController {
     @GetMapping("/courses/{courseId}/exams")
     @ApiOperation("课程试卷列表")
     public Result<List<Map<String, Object>>> courseExams(@PathVariable Long courseId) {
-        return listExams(courseId);
+        return listExams(courseId, null);
     }
 }

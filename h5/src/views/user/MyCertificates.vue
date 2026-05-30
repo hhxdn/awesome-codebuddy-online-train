@@ -38,7 +38,9 @@
             <p><strong>证书编号：</strong>{{ currentCert.certNo }}</p>
             <p><strong>颁发时间：</strong>{{ formatTime(currentCert.issueTime) }}</p>
             <p><strong>课程：</strong>{{ currentCert.courseTitle }}</p>
+            <p v-if="currentCert.examRecordId"><strong>考试记录ID：</strong>{{ currentCert.examRecordId }}</p>
           </div>
+          <div class="detail-seal">线下考试通过</div>
         </div>
         <van-button block round type="primary" class="close-btn" @click="showDetail = false">
           关闭
@@ -166,6 +168,8 @@ onMounted(() => fetchCertificates())
   border-radius: 16px;
   padding: 30px 24px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 .detail-badge {
@@ -207,5 +211,25 @@ onMounted(() => fetchCertificates())
   height: 44px;
   background: #0052D9 !important;
   border: none !important;
+}
+
+.detail-seal {
+  position: absolute;
+  bottom: 30px;
+  right: 40px;
+  width: 70px;
+  height: 70px;
+  border: 3px solid #E34D59;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #E34D59;
+  font-size: 11px;
+  font-weight: bold;
+  transform: rotate(-15deg);
+  opacity: 0.7;
+  text-align: center;
+  line-height: 1.3;
 }
 </style>
