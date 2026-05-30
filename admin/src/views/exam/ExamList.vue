@@ -262,8 +262,8 @@ async function fetchData() {
 }
 
 function handleAdd() {
-  dialogTitle.value = '新增试卷'
-  dialogVisible.value = true
+  // 跳转到独立的编辑页面（统一使用 ExamEdit.vue）
+  router.push('/exams/edit/new')
 }
 
 async function handleEdit(row) {

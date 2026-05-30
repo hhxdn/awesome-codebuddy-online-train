@@ -22,38 +22,26 @@
       </div>
     </div>
 
-    <!-- Category Bar: 一级分类横向滚动 -->
+    <!-- Category Bar: 多级分类 -->
     <div class="category-bar">
+      <!-- 一级 -->
       <div class="category-scroll">
-        <div
-          class="cat-chip"
-          :class="{ active: activeCategory === 0 }"
-          @click="selectCategory(0)"
-        >全部</div>
-        <div
-          v-for="cat in categories"
-          :key="cat.id"
-          class="cat-chip"
-          :class="{ active: activeCategory === cat.id }"
-          @click="selectCategory(cat.id)"
-        >
-          {{ cat.name }}
+        <div class="cat-chip" :class="{ active: activeL1 === 0 }" @click="selectL1(0)">全部</div>
+        <div v-for="cat in categories" :key="cat.id" class="cat-chip" :class="{ active: activeL1 === cat.id }" @click="selectL1(cat.id)">{{ cat.name }}</div>
+      </div>
+      <!-- 二级 -->
+      <div v-if="activeL2List.length > 0" class="sub-category-bar">
+        <div class="sub-cat-chip" :class="{ active: activeL2 === 0 }" @click="selectL2(0)">全部</div>
+        <div v-for="sub in activeL2List" :key="sub.id" class="sub-cat-chip" :class="{ active: activeL2 === sub.id }" @click="selectL2(sub.id)">
+          {{ sub.name }}
+          <span v-if="sub.isFree === 1" class="free-badge">免费</span>
+          <span v-else-if="sub.price > 0" class="price-badge">¥{{ sub.price }}</span>
         </div>
       </div>
-      <!-- 二级分类（点击一级后展开） -->
-      <div v-if="activeSubCategories.length > 0" class="sub-category-bar">
-        <div
-          class="sub-cat-chip"
-          :class="{ active: activeSubCategory === 0 }"
-          @click="selectSubCategory(0)"
-        >全部</div>
-        <div
-          v-for="sub in activeSubCategories"
-          :key="sub.id"
-          class="sub-cat-chip"
-          :class="{ active: activeSubCategory === sub.id }"
-          @click="selectSubCategory(sub.id)"
-        >
+      <!-- 三级 -->
+      <div v-if="activeL3List.length > 0" class="sub-category-bar level3-bar">
+        <div class="sub-cat-chip" :class="{ active: activeL3 === 0 }" @click="selectL3(0)">全部</div>
+        <div v-for="sub in activeL3List" :key="sub.id" class="sub-cat-chip" :class="{ active: activeL3 === sub.id }" @click="selectL3(sub.id)">
           {{ sub.name }}
           <span v-if="sub.isFree === 1" class="free-badge">免费</span>
           <span v-else-if="sub.price > 0" class="price-badge">¥{{ sub.price }}</span>
@@ -61,30 +49,27 @@
       </div>
     </div>
 
-    <!-- Category Popup: 展示所有一级和二级 -->
-    <van-popup
-      v-model:show="showAllCategories"
-      position="bottom"
-      round
-      :style="{ maxHeight: '60vh' }"
-    >
+    <!-- Category Popup: 展示多级分类 -->
+    <van-popup v-model:show="showAllCategories" position="bottom" round :style="{ maxHeight: '65vh' }">
       <div class="category-popup">
         <h3 class="popup-title">全部分类</h3>
         <div v-for="cat in categories" :key="cat.id" class="popup-cat-group">
-          <div class="popup-cat-parent" :class="{ active: activeCategory === cat.id }" @click="selectCategoryFromPopup(cat.id)">
+          <div class="popup-cat-parent" :class="{ active: activeL1 === cat.id }" @click="selectL1FromPopup(cat.id)">
             <span>{{ cat.name }}</span>
-            <van-icon v-if="activeCategory === cat.id" name="success" color="var(--primary)" size="16" />
+            <van-icon v-if="activeL1 === cat.id" name="success" color="var(--primary)" size="16" />
           </div>
           <div v-if="cat.children && cat.children.length" class="popup-cat-children">
-            <div
-              v-for="sub in cat.children"
-              :key="sub.id"
-              class="popup-sub-item"
-              :class="{ active: activeSubCategory === sub.id }"
-              @click="selectSubFromPopup(cat.id, sub.id)"
-            >
-              <span>{{ sub.name }}</span>
-              <span class="sub-price">{{ sub.isFree === 1 ? '免费' : '¥' + (sub.price || 0) }}</span>
+            <div v-for="sub in cat.children" :key="sub.id" class="popup-sub-item-wrap">
+              <div class="popup-sub-item" :class="{ active: activeL2 === sub.id }" @click="selectL2FromPopup(cat.id, sub.id)">
+                <span>{{ sub.name }}</span>
+                <span class="sub-price">{{ sub.isFree === 1 ? '免费' : '¥' + (sub.price || 0) }}</span>
+              </div>
+              <div v-if="sub.children && sub.children.length" class="popup-l3-children">
+                <div v-for="l3 in sub.children" :key="l3.id" class="popup-l3-item" :class="{ active: activeL3 === l3.id }" @click.stop="selectL3FromPopup(cat.id, sub.id, l3.id)">
+                  {{ l3.name }}
+                  <span class="sub-price">{{ l3.isFree === 1 ? '免费' : '¥' + (l3.price || 0) }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -130,70 +115,78 @@ import EmptyState from '../../components/EmptyState.vue'
 
 const router = useRouter()
 const keyword = ref('')
-const activeCategory = ref(0)
-const activeSubCategory = ref(0)
+const activeL1 = ref(0)      // 一级分类ID
+const activeL2 = ref(0)      // 二级分类ID
+const activeL3 = ref(0)      // 三级分类ID
 const refreshing = ref(false)
 const loading = ref(false)
 const categories = ref([])
 const courseList = ref([])
 const showAllCategories = ref(false)
 
-const activeSubCategories = computed(() => {
-  if (activeCategory.value === 0) return []
-  const cat = categories.value.find(c => c.id === activeCategory.value)
+// 当前选中的一级分类下的二级列表
+const activeL2List = computed(() => {
+  if (activeL1.value === 0) return []
+  const cat = categories.value.find(c => c.id === activeL1.value)
   return cat?.children || []
+})
+
+// 当前选中的二级分类下的三级列表
+const activeL3List = computed(() => {
+  if (activeL2.value === 0) return []
+  for (const cat of categories.value) {
+    const l2 = cat.children?.find(c => c.id === activeL2.value)
+    if (l2) return l2.children || []
+  }
+  return []
 })
 
 async function fetchCategories() {
   try {
     const res = await get('/categories/tree')
-    if (res.data && res.data.length > 0) {
-      categories.value = res.data
-    }
-  } catch (e) {
-    categories.value = []
-  }
+    if (res.data && res.data.length > 0) categories.value = res.data
+  } catch (e) { categories.value = [] }
 }
 
 async function fetchCourses() {
   loading.value = true
   try {
     const params = {}
-    // 优先用二级分类筛选
-    const cid = activeSubCategory.value > 0 ? activeSubCategory.value : activeCategory.value
+    // 优先用最深级分类筛选
+    const cid = activeL3.value > 0 ? activeL3.value : (activeL2.value > 0 ? activeL2.value : activeL1.value)
     if (cid > 0) params.categoryId = cid
     if (keyword.value) params.keyword = keyword.value
     const res = await get('/courses', params)
-    if (res.data) {
-      courseList.value = res.data.records || res.data || []
-    }
-  } catch (e) {
-    courseList.value = []
-  }
+    if (res.data) courseList.value = res.data.records || res.data || []
+  } catch (e) { courseList.value = [] }
   loading.value = false
 }
 
-function selectCategory(id) {
-  activeCategory.value = id
-  activeSubCategory.value = 0
+function selectL1(id) {
+  activeL1.value = id; activeL2.value = 0; activeL3.value = 0
+  fetchCourses()
+}
+function selectL2(id) {
+  activeL2.value = id; activeL3.value = 0
+  fetchCourses()
+}
+function selectL3(id) {
+  activeL3.value = id
   fetchCourses()
 }
 
-function selectSubCategory(id) {
-  activeSubCategory.value = id
-  fetchCourses()
-}
-
-function selectCategoryFromPopup(id) {
-  activeCategory.value = id
-  activeSubCategory.value = 0
+function selectL1FromPopup(id) {
+  activeL1.value = id; activeL2.value = 0; activeL3.value = 0
   showAllCategories.value = false
   fetchCourses()
 }
-
-function selectSubFromPopup(parentId, subId) {
-  activeCategory.value = parentId
-  activeSubCategory.value = subId
+function selectL2FromPopup(l1Id, l2Id) {
+  activeL1.value = l1Id; activeL2.value = l2Id; activeL3.value = 0
+  showAllCategories.value = false
+  fetchCourses()
+}
+function selectL3FromPopup(l1Id, l2Id, l3Id) {
+  activeL1.value = l1Id; activeL2.value = l2Id; activeL3.value = l3Id
   showAllCategories.value = false
   fetchCourses()
 }
@@ -203,9 +196,7 @@ function onRefresh() {
   fetchCourses().finally(() => { refreshing.value = false })
 }
 
-function goDetail(id) {
-  router.push('/course/' + id)
-}
+function goDetail(id) { router.push('/course/' + id) }
 
 onMounted(() => {
   fetchCategories()
@@ -331,6 +322,9 @@ onMounted(() => {
   border-top: 1px solid var(--border-light);
 }
 .sub-category-bar::-webkit-scrollbar { display: none; }
+.level3-bar {
+  background: #FAFBFC;
+}
 .sub-cat-chip {
   flex-shrink: 0;
   padding: 5px 12px;
@@ -399,6 +393,9 @@ onMounted(() => {
   gap: 6px;
   padding-left: 8px;
 }
+.popup-sub-item-wrap {
+  flex: 1 1 100%;
+}
 .popup-sub-item {
   padding: 8px 14px;
   border-radius: 6px;
@@ -408,9 +405,33 @@ onMounted(() => {
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 6px;
+  margin-bottom: 4px;
 }
 .popup-sub-item.active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 500;
+}
+.popup-l3-children {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 0 6px 18px;
+}
+.popup-l3-item {
+  padding: 5px 10px;
+  border-radius: 12px;
+  background: #f0f2f5;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.popup-l3-item.active {
   background: var(--primary-bg);
   color: var(--primary);
   font-weight: 500;

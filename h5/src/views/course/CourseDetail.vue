@@ -17,7 +17,7 @@
           <span class="banner-tag" :class="(course.price || 0) === 0 ? 'tag-free' : 'tag-paid'">
             {{ (course.price || 0) === 0 ? '免费' : '¥' + course.price }}
           </span>
-          <span class="banner-tag tag-cat">{{ course.categoryName }}</span>
+          <span class="banner-tag tag-cat">{{ course.categoryPath || course.categoryName }}</span>
           <span v-if="course.courseType === 'OFFLINE'" class="banner-tag tag-offline">线下课程</span>
         </div>
         <div class="banner-stats">
@@ -137,17 +137,51 @@ const descExpanded = ref(false)
 const checkedIn = ref(false)
 const belongCategory = ref(null)
 
+let _allCats = null
+
+async function fetchAllCategories() {
+  if (_allCats) return _allCats
+  try {
+    const res = await get('/categories')
+    _allCats = res.data || []
+    return _allCats
+  } catch (e) { return [] }
+}
+
+function buildCategoryPath(allCats, catId, path = []) {
+  const cat = allCats.find(c => c.id === catId)
+  if (!cat) return path
+  path.unshift(cat.name)
+  if (cat.parentId) {
+    return buildCategoryPath(allCats, cat.parentId, path)
+  }
+  return path
+}
+
+function findPricedAncestor(allCats, parentId) {
+  const parent = allCats.find(c => c.id === parentId)
+  if (!parent) return null
+  if (parent.price > 0 || parent.isFree === 0) return parent
+  if (parent.parentId) return findPricedAncestor(allCats, parent.parentId)
+  return null
+}
+
 async function fetchDetail() {
   try {
     const res = await get('/courses/' + courseId)
     if (res.data) course.value = res.data
     isPaid.value = (course.value.price || 0) > 0
-    // 获取课程所属末级分类信息
+    // 获取课程所属分类的完整路径
     if (course.value.categoryId) {
       try {
-        const catRes = await get('/categories/' + course.value.categoryId)
-        if (catRes.data && catRes.data.parentId != null) {
-          belongCategory.value = catRes.data
+        const allCats = await fetchAllCategories()
+        const path = buildCategoryPath(allCats, course.value.categoryId)
+        course.value.categoryPath = path.join(' > ')
+        // 查找付费祖先分类
+        const cat = allCats.find(c => c.id === course.value.categoryId)
+        if (cat && cat.parentId != null) {
+          const ancestor = findPricedAncestor(allCats, cat.parentId)
+          belongCategory.value = ancestor || (cat.price > 0 || cat.isFree === 0 ? cat : null)
         }
       } catch (e) {}
     }

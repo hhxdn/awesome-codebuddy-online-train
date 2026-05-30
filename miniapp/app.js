@@ -48,16 +48,17 @@ App({
 
   // 封装请求
   request(options) {
+    const self = this
     return new Promise((resolve, reject) => {
       const header = {
         'Content-Type': 'application/json'
       }
-      if (this.globalData.token) {
-        header['Authorization'] = 'Bearer ' + this.globalData.token
+      if (self.globalData.token) {
+        header['Authorization'] = 'Bearer ' + self.globalData.token
       }
 
       wx.request({
-        url: this.globalData.baseUrl + options.url,
+        url: self.globalData.baseUrl + options.url,
         method: options.method || 'GET',
         data: options.data || {},
         header,
@@ -66,7 +67,7 @@ App({
           if (res.statusCode === 401 || res.statusCode === 403) {
             wx.removeStorageSync('token')
             wx.removeStorageSync('userInfo')
-            this.globalData.token = ''
+            self.globalData.token = ''
             wx.showToast({ title: '登录已过期', icon: 'none' })
             setTimeout(() => {
               wx.reLaunch({ url: '/pages/login/login' })
@@ -77,10 +78,10 @@ App({
 
           const data = res.data
           // 业务层401
-          if (data.code === 401) {
+          if (data && data.code === 401) {
             wx.removeStorageSync('token')
             wx.removeStorageSync('userInfo')
-            this.globalData.token = ''
+            self.globalData.token = ''
             wx.showToast({ title: data.message || '登录已过期', icon: 'none' })
             setTimeout(() => {
               wx.reLaunch({ url: '/pages/login/login' })
@@ -89,7 +90,7 @@ App({
             return
           }
 
-          if (data.code !== undefined && data.code !== 200 && data.code !== 0) {
+          if (data && data.code !== undefined && data.code !== 200 && data.code !== 0) {
             wx.showToast({ title: data.message || '请求失败', icon: 'none' })
             reject(new Error(data.message || '请求失败'))
             return

@@ -40,18 +40,20 @@ public class H5ExamController {
     private QuestionService questionService;
 
     /**
-     * 试卷列表（支持指定课程筛选）
+     * 试卷列表（支持指定课程或分类筛选）
      */
     @GetMapping("/exams")
     @ApiOperation("试卷列表")
     public Result<List<Map<String, Object>>> listExams(
             @RequestParam(required = false) Long courseId,
+            @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String examType) {
         List<ExamPaper> papers;
         com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<ExamPaper> wrapper =
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
         wrapper.eq(ExamPaper::getStatus, "PUBLISHED");
         if (courseId != null) wrapper.eq(ExamPaper::getCourseId, courseId);
+        if (categoryId != null) wrapper.eq(ExamPaper::getCategoryId, categoryId);
         if (examType != null && !examType.isEmpty()) wrapper.eq(ExamPaper::getExamType, examType);
         papers = examPaperService.list(wrapper);
 

@@ -37,9 +37,16 @@ public class H5CategoryController {
                 .filter(c -> c.getParentId() != null)
                 .collect(Collectors.groupingBy(CourseCategory::getParentId));
 
+        // 递归设置每个节点的children
+        for (CourseCategory category : all) {
+            List<CourseCategory> children = childrenMap.get(category.getId());
+            if (children != null) {
+                category.setChildren(children);
+            }
+        }
+
         List<CourseCategory> roots = all.stream()
                 .filter(c -> c.getParentId() == null)
-                .peek(c -> c.setChildren(childrenMap.getOrDefault(c.getId(), Collections.emptyList())))
                 .collect(Collectors.toList());
 
         return Result.ok(roots);

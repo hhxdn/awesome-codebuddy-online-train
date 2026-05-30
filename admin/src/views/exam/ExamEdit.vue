@@ -40,6 +40,19 @@
             </el-form-item>
           </el-col>
           <el-col :span="6">
+            <el-form-item label="考试类型">
+              <el-radio-group v-model="form.examType">
+                <el-radio value="ONLINE">线上考试</el-radio>
+                <el-radio value="OFFLINE">线下考试</el-radio>
+              </el-radio-group>
+              <div style="font-size: 12px; color: #909399; margin-top: 4px;">
+                {{ form.examType === 'OFFLINE' ? '学员不能在线参加，需管理员录入成绩' : '学员在线参加，系统自动评分' }}
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row :gutter="16">
+          <el-col :span="6">
             <el-form-item label="最大次数" prop="maxAttempts">
               <el-input-number v-model="form.maxAttempts" :min="1" :max="99" />
             </el-form-item>
@@ -105,6 +118,7 @@ const form = reactive({
   totalScore: 100,
   passScore: 60,
   maxAttempts: 1,
+  examType: 'ONLINE',
   questionIds: []
 })
 
@@ -170,6 +184,7 @@ async function fetchExam() {
     form.totalScore = data.totalScore
     form.passScore = data.passScore
     form.maxAttempts = data.maxAttempts || 1
+    form.examType = data.examType || 'ONLINE'
     form.questionIds = (data.questionIds || data.questions || []).map(q => q.id || q.questionId || q)
 
     if (form.courseId) {

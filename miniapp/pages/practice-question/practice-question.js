@@ -110,13 +110,14 @@ Page({
         answers: answerList
       })
 
-      // 跳转到结果页
-      const resultId = res.data?.id || res.data?.resultId
-      if (resultId) {
-        wx.redirectTo({ url: '/pages/practice-result/practice-result?chapterId=' + this.data.chapterId + '&resultId=' + resultId })
-      } else {
-        wx.redirectTo({ url: '/pages/practice-result/practice-result?chapterId=' + this.data.chapterId })
-      }
+      // 通过 navigateTo + eventChannel 传递结果（redirectTo 不支持 eventChannel）
+      const resultData = res.data || {}
+      wx.navigateTo({
+        url: '/pages/practice-result/practice-result?chapterId=' + this.data.chapterId,
+        success: (navRes) => {
+          navRes.eventChannel.emit('practiceResult', resultData)
+        }
+      })
     } catch (e) {
       wx.showToast({ title: '提交失败', icon: 'none' })
     }

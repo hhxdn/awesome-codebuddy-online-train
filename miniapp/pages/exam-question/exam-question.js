@@ -41,16 +41,17 @@ Page({
   async fetchQuestions() {
     try {
       const res = await app.get('/exam/records/' + this.data.recordId + '/questions')
-      const questions = res.data || []
+      const result = res.data || {}
+      const questions = result.questions || result || []
+      // 从 record 中获取考试时长（单位：分钟）
+      const duration = (result.duration || result.examDuration || result.totalDuration) || 60
       const answers = {}
       questions.forEach(q => {
         if (q.type === 'MULTIPLE') answers[q.id] = []
         else if (q.type === 'ESSAY') answers[q.id] = ''
         else answers[q.id] = null
       })
-      // 获取考试时长
-      const duration = (res.data && res.data[0] && res.data[0].examDuration) || 60
-      this.setData({ questions, answers, totalSeconds: duration * 60 })
+      this.setData({ questions, answers, totalSeconds: parseInt(duration) * 60 })
       this.updateCountdown()
     } catch (e) {
       wx.showToast({ title: '加载题目失败', icon: 'none' })
@@ -75,10 +76,12 @@ Page({
   },
 
   startCountdown() {
+    if (this.data.timer) clearInterval(this.data.timer)
     this.data.timer = setInterval(() => {
       if (this.data.totalSeconds <= 0) {
         clearInterval(this.data.timer)
-        this.submitExam()
+        this.data.timer = null
+        this.submitExam(true)  // 自动提交，不弹确认框
         return
       }
       this.setData({ totalSeconds: this.data.totalSeconds - 1 })
@@ -148,9 +151,18 @@ Page({
     }
   },
 
-  async submitExam() {
+  async submitExam(isAuto = false) {
     if (this.data.submitting) return
-    if (this.data.timer) clearInterval(this.data.timer)
+    if (this.data.timer) {
+      clearInterval(this.data.timer)
+      this.data.timer = null
+    }
+
+    // 自动提交不弹确认框
+    if (isAuto) {
+      await this.doSubmit()
+      return
+    }
 
     // 二次确认
     wx.showModal({
@@ -158,33 +170,42 @@ Page({
       content: '确定要提交试卷吗？交卷后将无法修改答案。',
       success: async (res) => {
         if (!res.confirm) {
-          this.startCountdown()
+          // 重新开始倒计时
+          if (this.data.totalSeconds > 0) {
+            this.startCountdown()
+          }
           return
         }
-        this.setData({ submitting: true })
-
-        try {
-          const answers = this.data.answers
-          const answerList = Object.keys(answers).map(questionId => ({
-            questionId: parseInt(questionId),
-            answer: Array.isArray(answers[questionId])
-              ? answers[questionId].join(',')
-              : String(answers[questionId] ?? '')
-          }))
-
-          await app.post('/exam/submit', {
-            recordId: parseInt(this.data.recordId),
-            answers: answerList,
-            cheatCount: this.data.cheatCount
-          })
-
-          wx.redirectTo({ url: '/pages/exam-result/exam-result?recordId=' + this.data.recordId })
-        } catch (e) {
-          wx.showToast({ title: '提交失败', icon: 'none' })
-          this.startCountdown()
-        }
-        this.setData({ submitting: false })
+        await this.doSubmit()
       }
     })
+  },
+
+  async doSubmit() {
+    this.setData({ submitting: true })
+    try {
+      const answers = this.data.answers
+      const answerList = Object.keys(answers).map(questionId => ({
+        questionId: parseInt(questionId),
+        answer: Array.isArray(answers[questionId])
+          ? answers[questionId].join(',')
+          : String(answers[questionId] ?? '')
+      }))
+
+      await app.post('/exam/submit', {
+        recordId: parseInt(this.data.recordId),
+        answers: answerList,
+        cheatCount: this.data.cheatCount
+      })
+
+      wx.redirectTo({ url: '/pages/exam-result/exam-result?recordId=' + this.data.recordId })
+    } catch (e) {
+      wx.showToast({ title: '提交失败', icon: 'none' })
+      // 重新开始倒计时
+      if (this.data.totalSeconds > 0) {
+        this.startCountdown()
+      }
+    }
+    this.setData({ submitting: false })
   }
 })

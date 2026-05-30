@@ -5,24 +5,25 @@ Page({
   data: {
     chapterId: '',
     resultId: '',
-    result: {}
+    result: {
+      totalCount: 0,
+      rightCount: 0,
+      totalScore: 0,
+      accuracy: 0
+    }
   },
 
   onLoad(options) {
     this.setData({
-      chapterId: options.chapterId,
-      resultId: options.resultId
+      chapterId: options.chapterId || '',
+      resultId: options.resultId || ''
     })
-    this.fetchResult()
-  },
 
-  async fetchResult() {
-    // 从后端获取结果（如果resultId存在的话）
-    // 暂时展示基本结果
+    // 通过 eventChannel 接收提交结果（navigateTo 方式进入）
     const eventChannel = this.getOpenerEventChannel?.()
     if (eventChannel) {
       eventChannel.on('practiceResult', (data) => {
-        this.setData({ result: data })
+        this.setData({ result: data || {} })
       })
     }
   },

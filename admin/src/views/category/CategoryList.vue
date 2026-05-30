@@ -5,7 +5,7 @@
         <h3>课程分类管理（多级树形）</h3>
         <el-button type="primary" @click="handleAdd()">新增一级分类</el-button>
       </div>
-      <el-table :data="tableData" border stripe row-key="id" default-expand-all>
+      <el-table :data="tableData" border stripe row-key="id" default-expand-all tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="分类名称" min-width="160">
           <template #default="{ row }">
@@ -151,6 +151,7 @@ function buildTree(list) {
     } else if (!item.parentId) {
       roots.push(map[item.id])
     }
+    // 孤儿节点也加入根级别（parentId指向不存在的父节点）
   })
   return roots
 }

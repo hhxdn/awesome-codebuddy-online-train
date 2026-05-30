@@ -61,14 +61,32 @@ Page({
       const res = await app.post('/orders', data)
       const orderId = res.data?.id
 
-      // 模拟支付
+      // 调用微信支付
       if (orderId) {
         try {
-          await app.post('/orders/' + orderId + '/pay')
-          wx.showToast({ title: '支付成功', icon: 'success' })
-          setTimeout(() => {
-            wx.navigateBack()
-          }, 1200)
+          const payRes = await app.post('/orders/' + orderId + '/pay')
+          const payData = payRes.data || {}
+          // 如果后端返回了微信支付参数，调用 wx.requestPayment
+          if (payData.payParams) {
+            wx.requestPayment({
+              timeStamp: String(payData.payParams.timeStamp || ''),
+              nonceStr: String(payData.payParams.nonceStr || ''),
+              package: String(payData.payParams.package || ''),
+              signType: String(payData.payParams.signType || 'MD5'),
+              paySign: String(payData.payParams.paySign || ''),
+              success: () => {
+                wx.showToast({ title: '支付成功', icon: 'success' })
+                setTimeout(() => { wx.navigateBack() }, 1200)
+              },
+              fail: () => {
+                wx.showToast({ title: '支付取消或失败', icon: 'none' })
+              }
+            })
+          } else {
+            // 模拟支付（开发环境）
+            wx.showToast({ title: '支付成功', icon: 'success' })
+            setTimeout(() => { wx.navigateBack() }, 1200)
+          }
         } catch (e) {
           wx.showToast({ title: '支付失败', icon: 'none' })
         }

@@ -134,6 +134,8 @@ const activeMenu = computed(() => {
   if (path.startsWith('/students')) return '/students'
   if (path.startsWith('/checkins')) return '/checkins'
   if (path.startsWith('/certificates')) return '/certificates'
+  if (path.startsWith('/orders')) return '/orders'
+  if (path.startsWith('/statistics')) return '/statistics/revenue'
   return path
 })
 

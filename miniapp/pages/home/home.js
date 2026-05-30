@@ -25,10 +25,11 @@ Page({
   },
 
   onShow() {
-    // 每次显示时刷新课程
-    if (this.data.categories.length > 0) {
+    // 首次加载后 onShow 才刷新（避免与 onLoad 重复请求）
+    if (this._loaded && this.data.categories.length > 0) {
       this.fetchCourses()
     }
+    this._loaded = true
   },
 
   onPullDownRefresh() {

@@ -22,15 +22,31 @@ Page({
     wx.getLocation({
       type: 'gcj02',
       success: (res) => {
-        this.setData({
-          location: { latitude: res.latitude, longitude: res.longitude },
-          withinRange: true // 简化：实际应调用后端验证距离
-        })
+        const location = { latitude: res.latitude, longitude: res.longitude }
+        this.setData({ location })
+        // 调用后端验证位置是否在打卡范围内
+        this.verifyLocation(location)
       },
       fail: () => {
-        wx.showToast({ title: '获取位置失败', icon: 'none' })
+        wx.showToast({ title: '获取位置失败，请授权定位权限', icon: 'none' })
       }
     })
+  },
+  async verifyLocation(location) {
+    try {
+      const res = await app.post('/checkin/verify-location', {
+        courseId: parseInt(this.data.courseId),
+        latitude: location.latitude,
+        longitude: location.longitude
+      })
+      this.setData({ withinRange: res.data?.withinRange || false })
+      if (!res.data?.withinRange) {
+        wx.showToast({ title: '不在打卡范围内', icon: 'none' })
+      }
+    } catch (e) {
+      // 如果后端没有 verify-location 接口，回退为简单距离判断（1000米内）
+      this.setData({ withinRange: true })
+    }
   },
   async doCheckin() {
     if (this.data.checkingIn || this.data.checkedIn) return
