@@ -124,11 +124,11 @@ public class H5OrderController {
     }
 
     /**
-     * 发起微信JSAPI支付（真实支付）
+     * 发起支付（自测模式：发起订单即成功）
      */
     @PostMapping("/{id}/pay")
-    @ApiOperation("发起微信JSAPI支付")
-    public Result<Map<String, String>> pay(@PathVariable Long id, HttpServletRequest request) {
+    @ApiOperation("发起支付")
+    public Result<Map<String, Object>> pay(@PathVariable Long id, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
 
         Order order = orderService.getById(id);
@@ -139,23 +139,17 @@ public class H5OrderController {
             throw new BusinessException("订单状态不允许支付");
         }
 
-        // 获取用户openid
-        User user = userService.getById(userId);
-        if (user == null || user.getOpenid() == null || user.getOpenid().isEmpty()) {
-            throw new BusinessException("请先在微信中授权后再支付");
-        }
+        // 自测模式：直接标记为已支付
+        order.setStatus("PAID");
+        order.setPayTime(LocalDateTime.now());
+        orderService.updateById(order);
 
-        // 获取课程信息作为商品描述
-        Course course = courseService.getById(order.getCourseId());
-        String description = course != null ? course.getTitle() : "在线课程";
+        Map<String, Object> result = new HashMap<>();
+        result.put("orderNo", order.getOrderNo());
+        result.put("amount", order.getAmount());
+        result.put("payMethod", order.getPayMethod());
+        result.put("status", "PAID");
 
-        // 金额：元转分
-        int amountInFen = order.getAmount().multiply(new BigDecimal(100)).intValue();
-
-        // 调用微信JSAPI下单
-        Map<String, String> payParams = wxPayService.jsapiPrepay(
-                order.getOrderNo(), amountInFen, description, user.getOpenid());
-
-        return Result.ok(payParams);
+        return Result.ok(result);
     }
 }
