@@ -112,8 +112,9 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `name`, `type`, `path`, `icon`, `perm
 
 -- 系统管理子菜单
 INSERT INTO `sys_menu` (`id`, `parent_id`, `name`, `type`, `path`, `icon`, `permission_code`, `sort_order`, `visible`) VALUES
-(25, 7,  '角色管理',   'MENU', '/system/roles',         NULL, 'system:role:list',       1, 1),
-(26, 7,  '菜单管理',   'MENU', '/system/menus',         NULL, 'system:menu:list',       2, 1);
+(25, 7,  '角色管理',     'MENU', '/system/roles',       NULL, 'system:role:list',       1, 1),
+(26, 7,  '菜单管理',     'MENU', '/system/menus',       NULL, 'system:menu:list',       2, 1),
+(27, 7,  '系统用户管理', 'MENU', '/system/users',       NULL, 'system:user:list',       3, 1);
 
 -- 按钮级权限（非菜单，仅权限标识）
 INSERT INTO `sys_menu` (`parent_id`, `name`, `type`, `permission_code`, `sort_order`, `visible`) VALUES
@@ -145,7 +146,11 @@ INSERT INTO `sys_menu` (`parent_id`, `name`, `type`, `permission_code`, `sort_or
 -- 菜单管理按钮
 (26, '新增菜单', 'BUTTON', 'system:menu:add',    1, 0),
 (26, '编辑菜单', 'BUTTON', 'system:menu:edit',   2, 0),
-(26, '删除菜单', 'BUTTON', 'system:menu:delete', 3, 0);
+(26, '删除菜单', 'BUTTON', 'system:menu:delete', 3, 0),
+-- 系统用户管理按钮
+(27, '新增用户', 'BUTTON', 'system:user:add',    1, 0),
+(27, '编辑用户', 'BUTTON', 'system:user:edit',   2, 0),
+(27, '删除用户', 'BUTTON', 'system:user:delete', 3, 0);
 
 -- ============================================
 -- 未在菜单树中的隐藏路由（如编辑页、详情页），不需要显示但需要权限

@@ -147,6 +147,12 @@ const routes = [
         meta: { title: '随机组卷' }
       },
       {
+        path: '/system/users',
+        name: 'SystemUserList',
+        component: () => import('@/views/system/SystemUserList.vue'),
+        meta: { title: '系统用户管理' }
+      },
+      {
         path: '/system/roles',
         name: 'RoleManagement',
         component: () => import('@/views/system/RoleManagement.vue'),
