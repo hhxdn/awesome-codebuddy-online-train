@@ -20,7 +20,7 @@ fi
 
 # 打包并启动
 mvn package -DskipTests -q
-nohup java -jar target/online-train-0.0.1-SNAPSHOT.jar > /tmp/backend.log 2>&1 &
+nohup java -jar target/online-train-backend-1.0.0.jar > /tmp/backend.log 2>&1 &
 echo "后端已启动 PID=$!"
 sleep 5
 echo "等待启动..."
