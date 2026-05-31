@@ -40,10 +40,25 @@
             />
           </template>
         </el-table-column>
+        <el-table-column label="角色" min-width="150">
+          <template #default="{ row }">
+            <el-tag
+              v-for="role in row.roles"
+              :key="role.id"
+              size="small"
+              style="margin-right: 4px"
+              :type="role.code === 'ADMIN' ? 'danger' : ''"
+            >
+              {{ role.name }}
+            </el-tag>
+            <span v-if="!row.roles || row.roles.length === 0" style="color: #909399">未分配</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="220" fixed="right">
+        <el-table-column label="操作" width="290" fixed="right">
           <template #default="{ row }">
             <el-button link type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+            <el-button link type="success" size="small" @click="handleAssignRole(row)">分配角色</el-button>
             <el-button link type="warning" size="small" @click="handleResetPwd(row)">重置密码</el-button>
             <el-popconfirm title="确认删除该用户?" @confirm="handleDelete(row)">
               <template #reference>
@@ -101,6 +116,32 @@
         <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 分配角色对话框 -->
+    <el-dialog
+      v-model="roleDialogVisible"
+      title="分配角色"
+      width="460px"
+      :close-on-click-modal="false"
+    >
+      <el-form label-width="80px">
+        <el-form-item :label="`用户: ${roleAssignUser.nickname || ''}`">
+          <el-checkbox-group v-model="selectedRoleIds">
+            <div v-for="role in allRoles" :key="role.id" style="margin-bottom: 10px">
+              <el-checkbox :label="role.id">
+                {{ role.name }}
+                <el-tag size="small" style="margin-left: 6px" :type="role.code === 'ADMIN' ? 'danger' : 'info'">{{ role.code }}</el-tag>
+              </el-checkbox>
+            </div>
+          </el-checkbox-group>
+          <div v-if="allRoles.length === 0" style="color: #909399; padding: 20px 0">暂无可用角色</div>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="roleDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="roleSubmitLoading" @click="handleRoleSubmit">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -115,6 +156,13 @@ const submitLoading = ref(false)
 const isEdit = ref(false)
 const editId = ref(null)
 const formRef = ref(null)
+
+// 角色分配相关
+const roleDialogVisible = ref(false)
+const roleSubmitLoading = ref(false)
+const roleAssignUser = reactive({ id: null, nickname: '' })
+const selectedRoleIds = ref([])
+const allRoles = ref([])
 
 const searchForm = reactive({
   keyword: ''
@@ -161,9 +209,29 @@ function handleSearch() {
     if (res.data) {
       tableData.value = res.data.records || []
       pagination.total = res.data.total || 0
+      // 加载每个用户的角色信息
+      tableData.value.forEach(row => {
+        row.roles = []
+        loadUserRoles(row)
+      })
     }
   }).finally(() => {
     loading.value = false
+  })
+}
+
+function loadUserRoles(row) {
+  get(`/admin/users/${row.id}/roles`).then(res => {
+    if (res.data && res.data.length > 0) {
+      // roleIds -> role objects, need to fetch role names
+      get('/admin/roles/all').then(roleRes => {
+        const roleMap = {}
+        if (roleRes.data) {
+          roleRes.data.forEach(r => { roleMap[r.id] = r })
+        }
+        row.roles = res.data.map(id => roleMap[id] || { id, name: '未知' })
+      })
+    }
   })
 }
 
@@ -254,6 +322,39 @@ function handleDelete(row) {
   del(`/admin/users/${row.id}`).then(() => {
     ElMessage.success('删除成功')
     handleSearch()
+  })
+}
+
+// 角色分配
+function handleAssignRole(row) {
+  roleAssignUser.id = row.id
+  roleAssignUser.nickname = row.nickname
+  selectedRoleIds.value = []
+  roleSubmitLoading.value = false
+
+  // 加载所有可用角色
+  get('/admin/roles/all').then(res => {
+    allRoles.value = res.data || []
+  })
+
+  // 加载当前用户已有角色
+  get(`/admin/users/${row.id}/roles`).then(res => {
+    selectedRoleIds.value = res.data || []
+  })
+
+  roleDialogVisible.value = true
+}
+
+function handleRoleSubmit() {
+  roleSubmitLoading.value = true
+  put(`/admin/users/${roleAssignUser.id}/roles`, {
+    roleIds: selectedRoleIds.value
+  }).then(() => {
+    ElMessage.success('角色分配成功')
+    roleDialogVisible.value = false
+    handleSearch()
+  }).finally(() => {
+    roleSubmitLoading.value = false
   })
 }
 
