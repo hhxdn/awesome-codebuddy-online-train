@@ -164,8 +164,8 @@ const form = reactive({
   chapters: []
 })
 
-// 腾讯地图 API Key（前往 https://lbs.qq.com/ 申请，创建应用后获取 Key）
-const tmapKey = ref('') // 请填入你的腾讯地图 WebService API Key
+// 腾讯地图 API Key
+const tmapKey = ref('2NMBZ-4XULZ-F2HXM-ZSW4T-TA2JS-Z3FUH')
 
 // 地图选点双向绑定（lng/lat 对象 ↔ form.longitude/form.latitude）
 const checkinLocation = reactive({
