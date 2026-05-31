@@ -45,6 +45,7 @@
             <span>用户管理</span>
           </template>
           <el-menu-item index="/students">学员管理</el-menu-item>
+          <el-menu-item index="/course-reservations">课程预约</el-menu-item>
           <el-menu-item index="/checkins">线下打卡</el-menu-item>
           <el-menu-item index="/certificates">结业证书</el-menu-item>
           <el-menu-item index="/orders">订单管理</el-menu-item>
@@ -138,6 +139,7 @@ const activeMenu = computed(() => {
   if (path.startsWith('/banners')) return '/banners'
   if (path.startsWith('/news')) return '/news'
   if (path.startsWith('/students')) return '/students'
+  if (path.startsWith('/course-reservations')) return '/course-reservations'
   if (path.startsWith('/checkins')) return '/checkins'
   if (path.startsWith('/certificates')) return '/certificates'
   if (path.startsWith('/orders')) return '/orders'

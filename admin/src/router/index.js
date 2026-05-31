@@ -123,6 +123,12 @@ const routes = [
         meta: { title: '考试预约' }
       },
       {
+        path: '/course-reservations',
+        name: 'CourseReservationList',
+        component: () => import('@/views/course/CourseReservationList.vue'),
+        meta: { title: '课程预约' }
+      },
+      {
         path: '/checkins',
         name: 'OfflineCheckinList',
         component: () => import('@/views/checkin/OfflineCheckinList.vue'),

@@ -85,12 +85,22 @@
 
     <!-- Bottom Bar -->
     <div v-if="accessChecked" class="bottom-bar safe-bottom">
-      <!-- 线下课程：打卡按钮 -->
+      <!-- 线下课程：预约 + 打卡按钮 -->
       <template v-if="course.courseType === 'OFFLINE'">
-        <van-button v-if="!checkedIn" type="warning" block round size="large" @click="goCheckin" class="bottom-btn checkin-btn">
-          <van-icon name="location-o" size="18" />
-          线下打卡
-        </van-button>
+        <div v-if="!checkedIn" style="display: flex; gap: 10px; width: 100%;">
+          <van-button v-if="!reservationInfo || reservationInfo.status === 'CANCELLED'" type="warning" block round size="large" @click="goReserve" class="bottom-btn reserve-btn" style="flex: 1;">
+            <van-icon name="bookmark-o" size="18" />
+            预约课程
+          </van-button>
+          <van-button v-else-if="reservationInfo.status === 'PENDING'" type="warning" block round size="large" disabled style="flex: 1;">
+            <van-icon name="clock-o" size="18" />
+            预约待确认
+          </van-button>
+          <van-button v-else-if="reservationInfo.status === 'CONFIRMED'" type="warning" block round size="large" @click="goCheckin" class="bottom-btn checkin-btn" style="flex: 1;">
+            <van-icon name="location-o" size="18" />
+            线下打卡
+          </van-button>
+        </div>
         <van-button v-else type="success" block round size="large" disabled class="bottom-btn">
           <van-icon name="success" size="18" />
           已打卡
@@ -136,6 +146,7 @@ const accessChecked = ref(false)
 const isPaid = ref(false)
 const descExpanded = ref(false)
 const checkedIn = ref(false)
+const reservationInfo = ref(null)
 const belongCategory = ref(null)
 
 let _allCats = null
@@ -203,6 +214,10 @@ async function fetchDetail() {
       const res = await get('/checkin/status/' + courseId)
       if (res.data) checkedIn.value = res.data.checkedIn
     } catch (e) { checkedIn.value = false }
+    try {
+      const res = await get('/course/reservations/status/' + courseId)
+      if (res.data) reservationInfo.value = res.data
+    } catch (e) { reservationInfo.value = null }
   }
 }
 
@@ -225,6 +240,7 @@ function buyCategory() {
   }
 }
 function goCheckin() { router.push('/checkin/' + courseId) }
+function goReserve() { router.push('/course/reservation/' + courseId) }
 
 onMounted(() => fetchDetail())
 </script>
@@ -384,6 +400,10 @@ onMounted(() => fetchDetail())
 }
 .checkin-btn {
   background: linear-gradient(135deg, #ED7B2F, #E37318) !important;
+  border: none !important;
+}
+.reserve-btn {
+  background: linear-gradient(135deg, #FF9800, #F57C00) !important;
   border: none !important;
 }
 .bottom-left { flex: 1; }

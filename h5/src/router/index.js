@@ -162,6 +162,18 @@ const routes = [
     meta: { title: '我的预约' }
   },
   {
+    path: '/course/reservation/:courseId',
+    name: 'CourseReservation',
+    component: () => import('../views/course/CourseReservation.vue'),
+    meta: { title: '预约线下课程' }
+  },
+  {
+    path: '/my-course-reservations',
+    name: 'MyCourseReservations',
+    component: () => import('../views/course/MyCourseReservations.vue'),
+    meta: { title: '我的课程预约' }
+  },
+  {
     path: '/order/confirm/:courseId',
     name: 'OrderConfirm',
     component: () => import('../views/order/OrderConfirm.vue'),
