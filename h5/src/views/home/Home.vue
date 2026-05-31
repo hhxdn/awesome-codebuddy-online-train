@@ -352,7 +352,7 @@ onMounted(() => {
 .banner-item {
   position: relative;
   width: 100%;
-  height: 140px;
+  height: 200px;
   cursor: pointer;
 }
 
