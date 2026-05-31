@@ -48,7 +48,7 @@
     <el-dialog
       v-model="dialogVisible"
       :title="dialogTitle"
-      width="800px"
+      width="1000px"
       @closed="resetForm"
     >
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
@@ -69,13 +69,8 @@
         <el-form-item label="来源">
           <el-input v-model="form.source" placeholder="如：官方博客、技术社区等" />
         </el-form-item>
-        <el-form-item label="正文内容" prop="content">
-          <el-input
-            v-model="form.content"
-            type="textarea"
-            :rows="12"
-            placeholder="请输入正文内容，支持HTML标签"
-          />
+        <el-form-item label="正文内容" prop="content" class="editor-form-item">
+          <RichTextEditor v-model="form.content" :height="450" />
         </el-form-item>
         <el-form-item label="排序" prop="sortOrder">
           <el-input-number v-model="form.sortOrder" :min="0" :max="9999" />
@@ -94,6 +89,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { get, post, put, del } from '@/api'
 import ImageUpload from '@/components/ImageUpload.vue'
+import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -218,3 +214,9 @@ onMounted(() => {
   fetchData()
 })
 </script>
+
+<style scoped>
+.editor-form-item :deep(.el-form-item__content) {
+  display: block;
+}
+</style>
