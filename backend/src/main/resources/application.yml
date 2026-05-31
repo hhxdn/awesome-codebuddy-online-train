@@ -48,11 +48,11 @@ tencent:
     secret-key: your-secret-key
   cos:
     region: ap-guangzhou
-    bucket: your-bucket-1234567890
+    bucket: wodiwodix-online-train-1259412410
     cdn-domain:  # 可选，CDN加速域名，如 https://cdn.example.com
   vod:
-    sub-app-id: 0
-    region: ap-guangzhou
+    sub-app-id: 1500065209
+    region: ap-beijing
 
 # 微信支付配置
 wx:
