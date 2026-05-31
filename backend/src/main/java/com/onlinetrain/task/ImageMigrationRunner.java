@@ -24,8 +24,6 @@ import java.util.List;
  */
 @Slf4j
 @Component
-@org.springframework.boot.autoconfigure.condition.ConditionalOnProperty(
-        name = "image.migration.enabled", havingValue = "true")
 public class ImageMigrationRunner implements ApplicationRunner {
 
     @Autowired
@@ -39,6 +37,14 @@ public class ImageMigrationRunner implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
+        try {
+            doMigrate();
+        } catch (Exception e) {
+            log.warn("===== 图片迁移任务失败(可能是数据库不可达)，跳过: {} =====", e.getMessage());
+        }
+    }
+
+    private void doMigrate() {
         log.info("===== 开始图片迁移任务 =====");
         int courseMigrated = 0;
         int categoryMigrated = 0;
