@@ -135,10 +135,9 @@ onMounted(() => fetchOrders())
 .order-actions { display: flex; gap: 8px; }
 
 @media (min-width: 768px) {
-  .order-list-page {
-    max-width: 700px;
-    margin: 0 auto;
-    min-height: auto;
+  .order-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
   }
 }
 </style>

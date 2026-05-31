@@ -50,6 +50,42 @@ const routes = [
         name: 'Profile',
         component: () => import('../views/user/Profile.vue'),
         meta: { title: '我的' }
+      },
+      {
+        path: 'my-courses',
+        name: 'MyCourses',
+        component: () => import('../views/user/MyCourses.vue'),
+        meta: { title: '我的课程' }
+      },
+      {
+        path: 'my-orders',
+        name: 'MyOrders',
+        component: () => import('../views/order/OrderList.vue'),
+        meta: { title: '我的订单' }
+      },
+      {
+        path: 'my-wrong',
+        name: 'MyWrongQuestions',
+        component: () => import('../views/user/MyWrongQuestions.vue'),
+        meta: { title: '我的错题' }
+      },
+      {
+        path: 'my-exams',
+        name: 'MyExamRecords',
+        component: () => import('../views/user/MyExamRecords.vue'),
+        meta: { title: '考试记录' }
+      },
+      {
+        path: 'my-learning',
+        name: 'MyLearningRecords',
+        component: () => import('../views/user/MyLearningRecords.vue'),
+        meta: { title: '学习记录' }
+      },
+      {
+        path: 'my-certificates',
+        name: 'MyCertificates',
+        component: () => import('../views/user/MyCertificates.vue'),
+        meta: { title: '我的证书' }
       }
     ]
   },
@@ -132,46 +168,10 @@ const routes = [
     meta: { title: '我的订单' }
   },
   {
-    path: '/my-courses',
-    name: 'MyCourses',
-    component: () => import('../views/user/MyCourses.vue'),
-    meta: { title: '我的课程' }
-  },
-  {
-    path: '/my-orders',
-    name: 'MyOrders',
-    component: () => import('../views/order/OrderList.vue'),
-    meta: { title: '我的订单' }
-  },
-  {
-    path: '/my-wrong',
-    name: 'MyWrongQuestions',
-    component: () => import('../views/user/MyWrongQuestions.vue'),
-    meta: { title: '我的错题' }
-  },
-  {
-    path: '/my-exams',
-    name: 'MyExamRecords',
-    component: () => import('../views/user/MyExamRecords.vue'),
-    meta: { title: '考试记录' }
-  },
-  {
-    path: '/my-learning',
-    name: 'MyLearningRecords',
-    component: () => import('../views/user/MyLearningRecords.vue'),
-    meta: { title: '学习记录' }
-  },
-  {
     path: '/checkin/:courseId',
     name: 'OfflineCheckin',
     component: () => import('../views/course/OfflineCheckin.vue'),
     meta: { title: '线下打卡' }
-  },
-  {
-    path: '/my-certificates',
-    name: 'MyCertificates',
-    component: () => import('../views/user/MyCertificates.vue'),
-    meta: { title: '我的证书' }
   },
   {
     path: '/news',

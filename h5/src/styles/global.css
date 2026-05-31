@@ -737,17 +737,6 @@ body {
     margin: 0 auto;
   }
 
-  /* My courses / My orders / My wrong / My exams / My learning / My certificates */
-  .my-courses-page,
-  .my-orders-page,
-  .my-wrong-page,
-  .my-exam-records-page,
-  .my-learning-records-page,
-  .certificates-page {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
   /* Course detail page */
   .course-detail-page {
     max-width: 800px;

@@ -61,7 +61,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const active = ref(0)
 
-const tabMap = { home: 0, courses: 1, exam: 2, mine: 3 }
+const tabMap = { home: 0, courses: 1, exam: 2, mine: 3, 'my-courses': 3, 'my-orders': 3, 'my-wrong': 3, 'my-exams': 3, 'my-learning': 3, 'my-certificates': 3 }
 
 watch(
   () => route.path,
