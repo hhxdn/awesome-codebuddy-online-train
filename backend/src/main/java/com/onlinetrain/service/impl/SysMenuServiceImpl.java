@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.onlinetrain.entity.SysMenu;
 import com.onlinetrain.entity.SysRoleMenu;
 import com.onlinetrain.entity.SysUserRole;
+import com.onlinetrain.entity.User;
 import com.onlinetrain.mapper.SysMenuMapper;
 import com.onlinetrain.mapper.SysRoleMenuMapper;
 import com.onlinetrain.mapper.SysUserRoleMapper;
+import com.onlinetrain.mapper.UserMapper;
 import com.onlinetrain.service.SysMenuService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,8 +30,21 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
     @Autowired
     private SysMenuMapper sysMenuMapper;
 
+    @Autowired
+    private UserMapper userMapper;
+
     @Override
     public List<String> getUserPermissions(Long userId) {
+        // 管理员拥有所有权限，无需走RBAC关联查询
+        User user = userMapper.selectById(userId);
+        if (user != null && "ADMIN".equals(user.getRole())) {
+            return sysMenuMapper.selectList(
+                    new LambdaQueryWrapper<SysMenu>()
+                            .isNotNull(SysMenu::getPermissionCode)
+                            .ne(SysMenu::getPermissionCode, "")
+            ).stream().map(SysMenu::getPermissionCode).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        }
+
         // 查询用户的角色ID列表
         List<Long> roleIds = sysUserRoleMapper.selectList(
                 new LambdaQueryWrapper<SysUserRole>().eq(SysUserRole::getUserId, userId)
@@ -55,6 +70,18 @@ public class SysMenuServiceImpl extends ServiceImpl<SysMenuMapper, SysMenu> impl
 
     @Override
     public List<SysMenu> getUserMenus(Long userId) {
+        // 管理员拥有所有菜单，无需走RBAC关联查询
+        User user = userMapper.selectById(userId);
+        if (user != null && "ADMIN".equals(user.getRole())) {
+            List<SysMenu> allMenus = sysMenuMapper.selectList(
+                    new LambdaQueryWrapper<SysMenu>()
+                            .eq(SysMenu::getType, "MENU")
+                            .eq(SysMenu::getVisible, 1)
+                            .orderByAsc(SysMenu::getSortOrder)
+            );
+            return buildTree(allMenus);
+        }
+
         List<String> permissions = getUserPermissions(userId);
         if (permissions.isEmpty()) return Collections.emptyList();
 
