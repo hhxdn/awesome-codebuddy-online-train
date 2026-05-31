@@ -37,7 +37,7 @@
 
     <!-- Menu -->
     <div class="menu-section" v-for="(group, gIdx) in menuGroups" :key="gIdx">
-      <div class="menu-label">{{ gIdx === 0 ? '学习管理' : '学习记录' }}</div>
+      <div class="menu-label">{{ gIdx === 0 ? '学习管理' : gIdx === 1 ? '学习记录' : '其他' }}</div>
       <van-cell-group inset>
         <van-cell
           v-for="item in group" :key="item.path"
@@ -85,6 +85,9 @@ const menuGroups = [
     { title: '考试记录', icon: 'certificate', iconClass: 'm-green', path: '/my-exams' },
     { title: '学习记录', icon: 'clock-o', iconClass: 'm-purple', path: '/my-learning' },
     { title: '我的证书', icon: 'medal-o', iconClass: 'm-gold', path: '/my-certificates' }
+  ],
+  [
+    { title: '关于我们', icon: 'info-o', iconClass: 'm-gray', path: '/about' }
   ]
 ]
 
@@ -175,6 +178,7 @@ onMounted(() => {
 .m-gold { background: #FFF7E6; color: #E37318; }
 .m-teal { background: #E6FFFA; color: #00B4D8; }
 .m-cyan { background: #E0F7FA; color: #0097A7; }
+.m-gray { background: #F5F5F5; color: #666; }
 
 .logout-wrap { padding: 40px 20px; }
 .logout-btn {

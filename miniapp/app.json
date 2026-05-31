@@ -25,7 +25,8 @@
     "pages/my-wrong/my-wrong",
     "pages/offline-checkin/offline-checkin",
     "pages/my-certificates/my-certificates",
-    "pages/search/search"
+    "pages/search/search",
+    "pages/about/about"
   ],
   "window": {
     "navigationBarTextStyle": "white",

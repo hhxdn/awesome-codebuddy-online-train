@@ -1,0 +1,8 @@
+<!--pages/about/about.wxml-->
+<view class="about-page">
+  <view wx:if="{{loading}}" class="loading-hint">加载中...</view>
+  <view wx:elif="{{content}}" class="content">
+    <rich-text nodes="{{content}}" />
+  </view>
+  <view wx:else class="empty-hint">暂无内容</view>
+</view>

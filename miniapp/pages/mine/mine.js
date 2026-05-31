@@ -59,6 +59,10 @@ Page({
     wx.navigateTo({ url: '/pages/my-certificates/my-certificates' })
   },
 
+  goAbout() {
+    wx.navigateTo({ url: '/pages/about/about' })
+  },
+
   logout() {
     wx.showModal({
       title: '提示',

@@ -1,0 +1,29 @@
+/* pages/about/about.wxss */
+.about-page {
+  min-height: 100vh;
+  background: #fff;
+}
+
+.loading-hint,
+.empty-hint {
+  text-align: center;
+  color: #999;
+  padding: 80px 0;
+  font-size: 14px;
+}
+
+.content {
+  padding: 32rpx;
+  line-height: 1.8;
+  font-size: 30rpx;
+  color: #333;
+  word-break: break-word;
+}
+
+/* 富文本中的图片自适应 */
+.content image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 12rpx;
+  margin: 20rpx 0;
+}

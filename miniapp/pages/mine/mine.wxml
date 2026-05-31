@@ -73,6 +73,16 @@
     </view>
   </view>
 
+  <!-- Menu: 其他 -->
+  <view class="menu-group">
+    <view class="menu-group-title">其他</view>
+    <view class="menu-item" bindtap="goAbout">
+      <view class="menu-icon menu-icon-gray">ℹ️</view>
+      <text class="menu-text">关于我们</text>
+      <text class="menu-arrow">›</text>
+    </view>
+  </view>
+
   <!-- Logout -->
   <view class="logout-section">
     <button class="logout-btn" bindtap="logout">退出登录</button>

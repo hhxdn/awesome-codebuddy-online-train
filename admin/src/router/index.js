@@ -51,6 +51,12 @@ const routes = [
         meta: { title: '新闻资讯' }
       },
       {
+        path: '/about',
+        name: 'AboutUs',
+        component: () => import('@/views/content/AboutUs.vue'),
+        meta: { title: '关于我们' }
+      },
+      {
         path: '/questions',
         name: 'QuestionList',
         component: () => import('@/views/question/QuestionList.vue'),

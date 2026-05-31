@@ -208,6 +208,12 @@ const routes = [
     name: 'NewsDetail',
     component: () => import('../views/news/NewsDetail.vue'),
     meta: { title: '资讯详情', noAuth: true }
+  },
+  {
+    path: '/about',
+    name: 'AboutUs',
+    component: () => import('../views/user/AboutUs.vue'),
+    meta: { title: '关于我们' }
   }
 ]
 

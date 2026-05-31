@@ -50,6 +50,8 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/banners/**",
                         "/api/news",
                         "/api/news/**",
+                        "/api/config",
+                        "/api/config/**",
                         "/api/payment/callback/**",
                         "/api/wx/oauth-callback",
                         "/doc.html",
