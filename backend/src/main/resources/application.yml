@@ -44,8 +44,8 @@ upload:
 # 腾讯云配置
 tencent:
   cloud:
-    secret-id: your-secret-id
-    secret-key: your-secret-key
+    secret-id: AKIDzIagaHXcUBh7PUP8e096ayD1e50kJky3
+    secret-key: ymOnz0pSlzCMRSGrHVzKDya2JPK4edR2
   cos:
     region: ap-guangzhou
     bucket: wodiwodix-online-train-1259412410
