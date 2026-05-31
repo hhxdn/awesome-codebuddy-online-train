@@ -222,39 +222,44 @@ async function searchPlace() {
   searchResults.value = []
   selectedIdx.value = -1
 
+  const keyword = searchKeyword.value.trim()
   try {
-    // Use Geocoder for location search
-    const result = await geocoder.getLocation({ address: searchKeyword.value })
-    if (result && result.status === 0 && result.result) {
-      const loc = result.result.location
-      if (loc) {
-        // Single result: center map on it
-        const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
-        map.setCenter(latLng)
-        map.setZoom(17)
-        placeMarker(latLng)
-        currentAddress.value = result.result.address || searchKeyword.value
-        searchResults.value = []
-      } else {
-        searchResults.value = [{ title: '未找到该地点', address: '请尝试更精确的关键词', location: null }]
+    // 使用腾讯地图 WebService 地点搜索 API（支持多结果和建议）
+    const url = `https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(keyword)}&key=${props.apiKey}&output=json`
+    const res = await fetch(url)
+    const data = await res.json()
+
+    if (data.status === 0 && data.data && data.data.length > 0) {
+      searchResults.value = data.data.map(item => ({
+        id: item.id,
+        title: item.title,
+        address: item.address || '',
+        location: item.location
+      }))
+      // 如果只有一个精确匹配，直接定位
+      if (searchResults.value.length === 1) {
+        selectPlace(searchResults.value[0], 0)
+        return
       }
     } else {
-      // Try suggestion search
-      const suggestResult = await geocoder.getSuggestion({ keyword: searchKeyword.value, region: '全国' })
-      if (suggestResult && suggestResult.status === 0 && suggestResult.data && suggestResult.data.length > 0) {
-        searchResults.value = suggestResult.data.map(item => ({
-          id: item.id,
-          title: item.title,
-          address: item.address || '',
-          location: item.location
-        }))
-      } else {
-        searchResults.value = [{ title: '未找到相关地点', address: '请尝试更精确的关键词', location: null }]
-      }
+      // WebService 无结果，尝试 geocoder 地址解析
+      try {
+        const geoResult = await geocoder.getLocation({ address: keyword })
+        if (geoResult && geoResult.status === 0 && geoResult.result && geoResult.result.location) {
+          const loc = geoResult.result.location
+          const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
+          map.setCenter(latLng)
+          map.setZoom(17)
+          placeMarker(latLng)
+          currentAddress.value = geoResult.result.address || keyword
+          return
+        }
+      } catch { /* ignore */ }
+      searchResults.value = [{ title: '未找到相关地点', address: '请尝试更精确的关键词', location: null }]
     }
   } catch (e) {
     console.error('Search error:', e)
-    searchResults.value = [{ title: '搜索失败', address: '网络错误或 API 异常', location: null }]
+    searchResults.value = [{ title: '搜索失败', address: '网络异常或 API 不可用', location: null }]
   } finally {
     searching.value = false
   }
