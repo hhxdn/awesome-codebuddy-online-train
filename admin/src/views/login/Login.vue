@@ -50,7 +50,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { post } from '@/api'
-import { setToken, setUser } from '@/utils/auth'
+import { setToken, setUser, setPermissions, setMenus } from '@/utils/auth'
 
 const router = useRouter()
 const formRef = ref(null)
@@ -79,6 +79,8 @@ async function handleLogin() {
     })
     setToken(res.data.token || res.data.accessToken)
     setUser(res.data.user || { username: form.username })
+    setPermissions(res.data.permissions || [])
+    setMenus(res.data.menus || [])
     ElMessage.success('登录成功')
     router.push('/dashboard')
   } catch {

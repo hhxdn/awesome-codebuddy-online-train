@@ -32,6 +32,8 @@ service.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      localStorage.removeItem('permissions')
+      localStorage.removeItem('menus')
       window.location.href = '/#/login'
       ElMessage.error('登录已过期，请重新登录')
     } else {

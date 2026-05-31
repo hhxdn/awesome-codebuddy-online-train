@@ -145,6 +145,18 @@ const routes = [
         name: 'RandomExam',
         component: () => import('@/views/exam/RandomExam.vue'),
         meta: { title: '随机组卷' }
+      },
+      {
+        path: '/system/roles',
+        name: 'RoleManagement',
+        component: () => import('@/views/system/RoleManagement.vue'),
+        meta: { title: '角色管理' }
+      },
+      {
+        path: '/system/menus',
+        name: 'MenuManagement',
+        component: () => import('@/views/system/MenuManagement.vue'),
+        meta: { title: '菜单管理' }
       }
     ]
   }
