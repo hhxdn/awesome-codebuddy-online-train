@@ -33,8 +33,18 @@
       </div>
     </div>
 
+    <!-- Empty State -->
+    <div v-if="totalCount === 0" class="empty-state">
+      <van-icon name="notes-o" size="56" color="#C9CDD4" />
+      <p class="empty-title">该章节暂无练习题</p>
+      <p class="empty-desc">练习题正在紧急筹备中，请先学习其他章节</p>
+      <van-button round plain type="primary" size="small" @click="$router.back()">
+        返回课程目录
+      </van-button>
+    </div>
+
     <!-- Action Buttons -->
-    <div class="action-buttons">
+    <div v-else class="action-buttons">
       <van-button type="primary" block round size="large" @click="startPractice" class="practice-btn">
         <van-icon name="play-circle-o" size="20" />
         开始刷题
@@ -100,13 +110,10 @@ async function fetchData() {
       historyList.value = res.data.records || []
     }
   } catch (e) {
-    totalCount.value = 10
+    totalCount.value = 0
     bestScore.value = 0
-    practiceCount.value = 3
-    historyList.value = [
-      { score: 80, correctRate: 80, createTime: '2024-01-15' },
-      { score: 60, correctRate: 60, createTime: '2024-01-14' }
-    ]
+    practiceCount.value = 0
+    historyList.value = []
   }
 }
 
@@ -277,5 +284,28 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 700;
   color: var(--primary);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 30px;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1D2129;
+  margin: 16px 0 8px;
+}
+
+.empty-desc {
+  font-size: 13px;
+  color: #86909C;
+  margin: 0 0 24px;
+  line-height: 1.5;
 }
 </style>

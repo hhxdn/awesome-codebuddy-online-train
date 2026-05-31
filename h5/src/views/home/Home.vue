@@ -22,6 +22,44 @@
       </div>
     </div>
 
+    <!-- Banner Carousel -->
+    <div class="banner-section" v-if="banners.length > 0">
+      <van-swipe :autoplay="3000" indicator-color="#0052D9" lazy-render>
+        <van-swipe-item v-for="banner in banners" :key="banner.id">
+          <div class="banner-item" @click="goBannerLink(banner)">
+            <img :src="banner.imageUrl" :alt="banner.title" class="banner-image" />
+            <div class="banner-title" v-if="banner.title">{{ banner.title }}</div>
+          </div>
+        </van-swipe-item>
+      </van-swipe>
+    </div>
+
+    <!-- News List -->
+    <div class="news-section" v-if="newsList.length > 0">
+      <div class="news-header">
+        <span class="news-header-title">最新资讯</span>
+        <span class="news-header-more" @click="$router.push('/news')">更多 <van-icon name="arrow" /></span>
+      </div>
+      <div class="news-list">
+        <div
+          v-for="item in newsList"
+          :key="item.id"
+          class="news-item"
+          @click="goNewsDetail(item.id)"
+        >
+          <img v-if="item.cover" :src="item.cover" class="news-cover" />
+          <div class="news-info" :class="{ 'has-cover': item.cover }">
+            <div class="news-title">{{ item.title }}</div>
+            <div class="news-meta">
+              <span v-if="item.source">{{ item.source }}</span>
+              <span class="news-views" v-if="item.viewCount">{{ item.viewCount }}阅读</span>
+              <span class="news-time">{{ formatTime(item.createTime) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Category Bar: 多级分类 -->
     <div class="category-bar">
       <!-- 一级 -->
@@ -122,6 +160,8 @@ const refreshing = ref(false)
 const loading = ref(false)
 const categories = ref([])
 const courseList = ref([])
+const banners = ref([])
+const newsList = ref([])
 const showAllCategories = ref(false)
 
 // 当前选中的一级分类下的二级列表
@@ -198,9 +238,49 @@ function onRefresh() {
 
 function goDetail(id) { router.push('/course/' + id) }
 
+async function fetchBanners() {
+  try {
+    const res = await get('/banners')
+    banners.value = res.data || []
+  } catch (e) { banners.value = [] }
+}
+
+async function fetchNews() {
+  try {
+    const res = await get('/news')
+    newsList.value = (res.data || []).slice(0, 4)
+  } catch (e) { newsList.value = [] }
+}
+
+function goBannerLink(banner) {
+  if (!banner.linkUrl) return
+  if (banner.linkUrl.startsWith('http')) {
+    window.location.href = banner.linkUrl
+  } else if (banner.linkUrl.startsWith('/')) {
+    router.push(banner.linkUrl)
+  }
+}
+
+function goNewsDetail(id) {
+  router.push('/news/' + id)
+}
+
+function formatTime(time) {
+  if (!time) return ''
+  const d = new Date(time)
+  const now = new Date()
+  const diff = now - d
+  if (diff < 3600000) return Math.floor(diff / 60000) + '分钟前'
+  if (diff < 86400000) return Math.floor(diff / 3600000) + '小时前'
+  if (diff < 604800000) return Math.floor(diff / 86400000) + '天前'
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0')
+}
+
 onMounted(() => {
   fetchCategories()
   fetchCourses()
+  fetchBanners()
+  fetchNews()
 })
 </script>
 
@@ -258,6 +338,146 @@ onMounted(() => {
 
 .search-placeholder {
   font-size: 14px;
+  color: var(--text-placeholder);
+}
+
+/* Banner Section */
+.banner-section {
+  margin: 0 14px 10px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+.banner-item {
+  position: relative;
+  width: 100%;
+  height: 140px;
+  cursor: pointer;
+}
+
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.banner-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 14px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.55));
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* News Section */
+.news-section {
+  background: #fff;
+  margin: 0 14px 10px;
+  border-radius: 10px;
+  padding: 14px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+}
+
+.news-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.news-header-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1D2129;
+  position: relative;
+  padding-left: 10px;
+}
+
+.news-header-title::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 16px;
+  background: var(--primary);
+  border-radius: 2px;
+}
+
+.news-header-more {
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.news-item {
+  display: flex;
+  gap: 10px;
+  cursor: pointer;
+  align-items: flex-start;
+}
+
+.news-cover {
+  width: 100px;
+  height: 66px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.news-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 56px;
+}
+
+.news-info.has-cover {
+  min-height: 66px;
+}
+
+.news-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1D2129;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.news-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.news-views {
+  color: var(--text-placeholder);
+}
+
+.news-time {
   color: var(--text-placeholder);
 }
 

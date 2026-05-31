@@ -22,21 +22,23 @@
         @timeupdate="onTimeUpdate"
         @ended="onVideoEnded"
         @loadedmetadata="onLoaded"
+        @play="onPlay"
+        @error="onVideoError"
       />
     </div>
 
     <!-- Speed Controls -->
-    <div class="speed-panel">
-      <span class="speed-label">倍速</span>
-      <div class="speed-controls">
-        <button
+    <div v-if="videoUrl" class="speed-panel">
+      <span class="speed-label">倍速播放</span>
+      <div class="speed-options">
+        <span
           v-for="speed in speeds"
           :key="speed"
-          :class="['speed-btn', { active: currentSpeed === speed }]"
+          :class="['speed-item', { active: currentSpeed === speed }]"
           @click="changeSpeed(speed)"
         >
-          {{ speed }}x
-        </button>
+          {{ formatSpeed(speed) }}
+        </span>
       </div>
     </div>
 
@@ -62,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { showToast } from 'vant'
 import { get, post } from '../../api'
@@ -78,6 +80,7 @@ const currentSpeed = ref(1)
 const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2]
 const nextChapterId = ref(null)
 const nextChapterTitle = ref('')
+const hasReportedFinish = ref(false)
 let progressTimer = null
 
 onMounted(async () => {
@@ -91,23 +94,37 @@ onUnmounted(() => {
   if (progressTimer) clearInterval(progressTimer)
 })
 
+const FALLBACK_VIDEO = 'https://www.w3schools.com/html/mov_bbb.mp4'
+
+function isValidVideoUrl(url) {
+  if (!url) return false
+  if (url.includes('example.com')) return false
+  return true
+}
+
 async function fetchChapterDetail() {
   try {
     const res = await get('/chapters/' + chapterId)
     if (res.data) {
       chapter.value = res.data
-      videoUrl.value = res.data.videoUrl || ''
+      const rawUrl = res.data.videoUrl || ''
+      videoUrl.value = isValidVideoUrl(rawUrl) ? rawUrl : FALLBACK_VIDEO
     }
   } catch (e) {
     chapter.value = { id: chapterId, title: 'Demo 视频章节', videoUrl: '' }
-    videoUrl.value = 'https://www.w3schools.com/html/mov_bbb.mp4'
+    videoUrl.value = FALLBACK_VIDEO
     nextChapterId.value = parseInt(chapterId) + 1
     nextChapterTitle.value = '下一章节'
   }
 }
 
-function changeSpeed(speed) {
+function formatSpeed(speed) {
+  return speed.toFixed(1).replace(/\.0$/, '') + 'x'
+}
+
+async function changeSpeed(speed) {
   currentSpeed.value = speed
+  await nextTick()
   if (videoRef.value) {
     videoRef.value.playbackRate = speed
   }
@@ -120,11 +137,42 @@ function onLoaded() {
   }
 }
 
-function onTimeUpdate() {}
+function onTimeUpdate() {
+  if (hasReportedFinish.value || !videoRef.value) return
+  const video = videoRef.value
+  if (video.duration && video.duration > 0) {
+    const progress = video.currentTime / video.duration
+    if (progress >= 0.9) {
+      hasReportedFinish.value = true
+      post('/chapters/' + chapterId + '/finish')
+        .then(() => {
+          showToast('已学完本章节，可进入下一节')
+        })
+        .catch(() => {})
+    }
+  }
+}
+
+function onPlay() {
+  // 重新应用倍速设置（部分浏览器在播放开始时重置 playbackRate）
+  if (videoRef.value && currentSpeed.value !== 1) {
+    videoRef.value.playbackRate = currentSpeed.value
+  }
+}
+
+function onVideoError() {
+  console.warn('视频加载失败: ' + videoUrl.value)
+  if (videoUrl.value !== FALLBACK_VIDEO) {
+    videoUrl.value = FALLBACK_VIDEO
+  }
+}
 
 function onVideoEnded() {
+  if (!hasReportedFinish.value) {
+    hasReportedFinish.value = true
+    post('/chapters/' + chapterId + '/finish').catch(() => {})
+  }
   showToast('播放完成')
-  post('/chapters/' + chapterId + '/finish').catch(() => {})
 }
 
 function loadProgress() {
@@ -198,37 +246,53 @@ function goNext() {
 .speed-panel {
   display: flex;
   align-items: center;
-  padding: 10px 16px;
-  background: #1a1a1a;
-  gap: 12px;
+  padding: 14px 16px;
+  background: #fff;
+  margin: 12px 16px;
+  border-radius: 12px;
+  gap: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
 .speed-label {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  font-weight: 600;
+  color: #1D2129;
   flex-shrink: 0;
+  margin-right: 14px;
 }
 
-.speed-controls {
+.speed-options {
   display: flex;
-  gap: 6px;
+  gap: 0;
+  flex: 1;
+  justify-content: space-between;
 }
 
-.speed-btn {
-  padding: 4px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.6);
+.speed-item {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4E5969;
+  background: #F2F3F5;
+  padding: 8px 0;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1;
+  margin: 0 3px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.speed-btn.active {
-  background: var(--primary);
+.speed-item:active {
+  transform: scale(0.94);
+}
+
+.speed-item.active {
+  background: linear-gradient(135deg, #0052D9, #366EF4);
   color: #fff;
-  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0, 82, 217, 0.35);
 }
 
 .chapter-info-bar {

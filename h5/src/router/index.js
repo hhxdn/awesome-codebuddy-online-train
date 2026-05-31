@@ -172,6 +172,18 @@ const routes = [
     name: 'MyCertificates',
     component: () => import('../views/user/MyCertificates.vue'),
     meta: { title: '我的证书' }
+  },
+  {
+    path: '/news',
+    name: 'NewsList',
+    component: () => import('../views/news/NewsList.vue'),
+    meta: { title: '最新资讯', noAuth: true }
+  },
+  {
+    path: '/news/:id',
+    name: 'NewsDetail',
+    component: () => import('../views/news/NewsDetail.vue'),
+    meta: { title: '资讯详情', noAuth: true }
   }
 ]
 
@@ -190,6 +202,11 @@ let hasProfileFlag = false
 
 router.beforeEach(async (to, from, next) => {
   const token = getToken()
+
+  // 放行无需登录的页面
+  if (to.meta.noAuth) {
+    return next()
+  }
 
   // 放行不需要拦截的页面
   if (to.path === '/login' || to.path === '/register-profile' || to.path === '/pending-approval') {

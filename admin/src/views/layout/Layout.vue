@@ -26,6 +26,8 @@
           <el-menu-item index="/categories">课程分类</el-menu-item>
           <el-menu-item index="/courses">课程管理</el-menu-item>
           <el-menu-item index="/questions">题库管理</el-menu-item>
+          <el-menu-item index="/banners">Banner管理</el-menu-item>
+          <el-menu-item index="/news">新闻资讯</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="exam">
           <template #title>
@@ -131,6 +133,8 @@ const activeMenu = computed(() => {
   if (path.startsWith('/exams/records')) return '/exams/records'
   if (path.startsWith('/exams')) return '/exams'
   if (path.startsWith('/questions')) return '/questions'
+  if (path.startsWith('/banners')) return '/banners'
+  if (path.startsWith('/news')) return '/news'
   if (path.startsWith('/students')) return '/students'
   if (path.startsWith('/checkins')) return '/checkins'
   if (path.startsWith('/certificates')) return '/certificates'

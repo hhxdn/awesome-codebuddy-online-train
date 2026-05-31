@@ -39,6 +39,18 @@ const routes = [
         meta: { title: '课程编辑' }
       },
       {
+        path: '/banners',
+        name: 'BannerList',
+        component: () => import('@/views/content/BannerList.vue'),
+        meta: { title: 'Banner管理' }
+      },
+      {
+        path: '/news',
+        name: 'NewsList',
+        component: () => import('@/views/content/NewsList.vue'),
+        meta: { title: '新闻资讯' }
+      },
+      {
         path: '/questions',
         name: 'QuestionList',
         component: () => import('@/views/question/QuestionList.vue'),
