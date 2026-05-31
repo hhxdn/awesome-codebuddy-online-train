@@ -72,7 +72,7 @@
     </div>
 
     <van-popup v-model:show="showDatetimePicker" position="bottom" round>
-      <van-datetime-picker
+      <van-date-picker
         v-model="currentDate"
         type="datetime"
         title="选择预约时间"
