@@ -11,18 +11,7 @@
           <el-button @click="searchPlace" :loading="searching">搜索</el-button>
         </template>
       </el-input>
-      <div v-if="searchResults.length > 0" class="search-results">
-        <div
-          v-for="(item, idx) in searchResults"
-          :key="idx"
-          class="search-result-item"
-          :class="{ active: selectedIdx === idx }"
-          @click="selectPlace(item, idx)"
-        >
-          <div class="result-title">{{ item.title }}</div>
-          <div class="result-addr">{{ item.address }}</div>
-        </div>
-      </div>
+      <div v-if="searchMsg" class="search-msg">{{ searchMsg }}</div>
     </div>
     <div class="map-container" ref="mapContainer"></div>
     <div v-if="currentLng && currentLat" class="coord-display">
@@ -59,8 +48,7 @@ const emit = defineEmits(['update:modelValue'])
 const mapContainer = ref(null)
 const searchKeyword = ref('')
 const searching = ref(false)
-const searchResults = ref([])
-const selectedIdx = ref(-1)
+const searchMsg = ref('')
 const currentLng = ref('')
 const currentLat = ref('')
 const currentAddress = ref('')
@@ -97,7 +85,7 @@ function loadMapSDK() {
   })
 }
 
-// 获取用户当前城市（优先 HTML5 定位，回退 IP 定位）
+// 获取用户当前城市（优先 HTML5 定位，回退默认北京）
 async function getUserLocation() {
   // 1. 尝试浏览器 HTML5 定位
   try {
@@ -110,26 +98,10 @@ async function getUserLocation() {
     })
     return { lat: pos.coords.latitude, lng: pos.coords.longitude }
   } catch {
-    // HTML5 定位失败，回退 IP 定位
+    // HTML5 定位失败
   }
 
-  // 2. 回退：腾讯地图 IP 定位 API
-  try {
-    const res = await fetch(
-      `/tmap/ws/location/v1/ip?key=${props.apiKey}&output=json`
-    )
-    const data = await res.json()
-    if (data.status === 0 && data.result && data.result.location) {
-      return {
-        lat: data.result.location.lat,
-        lng: data.result.location.lng
-      }
-    }
-  } catch {
-    // IP 定位也失败
-  }
-
-  // 3. 最终默认：北京
+  // 2. 最终默认：北京
   return { lat: 39.90923, lng: 116.397428 }
 }
 
@@ -219,61 +191,31 @@ function placeMarker(latLng) {
 async function searchPlace() {
   if (!searchKeyword.value.trim() || !sdkReady.value) return
   searching.value = true
-  searchResults.value = []
-  selectedIdx.value = -1
+  searchMsg.value = ''
 
   const keyword = searchKeyword.value.trim()
   try {
-    // 使用腾讯地图 WebService 地点搜索 API（支持多结果和建议）
-    const url = `/tmap/ws/place/v1/suggestion?keyword=${encodeURIComponent(keyword)}&key=${props.apiKey}&output=json`
-    const res = await fetch(url)
-    const data = await res.json()
-
-    if (data.status === 0 && data.data && data.data.length > 0) {
-      searchResults.value = data.data.map(item => ({
-        id: item.id,
-        title: item.title,
-        address: item.address || '',
-        location: item.location
-      }))
-      // 如果只有一个精确匹配，直接定位
-      if (searchResults.value.length === 1) {
-        selectPlace(searchResults.value[0], 0)
+    // 使用 TMap SDK 内置 geocoder 做地址解析（走 JavaScript API 配额，无需 WebService）
+    const geoResult = await geocoder.getLocation({ address: keyword })
+    if (geoResult && geoResult.status === 0 && geoResult.result) {
+      const loc = geoResult.result.location
+      if (loc) {
+        const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
+        map.setCenter(latLng)
+        map.setZoom(17)
+        placeMarker(latLng)
+        currentAddress.value = geoResult.result.address || keyword
+        searchMsg.value = ''
         return
       }
-    } else {
-      // WebService 无结果，尝试 geocoder 地址解析
-      try {
-        const geoResult = await geocoder.getLocation({ address: keyword })
-        if (geoResult && geoResult.status === 0 && geoResult.result && geoResult.result.location) {
-          const loc = geoResult.result.location
-          const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
-          map.setCenter(latLng)
-          map.setZoom(17)
-          placeMarker(latLng)
-          currentAddress.value = geoResult.result.address || keyword
-          return
-        }
-      } catch { /* ignore */ }
-      searchResults.value = [{ title: '未找到相关地点', address: '请尝试更精确的关键词', location: null }]
     }
+    searchMsg.value = '未找到该地点，请尝试更精确的关键词'
   } catch (e) {
-    console.error('Search error:', e)
-    searchResults.value = [{ title: '搜索失败', address: '网络异常或 API 不可用', location: null }]
+    console.error('搜索失败:', e)
+    searchMsg.value = '搜索失败，SDK 地址解析异常'
   } finally {
     searching.value = false
   }
-}
-
-function selectPlace(item, idx) {
-  if (!item.location) return
-  selectedIdx.value = idx
-  const latLng = new window.TMap.LatLng(item.location.lat, item.location.lng)
-  map.setCenter(latLng)
-  map.setZoom(17)
-  placeMarker(latLng)
-  searchResults.value = []
-  searchKeyword.value = item.title
 }
 
 watch(() => props.apiKey, async (key) => {
@@ -330,46 +272,10 @@ onBeforeUnmount(() => {
   z-index: 10;
 }
 
-.search-results {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: #fff;
-  border: 1px solid #dcdfe6;
-  border-radius: 0 0 4px 4px;
-  max-height: 280px;
-  overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.search-result-item {
-  padding: 10px 14px;
-  cursor: pointer;
-  border-bottom: 1px solid #f0f0f0;
-  transition: background 0.15s;
-}
-
-.search-result-item:hover,
-.search-result-item.active {
-  background: #ecf5ff;
-}
-
-.search-result-item:last-child {
-  border-bottom: none;
-}
-
-.result-title {
-  font-size: 14px;
-  color: #303133;
-  font-weight: 500;
-}
-
-.result-addr {
+.search-msg {
   font-size: 12px;
-  color: #909399;
-  margin-top: 3px;
+  color: #f56c6c;
+  margin-top: 4px;
 }
 
 .map-container {
