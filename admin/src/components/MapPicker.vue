@@ -26,9 +26,9 @@
     </div>
     <div class="map-container" ref="mapContainer"></div>
     <div v-if="currentLng && currentLat" class="coord-display">
-      <el-tag>经度: {{ currentLng }}</el-tag>
-      <el-tag type="success" style="margin-left: 8px;">纬度: {{ currentLat }}</el-tag>
-      <el-tag type="warning" style="margin-left: 8px;">{{ currentAddress }}</el-tag>
+      <el-tag type="primary">经度: {{ currentLng }}</el-tag>
+      <el-tag type="success">纬度: {{ currentLat }}</el-tag>
+      <el-tag type="warning" v-if="currentAddress">{{ currentAddress }}</el-tag>
     </div>
     <div v-if="!apiKey" class="map-tip">
       <el-alert
@@ -64,20 +64,34 @@ const selectedIdx = ref(-1)
 const currentLng = ref('')
 const currentLat = ref('')
 const currentAddress = ref('')
+const sdkReady = ref(false)
+const sdkError = ref('')
 
 let map = null
 let marker = null
 let geocoder = null
-let searchService = null
-let mapLoaded = false
 
-// Load Tencent Maps JS API
+// Load Tencent Maps JS API (GL版)
 function loadMapSDK() {
   return new Promise((resolve, reject) => {
     if (window.TMap) { resolve(); return }
     const script = document.createElement('script')
-    script.src = `https://map.qq.com/api/js?v=2.exp&key=${props.apiKey}&libraries=place`
-    script.onload = () => resolve()
+    script.src = `https://map.qq.com/api/gljs?v=1.exp&key=${props.apiKey}&libraries=service`
+    script.onload = () => {
+      // 等待 TMap 完全就绪
+      let retries = 0
+      const check = () => {
+        if (window.TMap && window.TMap.Map) {
+          resolve()
+        } else if (retries < 20) {
+          retries++
+          setTimeout(check, 200)
+        } else {
+          reject(new Error('地图 SDK 初始化超时'))
+        }
+      }
+      check()
+    }
     script.onerror = () => reject(new Error('地图 SDK 加载失败，请检查 API Key 是否正确'))
     document.head.appendChild(script)
   })
@@ -85,46 +99,62 @@ function loadMapSDK() {
 
 function initMap() {
   if (!props.apiKey || !mapContainer.value) return
-  const center = new window.TMap.LatLng(
-    props.modelValue.lat || 39.90923,
-    props.modelValue.lng || 116.397428
-  )
-  map = new window.TMap.Map(mapContainer.value, {
-    center,
-    zoom: 15,
-    mapStyleId: 'style1'
-  })
-  geocoder = new window.TMap.service.Geocoder()
-  searchService = new window.TMap.service.Search()
 
-  // Click to place marker
-  map.on('click', (evt) => {
-    placeMarker(evt.latLng)
-  })
-
-  // If initial coords exist, place marker
-  if (props.modelValue.lat && props.modelValue.lng) {
-    placeMarker(center)
+  // Ensure container has dimensions
+  const container = mapContainer.value
+  if (container.offsetWidth === 0 || container.offsetHeight === 0) {
+    setTimeout(initMap, 100)
+    return
   }
 
-  mapLoaded = true
+  const defaultLat = Number(props.modelValue.lat) || 39.90923
+  const defaultLng = Number(props.modelValue.lng) || 116.397428
+
+  try {
+    map = new window.TMap.Map(container, {
+      center: new window.TMap.LatLng(defaultLat, defaultLng),
+      zoom: 15,
+      viewMode: '2D'
+    })
+
+    geocoder = new window.TMap.service.Geocoder()
+
+    // Click to place marker
+    map.on('click', (evt) => {
+      placeMarker(evt.latLng)
+    })
+
+    // If initial coords exist, place marker
+    if (props.modelValue.lat && props.modelValue.lng) {
+      const latLng = new window.TMap.LatLng(
+        Number(props.modelValue.lat),
+        Number(props.modelValue.lng)
+      )
+      placeMarker(latLng)
+    }
+
+    sdkReady.value = true
+  } catch (e) {
+    sdkError.value = '地图初始化失败: ' + e.message
+    console.error('Map init error:', e)
+  }
 }
 
 function placeMarker(latLng) {
   if (marker) {
-    marker.setPosition(latLng)
+    marker.setGeometries([{ id: 'pick', styleId: 'marker', position: latLng }])
   } else {
     marker = new window.TMap.MultiMarker({
       map,
       styles: {
-        default: new window.TMap.MarkerStyle({
+        marker: new window.TMap.MarkerStyle({
           width: 32,
           height: 42,
           anchor: { x: 16, y: 42 },
           src: 'https://mapapi.qq.com/web/lbs/javascriptGL/demo/img/markerDefault.png'
         })
       },
-      geometries: [{ id: 'pick', styleId: 'default', position: latLng }]
+      geometries: [{ id: 'pick', styleId: 'marker', position: latLng }]
     })
   }
 
@@ -135,42 +165,59 @@ function placeMarker(latLng) {
   emit('update:modelValue', { lng, lat })
 
   // Reverse geocode
-  geocoder.getAddress(latLng).then((result) => {
+  geocoder.getAddress({ location: latLng }).then((result) => {
     if (result && result.result && result.result.address) {
       currentAddress.value = result.result.address
     }
   }).catch(() => {})
 }
 
-function searchPlace() {
-  if (!searchKeyword.value.trim() || !mapLoaded) return
+async function searchPlace() {
+  if (!searchKeyword.value.trim() || !sdkReady.value) return
   searching.value = true
   searchResults.value = []
   selectedIdx.value = -1
 
-  searchService.search({
-    keyword: searchKeyword.value,
-    location: map.getCenter(),
-    pageSize: 10
-  }).then((result) => {
-    if (result && result.data && result.data.length > 0) {
-      searchResults.value = result.data.map(item => ({
-        id: item.id,
-        title: item.title,
-        address: item.address || '',
-        location: item.location
-      }))
+  try {
+    // Use Geocoder for location search
+    const result = await geocoder.getLocation({ address: searchKeyword.value })
+    if (result && result.status === 0 && result.result) {
+      const loc = result.result.location
+      if (loc) {
+        // Single result: center map on it
+        const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
+        map.setCenter(latLng)
+        map.setZoom(17)
+        placeMarker(latLng)
+        currentAddress.value = result.result.address || searchKeyword.value
+        searchResults.value = []
+      } else {
+        searchResults.value = [{ title: '未找到该地点', address: '请尝试更精确的关键词', location: null }]
+      }
     } else {
-      searchResults.value = []
+      // Try suggestion search
+      const suggestResult = await geocoder.getSuggestion({ keyword: searchKeyword.value, region: '全国' })
+      if (suggestResult && suggestResult.status === 0 && suggestResult.data && suggestResult.data.length > 0) {
+        searchResults.value = suggestResult.data.map(item => ({
+          id: item.id,
+          title: item.title,
+          address: item.address || '',
+          location: item.location
+        }))
+      } else {
+        searchResults.value = [{ title: '未找到相关地点', address: '请尝试更精确的关键词', location: null }]
+      }
     }
-  }).catch(() => {
-    searchResults.value = []
-  }).finally(() => {
+  } catch (e) {
+    console.error('Search error:', e)
+    searchResults.value = [{ title: '搜索失败', address: '网络错误或 API 异常', location: null }]
+  } finally {
     searching.value = false
-  })
+  }
 }
 
 function selectPlace(item, idx) {
+  if (!item.location) return
   selectedIdx.value = idx
   const latLng = new window.TMap.LatLng(item.location.lat, item.location.lng)
   map.setCenter(latLng)
@@ -187,13 +234,14 @@ watch(() => props.apiKey, async (key) => {
       await nextTick()
       initMap()
     } catch (e) {
+      sdkError.value = e.message
       console.error(e.message)
     }
   }
 })
 
 watch(() => props.modelValue, (val) => {
-  if (mapLoaded && val.lat && val.lng) {
+  if (sdkReady.value && val.lat && val.lng && map) {
     const latLng = new window.TMap.LatLng(Number(val.lat), Number(val.lng))
     map.setCenter(latLng)
     placeMarker(latLng)
@@ -205,8 +253,10 @@ onMounted(async () => {
     try {
       await loadMapSDK()
       await nextTick()
-      initMap()
+      // 给 DOM 一点时间渲染
+      setTimeout(initMap, 300)
     } catch (e) {
+      sdkError.value = e.message
       console.error(e.message)
     }
   }
@@ -228,6 +278,7 @@ onBeforeUnmount(() => {
 .map-search {
   position: relative;
   margin-bottom: 10px;
+  z-index: 10;
 }
 
 .search-results {
@@ -241,7 +292,7 @@ onBeforeUnmount(() => {
   border-radius: 0 0 4px 4px;
   max-height: 280px;
   overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
 .search-result-item {
@@ -274,7 +325,7 @@ onBeforeUnmount(() => {
 
 .map-container {
   width: 100%;
-  height: 380px;
+  height: 400px;
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid #dcdfe6;
@@ -286,7 +337,7 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
 }
 
 .map-tip {
