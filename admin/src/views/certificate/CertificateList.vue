@@ -67,11 +67,23 @@
           </template>
         </el-table-column>
         <el-table-column prop="issueTime" label="颁发时间" width="170" />
-        <el-table-column label="操作" width="180" fixed="right">
+        <el-table-column label="附件" width="120" align="center">
+          <template #default="{ row }">
+            <template v-if="row.attachmentUrl">
+              <el-tag type="success" size="small">已上传</el-tag>
+            </template>
+            <template v-else>
+              <el-tag type="info" size="small">未上传</el-tag>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="280" fixed="right">
           <template #default="{ row }">
             <template v-if="row.status === 1">
               <el-button size="small" type="warning" link @click="handleRevoke(row)">撤销</el-button>
             </template>
+            <el-button size="small" type="primary" link @click="triggerUpload(row)">上传附件</el-button>
+            <el-button v-if="row.attachmentUrl" size="small" type="danger" link @click="handleDeleteAttachment(row)">删除附件</el-button>
             <el-button size="small" type="danger" link @click="handleDelete(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -87,6 +99,10 @@
         style="margin-top: 16px; justify-content: flex-end;"
       />
     </div>
+
+    <!-- 隐藏的文件上传input -->
+    <input ref="fileInput" type="file" accept=".doc,.docx,.pdf,image/*" style="display:none" @change="handleFileChange" />
+
   </div>
 </template>
 
@@ -104,6 +120,8 @@ const pageSize = ref(10)
 const total = ref(0)
 const dialogVisible = ref(false)
 const submitting = ref(false)
+const fileInput = ref(null)
+const uploadingRow = ref(null)
 
 const query = reactive({ certType: '', keyword: '' })
 const issueForm = reactive({ certType: 'COURSE', userId: null, courseId: null })
@@ -188,6 +206,44 @@ async function handleDelete(row) {
     await ElMessageBox.confirm('确定删除该证书吗？', '提示', { type: 'warning' })
     await del(`/admin/certificates/${row.id}`)
     ElMessage.success('删除成功')
+    fetchData()
+  } catch (e) {
+    if (e !== 'cancel' && e !== 'close') {
+      ElMessage.error(e.response?.data?.message || '删除失败')
+    }
+  }
+}
+
+function triggerUpload(row) {
+  uploadingRow.value = row
+  fileInput.value.value = ''
+  fileInput.value.click()
+}
+
+async function handleFileChange(e) {
+  const file = e.target.files[0]
+  if (!file || !uploadingRow.value) return
+  const row = uploadingRow.value
+  uploadingRow.value = null
+  loading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file)
+    await post(`/admin/certificates/${row.id}/attachment`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    ElMessage.success('附件上传成功')
+    fetchData()
+  } catch (err) {
+    ElMessage.error(err.response?.data?.message || '上传失败')
+  } finally { loading.value = false }
+}
+
+async function handleDeleteAttachment(row) {
+  try {
+    await ElMessageBox.confirm('确定删除该证书的附件吗？', '提示', { type: 'warning' })
+    await del(`/admin/certificates/${row.id}/attachment`)
+    ElMessage.success('附件已删除')
     fetchData()
   } catch (e) {
     if (e !== 'cancel' && e !== 'close') {

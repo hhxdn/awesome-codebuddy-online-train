@@ -7,12 +7,14 @@ import com.onlinetrain.entity.Certificate;
 import com.onlinetrain.entity.Course;
 import com.onlinetrain.entity.User;
 import com.onlinetrain.service.CertificateService;
+import com.onlinetrain.service.CosService;
 import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.UserService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +39,9 @@ public class AdminCertificateController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private CosService cosService;
 
     /**
      * 证书列表
@@ -84,6 +89,7 @@ public class AdminCertificateController {
             map.put("certType", cert.getCertType());
             map.put("title", cert.getTitle());
             map.put("content", cert.getContent());
+            map.put("attachmentUrl", cert.getAttachmentUrl());
             map.put("certNo", cert.getCertNo());
             map.put("issueTime", cert.getIssueTime());
             map.put("status", cert.getStatus());
@@ -179,5 +185,60 @@ public class AdminCertificateController {
     public Result<Void> delete(@PathVariable Long id) {
         certificateService.removeById(id);
         return Result.ok();
+    }
+
+    /**
+     * 上传证书附件（Word/PDF/图片）
+     */
+    @PostMapping("/certificates/{id}/attachment")
+    @ApiOperation("上传证书附件")
+    public Result<Map<String, String>> uploadAttachment(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        Certificate cert = certificateService.getById(id);
+        if (cert == null) {
+            return Result.notFound("证书不存在");
+        }
+        if (file.isEmpty()) {
+            return Result.error("请选择文件");
+        }
+        String contentType = file.getContentType();
+        if (contentType == null) {
+            return Result.error("无法识别文件类型");
+        }
+        String lowerName = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+        boolean valid = contentType.startsWith("image/")
+                || contentType.equals("application/pdf")
+                || contentType.equals("application/msword")
+                || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                || lowerName.endsWith(".doc")
+                || lowerName.endsWith(".docx")
+                || lowerName.endsWith(".pdf");
+        if (!valid) {
+            return Result.error("仅支持上传图片、Word、PDF格式文件");
+        }
+        try {
+            String url = cosService.uploadImage(file);
+            cert.setAttachmentUrl(url);
+            certificateService.updateById(cert);
+            Map<String, String> data = new HashMap<>();
+            data.put("url", url);
+            return Result.ok("附件上传成功", data);
+        } catch (Exception e) {
+            return Result.error("附件上传失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除证书附件
+     */
+    @DeleteMapping("/certificates/{id}/attachment")
+    @ApiOperation("删除证书附件")
+    public Result<Void> deleteAttachment(@PathVariable Long id) {
+        Certificate cert = certificateService.getById(id);
+        if (cert == null) {
+            return Result.notFound("证书不存在");
+        }
+        cert.setAttachmentUrl(null);
+        certificateService.updateById(cert);
+        return Result.ok("附件已删除");
     }
 }

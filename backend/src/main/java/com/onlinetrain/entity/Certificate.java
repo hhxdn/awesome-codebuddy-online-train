@@ -33,6 +33,9 @@ public class Certificate {
     /** 证书内容描述 */
     private String content;
 
+    /** 证书附件URL(Word/PDF/图片) */
+    private String attachmentUrl;
+
     /** 证书编号 */
     private String certNo;
 

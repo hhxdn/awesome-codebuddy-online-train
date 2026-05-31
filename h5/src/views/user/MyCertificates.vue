@@ -42,6 +42,9 @@
           </div>
           <div class="detail-seal">线下考试通过</div>
         </div>
+        <van-button v-if="currentCert.attachmentUrl" block round type="primary" class="download-btn" @click="downloadAttachment(currentCert.attachmentUrl)">
+          下载证书附件
+        </van-button>
         <van-button block round type="primary" class="close-btn" @click="showDetail = false">
           关闭
         </van-button>
@@ -83,6 +86,10 @@ function formatTime(time) {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
+}
+
+function downloadAttachment(url) {
+  window.open(url, '_blank')
 }
 
 onMounted(() => fetchCertificates())
@@ -210,6 +217,13 @@ onMounted(() => fetchCertificates())
   margin-top: 20px;
   height: 44px;
   background: #0052D9 !important;
+  border: none !important;
+}
+
+.download-btn {
+  margin-top: 12px;
+  height: 44px;
+  background: #07C160 !important;
   border: none !important;
 }
 

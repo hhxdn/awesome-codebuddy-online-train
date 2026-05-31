@@ -49,6 +49,7 @@ public class H5CertificateController {
             map.put("id", cert.getId());
             map.put("title", cert.getTitle());
             map.put("content", cert.getContent());
+            map.put("attachmentUrl", cert.getAttachmentUrl());
             map.put("certNo", cert.getCertNo());
             map.put("certType", cert.getCertType());
             map.put("issueTime", cert.getIssueTime());
@@ -82,6 +83,7 @@ public class H5CertificateController {
         result.put("id", cert.getId());
         result.put("title", cert.getTitle());
         result.put("content", cert.getContent());
+        result.put("attachmentUrl", cert.getAttachmentUrl());
         result.put("certNo", cert.getCertNo());
         result.put("certType", cert.getCertType());
         result.put("issueTime", cert.getIssueTime());

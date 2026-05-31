@@ -645,6 +645,7 @@ CREATE TABLE `certificate` (
     `cert_type` ENUM('COURSE','ALL') DEFAULT 'COURSE' COMMENT '证书类型: COURSE单课程 ALL全课程结业',
     `title` VARCHAR(200) NOT NULL COMMENT '证书标题',
     `content` TEXT COMMENT '证书内容描述',
+    `attachment_url` VARCHAR(500) DEFAULT NULL COMMENT '证书附件URL(Word/PDF/图片)',
     `cert_no` VARCHAR(50) NOT NULL COMMENT '证书编号',
     `issue_time` DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '颁发时间',
     `status` TINYINT DEFAULT 1 COMMENT '状态 1有效 0撤销',
