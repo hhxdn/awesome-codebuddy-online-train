@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="400" viewBox="0 0 720 400">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3776AB"/>
+      <stop offset="100%" style="stop-color:#FFD43B"/>
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <rect width="720" height="400" fill="url(#bg)"/>
+  <circle cx="620" cy="80" r="150" fill="rgba(255,255,255,0.08)"/>
+  <circle cx="100" cy="320" r="120" fill="rgba(255,255,255,0.06)"/>
+  <g filter="url(#shadow)">
+<text x="360" y="144" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif" font-size="40" font-weight="bold" fill="white" letter-spacing="2">Python</text>
+<text x="360" y="200" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif" font-size="40" font-weight="bold" fill="white" letter-spacing="2"> 数据分析与</text>
+<text x="360" y="256" text-anchor="middle" font-family="PingFang SC, Microsoft YaHei, Noto Sans SC, sans-serif" font-size="40" font-weight="bold" fill="white" letter-spacing="2">可视化</text>
+  </g>
+</svg>
