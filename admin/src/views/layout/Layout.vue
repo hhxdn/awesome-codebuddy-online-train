@@ -88,7 +88,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getUser, getMenus, clearAuth } from '@/utils/auth'
 import {
   DataAnalysis, Document, Tickets, User, UserFilled, TrendCharts, Setting,
-  Fold, Expand, ArrowDown, SwitchButton, Odometer, Reading, Edit
+  Fold, Expand, ArrowDown, SwitchButton, Odometer, Reading, Edit, ShoppingCart
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
@@ -98,7 +98,7 @@ const isCollapse = ref(false)
 // 图标映射
 const iconMap = {
   Odometer, Reading, Edit, User, DataAnalysis, Setting,
-  Document, Tickets, TrendCharts
+  Document, Tickets, TrendCharts, ShoppingCart
 }
 
 // 动态菜单
