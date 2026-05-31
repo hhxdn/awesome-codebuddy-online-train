@@ -7,7 +7,7 @@
 | JDK | 8+ | 后端运行环境 |
 | Maven | 3.6+ | 后端构建工具 |
 | MySQL | 8.0 | 数据库 |
-| Node.js | 16+ | 前端构建工具 |
+| Node.js | 18+ | 前端构建工具（Vite 5 要求） |
 | npm | 8+ | 前端包管理 |
 
 ---
@@ -196,14 +196,204 @@ npm run build          # 生产构建
 
 ---
 
-## 八、生产环境部署建议
+## 八、生产环境部署
 
-| 服务 | 部署方式 |
-|------|----------|
-| 后端 JAR | `nohup java -jar` 或 systemd 服务 |
-| 前端静态文件 | Nginx + gzip 压缩 |
-| 数据库 | MySQL 8.0，配置定时备份 |
-| 图片 | 腾讯云 COS + CDN 加速 |
-| 视频 | 腾讯云 VOD + 防盗链 |
-| 支付 | 微信支付 + 外网可达回调地址 |
-| 域名 | 建议配置 HTTPS 证书 |
+### 8.1 部署架构
+
+```
+用户 → Nginx (80/443)
+        ├── /admin/*      → admin/dist/ (管理后台)
+        ├── /h5/*         → h5/dist/ (学员端H5)
+        ├── /api/*        → 127.0.0.1:8088 (Spring Boot 后端)
+        └── /uploads/*    → 静态文件上传目录
+```
+
+### 8.2 环境要求
+
+| 组件 | 版本要求 | 用途 |
+|------|----------|------|
+| JDK | 1.8+ | 后端运行环境 |
+| MySQL | 8.0+ | 数据库 |
+| Nginx | 1.18+ | 反向代理 + 静态文件托管 |
+| Node.js | >= 18 | 前端构建（仅构建时需要） |
+| Maven | 3.6+ | 后端构建（仅构建时需要） |
+
+### 8.3 构建项目
+
+```bash
+# 1. 构建后端 JAR
+cd backend
+mvn clean package -DskipTests
+# 产物: target/online-train-backend-1.0.0.jar
+
+# 2. 构建管理后台
+cd ../admin
+npm install && npm run build
+# 产物: dist/
+
+# 3. 构建H5学员端
+cd ../h5
+npm install && npm run build
+# 产物: dist/
+```
+
+### 8.4 上传到服务器
+
+```bash
+# 创建目录结构
+ssh user@server "mkdir -p /opt/online-train /data/online-train/uploads"
+
+# 上传 JAR
+scp backend/target/online-train-backend-1.0.0.jar user@server:/opt/online-train/
+
+# 上传前端构建产物
+scp -r admin/dist/* user@server:/opt/online-train/admin/
+scp -r h5/dist/* user@server:/opt/online-train/h5/
+
+# 上传数据库初始化脚本
+scp backend/src/main/resources/db/schema.sql user@server:/opt/online-train/
+```
+
+### 8.5 初始化数据库
+
+在服务器上执行：
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS online_train DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+mysql -u root -p online_train < /opt/online-train/schema.sql
+```
+
+### 8.6 生产配置修改
+
+部署前需修改 `application.yml` 以下配置：
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/online_train?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root          # 替换为生产数据库用户名
+    password: your_password # 替换为生产数据库密码
+
+jwt:
+  secret: 生成一个随机字符串  # 替换默认值
+
+upload:
+  path: /data/online-train/uploads/  # 使用绝对路径
+
+wx:
+  pay:
+    notify-url: https://你的域名/api/payment/callback/wechat  # 使用真实域名
+```
+
+### 8.7 Nginx 配置
+
+创建 `/etc/nginx/conf.d/online-train.conf`：
+
+```nginx
+server {
+    listen 80;
+    server_name 你的域名;
+
+    # gzip 压缩
+    gzip on;
+    gzip_min_length 1k;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+
+    # 管理后台
+    location /admin {
+        alias /opt/online-train/admin;
+        index index.html;
+        try_files $uri $uri/ /admin/index.html;
+    }
+
+    # H5学员端
+    location /h5 {
+        alias /opt/online-train/h5;
+        index index.html;
+        try_files $uri $uri/ /h5/index.html;
+    }
+
+    # 上传文件
+    location /uploads/ {
+        alias /data/online-train/uploads/;
+    }
+
+    # API 代理到后端
+    location /api/ {
+        proxy_pass http://127.0.0.1:8088;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+}
+```
+
+重载 Nginx：
+
+```bash
+nginx -t && nginx -s reload
+```
+
+### 8.8 Systemd 服务（后端守护进程）
+
+创建 `/etc/systemd/system/online-train.service`：
+
+```ini
+[Unit]
+Description=Online Train Backend
+After=network.target mysql.service
+
+[Service]
+User=root
+WorkingDirectory=/opt/online-train
+ExecStart=/usr/bin/java -jar /opt/online-train/online-train-backend-1.0.0.jar
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+启动服务：
+
+```bash
+systemctl daemon-reload
+systemctl enable online-train
+systemctl start online-train
+
+# 查看状态和日志
+systemctl status online-train
+journalctl -u online-train -f
+```
+
+### 8.9 防火墙配置
+
+```bash
+# 开放 HTTP/HTTPS 端口
+firewall-cmd --add-port=80/tcp --permanent
+firewall-cmd --add-port=443/tcp --permanent
+firewall-cmd --reload
+```
+
+> **注意：** 不要开放 8088 端口给外网，后端只通过 Nginx 反向代理访问。
+
+### 8.10 小程序端配置
+
+部署后需修改 `miniapp/app.js` 中的 `baseUrl` 为服务器真实地址：
+
+```javascript
+baseUrl: 'https://你的域名/api'
+```
+
+并在微信小程序后台配置服务器域名白名单。
+
+### 8.11 服务汇总
+
+| 服务 | 部署方式 | 端口 |
+|------|----------|------|
+| 后端 JAR | systemd 服务 | 8088（仅本地） |
+| 前端静态文件 | Nginx 托管 | 80/443 |
+| 数据库 | MySQL 8.0，配置定时备份 | 3306 |
+| 图片 | 腾讯云 COS + CDN 加速 | - |
+| 视频 | 腾讯云 VOD + 防盗链 | - |
+| 支付 | 微信支付 + 外网可达回调地址 | - |
