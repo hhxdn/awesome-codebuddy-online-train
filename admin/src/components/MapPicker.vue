@@ -97,7 +97,43 @@ function loadMapSDK() {
   })
 }
 
-function initMap() {
+// 获取用户当前城市（优先 HTML5 定位，回退 IP 定位）
+async function getUserLocation() {
+  // 1. 尝试浏览器 HTML5 定位
+  try {
+    const pos = await new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject(new Error('不支持定位'))
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        timeout: 5000,
+        maximumAge: 600000
+      })
+    })
+    return { lat: pos.coords.latitude, lng: pos.coords.longitude }
+  } catch {
+    // HTML5 定位失败，回退 IP 定位
+  }
+
+  // 2. 回退：腾讯地图 IP 定位 API
+  try {
+    const res = await fetch(
+      `https://apis.map.qq.com/ws/location/v1/ip?key=${props.apiKey}&output=json`
+    )
+    const data = await res.json()
+    if (data.status === 0 && data.result && data.result.location) {
+      return {
+        lat: data.result.location.lat,
+        lng: data.result.location.lng
+      }
+    }
+  } catch {
+    // IP 定位也失败
+  }
+
+  // 3. 最终默认：北京
+  return { lat: 39.90923, lng: 116.397428 }
+}
+
+async function initMap() {
   if (!props.apiKey || !mapContainer.value) return
 
   // Ensure container has dimensions
@@ -107,13 +143,21 @@ function initMap() {
     return
   }
 
-  const defaultLat = Number(props.modelValue.lat) || 39.90923
-  const defaultLng = Number(props.modelValue.lng) || 116.397428
+  // 已有坐标就用已有的，否则根据 IP 定位当前城市
+  let defaultLat, defaultLng
+  if (props.modelValue.lat && props.modelValue.lng) {
+    defaultLat = Number(props.modelValue.lat)
+    defaultLng = Number(props.modelValue.lng)
+  } else {
+    const loc = await getUserLocation()
+    defaultLat = loc.lat
+    defaultLng = loc.lng
+  }
 
   try {
     map = new window.TMap.Map(container, {
       center: new window.TMap.LatLng(defaultLat, defaultLng),
-      zoom: 15,
+      zoom: 12,
       viewMode: '2D'
     })
 
