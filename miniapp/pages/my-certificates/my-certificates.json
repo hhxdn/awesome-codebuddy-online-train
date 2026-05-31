@@ -1,1 +1,5 @@
-{"navigationBarTitleText":"我的证书"}
+{
+  "navigationBarTitleText": "我的证书",
+  "navigationBarBackgroundColor": "#0052D9",
+  "navigationBarTextStyle": "white"
+}
