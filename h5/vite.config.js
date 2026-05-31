@@ -6,6 +6,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import pxtorem from 'postcss-pxtorem'
 
 export default defineConfig({
+  base: '/h5/',
   plugins: [
     vue(),
     AutoImport({

@@ -239,6 +239,6 @@ public class AdminCertificateController {
         }
         cert.setAttachmentUrl(null);
         certificateService.updateById(cert);
-        return Result.ok("附件已删除");
+        return Result.ok();
     }
 }
