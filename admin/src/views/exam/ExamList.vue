@@ -31,9 +31,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="170" />
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column label="操作" width="340" fixed="right">
           <template #default="{ row }">
             <el-button size="small" type="primary" link @click="$router.push(`/exams/edit/${row.id}`)">编辑</el-button>
+            <el-button size="small" type="info" link @click="handlePreview(row)">预览</el-button>
             <el-button
               v-if="row.status === 'DRAFT'"
               size="small" type="success" link @click="handlePublish(row)"
@@ -135,6 +136,76 @@
         <el-button type="primary" :loading="submitting" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 预览弹窗 -->
+    <el-dialog
+      v-model="previewVisible"
+      title="试卷预览"
+      width="900px"
+      top="30px"
+    >
+      <template v-if="previewData">
+        <div class="preview-header">
+          <div class="preview-title">{{ previewData.title }}</div>
+          <div class="preview-meta">
+            <el-tag :type="previewData.examType === 'OFFLINE' ? 'warning' : 'primary'" size="small">
+              {{ previewData.examType === 'OFFLINE' ? '线下考试' : '线上考试' }}
+            </el-tag>
+            <span>考试时长：<b>{{ previewData.durationMinutes }}</b> 分钟</span>
+            <span>总分：<b>{{ previewData.totalScore }}</b> 分</span>
+            <span>及格分：<b>{{ previewData.passScore }}</b> 分</span>
+            <span>题数：<b>{{ previewData.questionCount }}</b> 道</span>
+          </div>
+          <el-switch v-model="showAnswers" active-text="显示答案" inactive-text="隐藏答案" style="margin-top: 10px;" />
+        </div>
+        <div class="preview-questions">
+          <div v-for="(q, idx) in previewData.questions" :key="q.id" class="preview-question-item">
+            <div class="pq-header">
+              <span class="pq-num">{{ idx + 1 }}.</span>
+              <el-tag :type="tagType(q.type)" size="small" effect="dark">{{ typeLabel(q.type) }}</el-tag>
+              <span class="pq-score">（{{ q.score }} 分）</span>
+            </div>
+            <div class="pq-content" v-html="q.content"></div>
+            <!-- 选项 -->
+            <div v-if="q.options && q.options.length" class="pq-options">
+              <div
+                v-for="opt in q.options"
+                :key="opt.label"
+                class="pq-option"
+                :class="{ 'is-correct': showAnswers && opt.isCorrect }"
+              >
+                <span class="pq-opt-label">{{ opt.label }}.</span>
+                <span>{{ opt.content }}</span>
+                <el-icon v-if="showAnswers && opt.isCorrect" class="pq-check"><Select /></el-icon>
+              </div>
+            </div>
+            <!-- 判断题 -->
+            <div v-if="q.type === 'JUDGE'" class="pq-options">
+              <div class="pq-option" :class="{ 'is-correct': showAnswers && q.answer === 'T' }">
+                <span class="pq-opt-label">✓</span><span>正确</span>
+              </div>
+              <div class="pq-option" :class="{ 'is-correct': showAnswers && q.answer === 'F' }">
+                <span class="pq-opt-label">✗</span><span>错误</span>
+              </div>
+            </div>
+            <!-- 答案和解析 -->
+            <div v-if="showAnswers" class="pq-answer">
+              <div class="pq-answer-label">
+                正确答案：
+                <b v-if="q.type === 'JUDGE'">{{ q.answer === 'T' ? '正确' : '错误' }}</b>
+                <b v-else>{{ q.answer }}</b>
+              </div>
+              <div v-if="q.analysis" class="pq-analysis">
+                <span class="pq-analysis-label">解析：</span>{{ q.analysis }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #footer>
+        <el-button @click="previewVisible = false">关闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -142,6 +213,7 @@
 import { ref, reactive, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Select } from '@element-plus/icons-vue'
 import { get, post, put, del } from '@/api'
 
 const router = useRouter()
@@ -166,6 +238,11 @@ const examChapters = ref([])
 const availableQuestions = ref([])
 const questionLoading = ref(false)
 const filterChapterId = ref(null)
+
+// 预览相关
+const previewVisible = ref(false)
+const previewData = ref(null)
+const showAnswers = ref(false)
 
 const form = reactive({
   title: '',
@@ -266,6 +343,20 @@ function handleAdd() {
   router.push('/exams/edit/new')
 }
 
+// 预览
+async function handlePreview(row) {
+  showAnswers.value = false
+  previewData.value = null
+  previewVisible.value = true
+  try {
+    const res = await get(`/admin/exams/${row.id}/preview`)
+    previewData.value = res.data
+  } catch {
+    ElMessage.error('加载试卷预览失败')
+    previewVisible.value = false
+  }
+}
+
 async function handleEdit(row) {
   // edit via full page, not dialog
   router.push(`/exams/edit/${row.id}`)
@@ -334,3 +425,125 @@ onMounted(() => {
   fetchData()
 })
 </script>
+
+<style scoped>
+.preview-header {
+  border-bottom: 2px solid #ebeef5;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.preview-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #303133;
+  margin-bottom: 12px;
+}
+.preview-meta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #606266;
+}
+.preview-meta b {
+  color: #303133;
+}
+.preview-questions {
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.preview-question-item {
+  background: #fafafa;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  border: 1px solid #e4e7ed;
+  transition: border-color 0.2s;
+}
+.preview-question-item:hover {
+  border-color: #c0c4cc;
+}
+.pq-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.pq-num {
+  font-weight: 700;
+  font-size: 15px;
+  color: #409eff;
+  min-width: 28px;
+}
+.pq-score {
+  font-size: 12px;
+  color: #909399;
+}
+.pq-content {
+  font-size: 14px;
+  color: #303133;
+  line-height: 1.7;
+  margin-bottom: 10px;
+}
+.pq-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.pq-option {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #fff;
+  border: 1px solid #dcdfe6;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #606266;
+  min-width: 120px;
+}
+.pq-option.is-correct {
+  border-color: #67c23a;
+  background: #f0f9eb;
+  color: #67c23a;
+  font-weight: 600;
+}
+.pq-opt-label {
+  font-weight: 700;
+  color: #409eff;
+}
+.pq-option.is-correct .pq-opt-label {
+  color: #67c23a;
+}
+.pq-check {
+  color: #67c23a;
+  margin-left: auto;
+}
+.pq-answer {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #ecf5ff;
+  border-radius: 6px;
+  border-left: 3px solid #409eff;
+}
+.pq-answer-label {
+  font-size: 13px;
+  color: #303133;
+}
+.pq-answer-label b {
+  color: #f56c6c;
+}
+.pq-analysis {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #e6a23c;
+  line-height: 1.6;
+}
+.pq-analysis-label {
+  font-weight: 600;
+  color: #e6a23c;
+}
+</style>

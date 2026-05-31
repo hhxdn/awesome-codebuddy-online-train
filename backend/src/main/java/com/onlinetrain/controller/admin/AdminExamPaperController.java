@@ -5,7 +5,9 @@ import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.ExamPaper;
 import com.onlinetrain.entity.Question;
+import com.onlinetrain.entity.QuestionOption;
 import com.onlinetrain.service.ExamPaperService;
+import com.onlinetrain.service.QuestionOptionService;
 import com.onlinetrain.service.QuestionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -29,6 +31,9 @@ public class AdminExamPaperController {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private QuestionOptionService questionOptionService;
 
     /**
      * 试卷列表
@@ -176,6 +181,61 @@ public class AdminExamPaperController {
             examPaperService.updateById(paper);
         }
         return Result.ok();
+    }
+
+    /**
+     * 试卷预览 - 返回试卷信息及完整题目详情（含选项和答案）
+     */
+    @GetMapping("/exams/{id}/preview")
+    @ApiOperation("试卷预览")
+    public Result<Map<String, Object>> preview(@PathVariable Long id) {
+        ExamPaper paper = examPaperService.getById(id);
+        if (paper == null) return Result.notFound("试卷不存在");
+
+        List<Question> questions = questionService.getExamPaperQuestions(id);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("id", paper.getId());
+        result.put("title", paper.getTitle());
+        result.put("courseId", paper.getCourseId());
+        result.put("durationMinutes", paper.getDurationMinutes());
+        result.put("totalScore", paper.getTotalScore());
+        result.put("passScore", paper.getPassScore());
+        result.put("maxAttempts", paper.getMaxAttempts());
+        result.put("status", paper.getStatus());
+        result.put("examType", paper.getExamType() != null ? paper.getExamType() : "ONLINE");
+        result.put("questions", buildQuestionPreviewList(questions));
+        result.put("questionCount", questions != null ? questions.size() : 0);
+        return Result.ok(result);
+    }
+
+    private List<Map<String, Object>> buildQuestionPreviewList(List<Question> questions) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        if (questions == null) return list;
+        for (Question q : questions) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", q.getId());
+            item.put("type", q.getType());
+            item.put("content", q.getContent());
+            item.put("score", q.getScore());
+            item.put("answer", q.getAnswer());
+            item.put("analysis", q.getAnalysis());
+            if ("SINGLE".equals(q.getType()) || "MULTIPLE".equals(q.getType())) {
+                List<QuestionOption> opts = questionOptionService.lambdaQuery()
+                        .eq(QuestionOption::getQuestionId, q.getId())
+                        .orderByAsc(QuestionOption::getOptionLabel)
+                        .list();
+                item.put("options", opts.stream().map(o -> {
+                    Map<String, Object> om = new HashMap<>();
+                    om.put("label", o.getOptionLabel());
+                    om.put("content", o.getContent());
+                    om.put("isCorrect", o.getIsCorrect());
+                    return om;
+                }).collect(Collectors.toList()));
+            }
+            list.add(item);
+        }
+        return list;
     }
 
     /**
