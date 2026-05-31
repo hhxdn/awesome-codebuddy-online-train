@@ -130,7 +130,7 @@ mvn spring-boot:run
 cd admin
 npm install
 npm run dev
-# 管理后台运行在 http://localhost:3000
+# 管理后台运行在 http://localhost:18088
 ```
 
 ### 4. 启动H5学员端
@@ -174,6 +174,8 @@ npm run dev
 
 ### H5 学员端
 - 📱 手机号验证码登录 / 微信快捷登录
+- 🖼️ 首页Banner轮播（后台可配置）
+- 📰 首页新闻资讯推送（图文详情）
 - 📚 课程浏览、搜索、分类筛选
 - 🎬 视频断点续播、倍速播放
 - ✍️ 章节题库练习（单选/多选/判断/简答）
@@ -185,6 +187,8 @@ npm run dev
 ### 管理后台
 - 📂 课程分类管理
 - 🎯 课程管理（视频章节、免费/付费设置）
+- 🖼️ Banner轮播图管理（图片、标题、跳转链接、排序）
+- 📰 新闻资讯管理（图文编辑、发布/草稿状态）
 - 📖 题库管理（单题录入/Excel批量导入）
 - 📝 试卷管理（手动组卷/发布考试）
 - 👥 学员管理（学习轨迹全掌握）
@@ -197,6 +201,8 @@ npm run dev
 | 表名 | 说明 |
 |------|------|
 | user | 用户表（学员+管理员） |
+| banner | Banner轮播图表 |
+| news_article | 新闻资讯表 |
 | course_category | 课程分类表 |
 | course | 课程表 |
 | chapter | 章节表 |
@@ -225,6 +231,11 @@ npm run dev
 - `POST /api/h5/orders/{id}/pay` - 发起支付
 - `POST /api/h5/learning/record` - 保存学习进度
 
+### 公开 API (`/api/`)
+- `GET /api/banners` - 获取启用的Banner列表
+- `GET /api/news` - 获取新闻资讯列表
+- `GET /api/news/{id}` - 获取新闻详情（阅读量+1）
+
 ### 管理后台 API (`/api/admin/`)
 - `POST /api/admin/auth/login` - 管理员登录
 - `CRUD /api/admin/categories` - 分类管理
@@ -232,6 +243,8 @@ npm run dev
 - `CRUD /api/admin/questions` - 题目管理
 - `POST /api/admin/questions/import` - Excel批量导入
 - `CRUD /api/admin/exam-papers` - 试卷管理
+- `CRUD /api/admin/banners` - Banner管理
+- `CRUD /api/admin/news` - 新闻资讯管理
 - `GET /api/admin/statistics/revenue` - 营收统计
 - `GET /api/admin/statistics/learning` - 学情统计
 - `GET /api/admin/statistics/exam` - 考试统计
