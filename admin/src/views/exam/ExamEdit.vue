@@ -46,7 +46,7 @@
                 <el-radio value="OFFLINE">线下考试</el-radio>
               </el-radio-group>
               <div style="font-size: 12px; color: #909399; margin-top: 4px;">
-                {{ form.examType === 'OFFLINE' ? '学员不能在线参加，需管理员录入成绩' : '学员在线参加，系统自动评分' }}
+                {{ form.examType === 'OFFLINE' ? '线下考试无需试题，学员需预约后参加，由管理员录入成绩' : '学员在线参加，系统自动评分' }}
               </div>
             </el-form-item>
           </el-col>
@@ -59,7 +59,7 @@
           </el-col>
         </el-row>
 
-        <div v-if="form.courseId" class="card-container" style="margin-top: 16px;">
+        <div v-if="form.courseId && form.examType !== 'OFFLINE'" class="card-container" style="margin-top: 16px;">
           <div class="card-title">
             选择题目
             <span style="font-weight: normal; font-size: 13px; color: #909399; margin-left: 10px;">

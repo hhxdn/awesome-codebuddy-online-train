@@ -36,6 +36,7 @@
           </template>
           <el-menu-item index="/exams">试卷管理</el-menu-item>
           <el-menu-item index="/exams/random">随机组卷</el-menu-item>
+          <el-menu-item index="/reservations">考试预约</el-menu-item>
           <el-menu-item index="/exams/records">考试记录</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="user">
@@ -131,6 +132,7 @@ const activeMenu = computed(() => {
   if (path.startsWith('/exams/edit')) return '/exams'
   if (path.startsWith('/exams/random')) return '/exams/random'
   if (path.startsWith('/exams/records')) return '/exams/records'
+  if (path.startsWith('/reservations')) return '/reservations'
   if (path.startsWith('/exams')) return '/exams'
   if (path.startsWith('/questions')) return '/questions'
   if (path.startsWith('/banners')) return '/banners'

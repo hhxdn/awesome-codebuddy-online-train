@@ -150,6 +150,18 @@ const routes = [
     meta: { title: '考试结果' }
   },
   {
+    path: '/exam/reservation/:paperId',
+    name: 'ExamReservation',
+    component: () => import('../views/exam/ExamReservation.vue'),
+    meta: { title: '预约线下考试' }
+  },
+  {
+    path: '/my-reservations',
+    name: 'MyReservations',
+    component: () => import('../views/exam/MyReservations.vue'),
+    meta: { title: '我的预约' }
+  },
+  {
     path: '/order/confirm/:courseId',
     name: 'OrderConfirm',
     component: () => import('../views/order/OrderConfirm.vue'),

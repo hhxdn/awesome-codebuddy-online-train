@@ -76,7 +76,8 @@ const stats = ref({})
 const menuGroups = [
   [
     { title: '我的课程', icon: 'bookmark-o', iconClass: 'm-blue', path: '/my-courses' },
-    { title: '我的订单', icon: 'records-o', iconClass: 'm-orange', path: '/my-orders' }
+    { title: '我的订单', icon: 'records-o', iconClass: 'm-orange', path: '/my-orders' },
+    { title: '我的预约', icon: 'location-o', iconClass: 'm-teal', path: '/my-reservations' }
   ],
   [
     { title: '错题回顾', icon: 'cross', iconClass: 'm-red', path: '/my-wrong' },
@@ -171,6 +172,7 @@ onMounted(() => {
 .m-green { background: var(--success-light); color: #00A870; }
 .m-purple { background: #F3F0FF; color: #7C3AED; }
 .m-gold { background: #FFF7E6; color: #E37318; }
+.m-teal { background: #E6FFFA; color: #00B4D8; }
 
 .logout-wrap { padding: 40px 20px; }
 .logout-btn {

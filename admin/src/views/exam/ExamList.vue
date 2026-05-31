@@ -105,11 +105,11 @@
             <el-radio value="OFFLINE">线下考试</el-radio>
           </el-radio-group>
           <span style="margin-left: 8px; font-size: 12px; color: #909399;">
-            {{ form.examType === 'OFFLINE' ? '线下考试学员不能在线参加，需管理员录入成绩后颁发证书' : '学员在线参加，系统自动评分' }}
+            {{ form.examType === 'OFFLINE' ? '线下考试无需试题，学员需预约后参加，由管理员录入成绩' : '学员在线参加，系统自动评分' }}
           </span>
         </el-form-item>
 
-        <div v-if="form.courseId" style="margin-top: 16px;">
+        <div v-if="form.courseId && form.examType !== 'OFFLINE'" style="margin-top: 16px;">
           <div class="card-title">选择题目（按章节筛选）</div>
           <el-select v-model="filterChapterId" placeholder="全部章节" clearable style="width: 200px; margin-bottom: 12px;" @change="loadQuestions">
             <el-option v-for="ch in examChapters" :key="ch.id" :label="ch.title" :value="ch.id" />

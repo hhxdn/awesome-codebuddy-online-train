@@ -117,6 +117,12 @@ const routes = [
         meta: { title: '考试统计' }
       },
       {
+        path: '/reservations',
+        name: 'ReservationList',
+        component: () => import('@/views/exam/ReservationList.vue'),
+        meta: { title: '考试预约' }
+      },
+      {
         path: '/checkins',
         name: 'OfflineCheckinList',
         component: () => import('@/views/checkin/OfflineCheckinList.vue'),

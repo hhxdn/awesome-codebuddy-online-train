@@ -38,10 +38,13 @@
             <div class="meta-item"><van-icon name="gold-coin-o" size="14" /> 满分{{ exam.totalScore || 100 }}分</div>
             <div class="meta-item"><van-icon name="passed" size="14" /> 及格{{ exam.passScore || 60 }}分</div>
           </div>
-          <div class="exam-bottom" v-if="exam.questionCount">
-            <span>共{{ exam.questionCount }}题</span>
-            <span v-if="exam.examType === 'OFFLINE'" style="color: #E37318;">线下考试，由管理员录入成绩</span>
-            <van-icon name="arrow" size="14" />
+          <div class="exam-bottom">
+            <span v-if="exam.questionCount">共{{ exam.questionCount }}题</span>
+            <span v-else-if="exam.examType === 'OFFLINE'">线下考试</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span v-if="exam.examType === 'OFFLINE'" style="color: #E37318;">需预约参加</span>
+              <van-icon name="arrow" size="14" />
+            </div>
           </div>
         </div>
       </div>
@@ -120,7 +123,10 @@ function getStatusText(exam) {
   return '未参加'
 }
 function goExam(exam) {
-  if (exam.examType === 'OFFLINE') return
+  if (exam.examType === 'OFFLINE') {
+    router.push('/exam/reservation/' + exam.id)
+    return
+  }
   router.push('/exam/start/' + exam.id)
 }
 function onRefresh() { refreshing.value = true; fetchExams().finally(() => { refreshing.value = false }) }

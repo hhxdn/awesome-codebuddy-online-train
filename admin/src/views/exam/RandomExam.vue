@@ -43,10 +43,11 @@
             <el-radio value="OFFLINE">线下考试</el-radio>
           </el-radio-group>
           <span style="margin-left: 8px; font-size: 12px; color: #909399;">
-            {{ form.examType === 'OFFLINE' ? '线下考试学员不能在线参加，需管理员录入成绩' : '学员在线参加，系统自动评分' }}
+            {{ form.examType === 'OFFLINE' ? '线下考试无需试题，学员需预约后参加，由管理员录入成绩' : '学员在线参加，系统自动评分' }}
           </span>
         </el-form-item>
 
+        <template v-if="form.examType !== 'OFFLINE'">
         <el-form-item label="考试时长(分钟)" prop="durationMinutes">
           <el-input-number v-model="form.durationMinutes" :min="1" :max="300" />
         </el-form-item>
@@ -65,6 +66,12 @@
           </el-button>
           <el-button @click="$router.back()">返回</el-button>
         </el-form-item>
+        </template>
+        <template v-else>
+          <div style="padding: 20px; text-align: center; color: #909399;">
+            线下考试无需随机组卷，请使用「新增试卷」创建线下考试
+          </div>
+        </template>
       </el-form>
     </div>
 
