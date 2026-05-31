@@ -24,7 +24,6 @@
         </el-table-column>
         <el-table-column prop="durationMinutes" label="考试时长(分)" width="110" />
         <el-table-column prop="totalScore" label="总分" width="80" />
-        <el-table-column prop="passScore" label="及格分" width="80" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
             <el-tag :type="statusTag(row.status)" size="small">{{ row.status }}</el-tag>
