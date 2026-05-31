@@ -48,18 +48,12 @@
         <!-- 线下课程设置 -->
         <template v-if="form.courseType === 'OFFLINE'">
           <div class="card-title">线下打卡设置</div>
-          <el-row :gutter="20">
-            <el-col :span="12">
-              <el-form-item label="打卡经度">
-                <el-input v-model="form.longitude" placeholder="例如：116.397428" />
-              </el-form-item>
-            </el-col>
-            <el-col :span="12">
-              <el-form-item label="打卡纬度">
-                <el-input v-model="form.latitude" placeholder="例如：39.90923" />
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <el-form-item label="打卡位置">
+            <MapPicker
+              v-model="checkinLocation"
+              :api-key="tmapKey"
+            />
+          </el-form-item>
           <el-row :gutter="20">
             <el-col :span="12">
               <el-form-item label="打卡半径(米)">
@@ -135,12 +129,13 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { get, post, put } from '@/api'
 import ImageUpload from '@/components/ImageUpload.vue'
 import VideoUpload from '@/components/VideoUpload.vue'
+import MapPicker from '@/components/MapPicker.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -167,6 +162,27 @@ const form = reactive({
   checkinRadius: 3000,
   prerequisiteCourseId: null,
   chapters: []
+})
+
+// 腾讯地图 API Key（前往 https://lbs.qq.com/ 申请，创建应用后获取 Key）
+const tmapKey = ref('') // 请填入你的腾讯地图 WebService API Key
+
+// 地图选点双向绑定（lng/lat 对象 ↔ form.longitude/form.latitude）
+const checkinLocation = reactive({
+  lng: form.longitude || '',
+  lat: form.latitude || ''
+})
+
+// 监听地图选点变化，同步到 form
+watch(() => checkinLocation.lng, (val) => { form.longitude = val })
+watch(() => checkinLocation.lat, (val) => { form.latitude = val })
+
+// 监听 form 经纬度变化（编辑回显时），同步到地图
+watch([() => form.longitude, () => form.latitude], ([lng, lat]) => {
+  if (lng && lat && (lng !== checkinLocation.lng || lat !== checkinLocation.lat)) {
+    checkinLocation.lng = lng
+    checkinLocation.lat = lat
+  }
 })
 
 const rules = {
