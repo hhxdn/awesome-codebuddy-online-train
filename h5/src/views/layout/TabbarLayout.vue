@@ -1,5 +1,34 @@
 <template>
   <div class="tabbar-layout">
+    <!-- Desktop Sidebar -->
+    <aside class="desktop-sidebar">
+      <div class="sidebar-brand">
+        <div class="sidebar-logo">
+          <svg viewBox="0 0 32 32" width="32" height="32" fill="none">
+            <rect width="32" height="32" rx="8" fill="#0052D9"/>
+            <path d="M10 14L16 9L22 14V22C22 22.6 21.6 23 21 23H11C10.4 23 10 22.6 10 22V14Z" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M14 23V17H18V23" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <span class="brand-name">在线学习</span>
+      </div>
+      <nav class="sidebar-nav">
+        <router-link to="/home" class="nav-item" :class="{ active: active === 0 }">
+          <van-icon name="home-o" size="20" /><span>首页</span>
+        </router-link>
+        <router-link to="/courses" class="nav-item" :class="{ active: active === 1 }">
+          <van-icon name="apps-o" size="20" /><span>课程中心</span>
+        </router-link>
+        <router-link to="/exam" class="nav-item" :class="{ active: active === 2 }">
+          <van-icon name="certificate" size="20" /><span>在线考试</span>
+        </router-link>
+        <router-link to="/mine" class="nav-item" :class="{ active: active === 3 }">
+          <van-icon name="user-o" size="20" /><span>个人中心</span>
+        </router-link>
+      </nav>
+    </aside>
+
+    <!-- Content Area -->
     <div class="tabbar-content">
       <router-view v-slot="{ Component }">
         <transition name="page-slide" mode="out-in">
@@ -7,6 +36,8 @@
         </transition>
       </router-view>
     </div>
+
+    <!-- Mobile Tabbar -->
     <van-tabbar
       v-model="active"
       active-color="#0052D9"
@@ -58,6 +89,11 @@ watch(
   padding-bottom: calc(50px + env(safe-area-inset-bottom));
 }
 
+/* Desktop Sidebar - hidden by default on mobile */
+.desktop-sidebar {
+  display: none;
+}
+
 .main-tabbar {
   box-shadow: 0 -1px 8px rgba(0, 0, 0, 0.04) !important;
   background: #fff !important;
@@ -69,6 +105,105 @@ watch(
 
 .main-tabbar :deep(.van-tabbar-item__text) {
   font-size: 10px;
+}
+
+/* ========================================
+   Desktop Layout (>=768px)
+   Left sidebar + main content area
+   ======================================== */
+@media (min-width: 768px) {
+  .tabbar-layout {
+    flex-direction: row;
+  }
+
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid var(--border-light);
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 200;
+    padding: 20px 0;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px 18px;
+    margin: 0 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand .brand-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 10px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .nav-item.active {
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .nav-item.active:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+  }
+
+  .tabbar-content {
+    margin-left: 200px;
+    flex: 1;
+    width: calc(100% - 200px);
+    padding-bottom: 0 !important;
+    min-height: 100vh;
+    background: var(--bg-color);
+  }
+
+  /* Hide mobile tabbar on desktop */
+  .main-tabbar {
+    display: none !important;
+  }
 }
 
 /* Page transition */

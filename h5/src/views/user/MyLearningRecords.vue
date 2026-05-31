@@ -110,4 +110,12 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
 }
+
+@media (min-width: 768px) {
+  .my-learning-records-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+}
 </style>

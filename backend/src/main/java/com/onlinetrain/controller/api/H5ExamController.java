@@ -53,7 +53,6 @@ public class H5ExamController {
                 new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
         wrapper.eq(ExamPaper::getStatus, "PUBLISHED");
         if (courseId != null) wrapper.eq(ExamPaper::getCourseId, courseId);
-        if (categoryId != null) wrapper.eq(ExamPaper::getCategoryId, categoryId);
         if (examType != null && !examType.isEmpty()) wrapper.eq(ExamPaper::getExamType, examType);
         papers = examPaperService.list(wrapper);
 
@@ -395,6 +394,6 @@ public class H5ExamController {
     @GetMapping("/courses/{courseId}/exams")
     @ApiOperation("课程试卷列表")
     public Result<List<Map<String, Object>>> courseExams(@PathVariable Long courseId) {
-        return listExams(courseId, null);
+        return listExams(courseId, null, null);
     }
 }

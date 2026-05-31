@@ -162,4 +162,12 @@ onMounted(() => {
 .redo-icon {
   margin-left: auto;
 }
+
+@media (min-width: 768px) {
+  .my-wrong-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+}
 </style>

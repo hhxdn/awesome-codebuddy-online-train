@@ -232,4 +232,12 @@ onMounted(() => fetchCertificates())
   text-align: center;
   line-height: 1.3;
 }
+
+@media (min-width: 768px) {
+  .certificates-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+}
 </style>

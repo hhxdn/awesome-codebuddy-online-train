@@ -31,39 +31,89 @@
   --transition: 0.2s cubic-bezier(0.38, 0, 0.24, 1);
 }
 
-/* Desktop: cap layout width at 750px (design draft × 2), phone-like centered container */
-@media (min-width: 750px) {
+/* ========================================
+   Desktop: full-width responsive layout
+   Left sidebar (200px) + content area
+   ======================================== */
+@media (min-width: 768px) {
   html {
     font-size: 75px !important;
     background: #E8EDF2;
   }
   body {
-    max-width: 750px;
-    margin: 0 auto;
     min-height: 100vh;
-    box-shadow: 0 0 30px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-    position: relative;
+    background: #E8EDF2;
   }
   #app {
     min-height: 100vh;
     overflow-x: hidden;
     background: var(--bg-color);
   }
-  .bottom-fixed-bar {
-    max-width: 750px;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
-  /* 桌面端隐藏移动端滚动手势提示 */
+
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
   }
   ::-webkit-scrollbar-track {
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
     background: rgba(0, 0, 0, 0.12);
-    border-radius: 2px;
+    border-radius: 3px;
+  }
+
+  /* Bottom fixed bar - wider on desktop */
+  .bottom-fixed-bar {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+  }
+
+  /* Page container - no bottom padding (no mobile tabbar) */
+  .page-container {
+    padding-bottom: 0;
+  }
+
+  /* Course grid: 2 cols mobile → 4 cols desktop */
+  .course-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    padding: 20px 24px;
+  }
+
+  /* Pull refresh - no forced min-height on desktop */
+  .van-pull-refresh {
+    min-height: auto;
+  }
+
+  /* Wider section cards */
+  .section-card {
+    max-width: 960px;
+    margin: 16px auto;
+  }
+
+  /* Wider cell groups */
+  .van-cell-group--inset {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}
+
+/* ========================================
+   Large Desktop (>=1200px) - even wider
+   ======================================== */
+@media (min-width: 1200px) {
+  .course-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    padding: 24px 40px;
+  }
+
+  .section-card {
+    max-width: 1100px;
+  }
+
+  .van-cell-group--inset {
+    max-width: 900px;
   }
 }
 
@@ -558,4 +608,161 @@ body {
 /* Common empty state padding */
 .empty-wrap {
   padding: 80px 0;
+}
+
+/* ========================================
+   Desktop Page-Specific Styles
+   ======================================== */
+@media (min-width: 768px) {
+  /* Home page */
+  .home-page .home-header {
+    padding: 32px 40px 24px;
+    border-radius: 0 0 16px 16px;
+  }
+  .home-page .home-header .header-top {
+    max-width: 800px;
+    margin: 0 auto 14px;
+  }
+  .home-page .home-header .header-search {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .home-page .category-bar {
+    position: relative;
+    top: auto;
+    z-index: auto;
+  }
+  .home-page .category-scroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 12px 24px;
+  }
+  .home-page .sub-category-bar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 0 24px 12px;
+  }
+
+  /* Course list page */
+  .course-list-page .search-bar {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .course-list-page .category-bar {
+    position: relative;
+    top: auto;
+    z-index: auto;
+  }
+  .course-list-page .category-scroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 12px 24px;
+  }
+  .course-list-page .sub-category-bar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 0 24px 12px;
+  }
+  .course-list-page .van-list__finished-text {
+    padding-bottom: 40px;
+  }
+
+  /* Profile (Mine) page - see Profile.vue scoped styles for desktop layout */
+
+  /* Video player - constrain height on desktop */
+  .video-player-container video {
+    max-height: 70vh;
+    object-fit: contain;
+  }
+  .speed-controls {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* Login page */
+  .login-page {
+    max-width: 440px;
+    margin: 40px auto;
+    min-height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: #fff;
+  }
+
+  /* Register profile page */
+  .register-profile-page {
+    max-width: 500px;
+    margin: 20px auto;
+    min-height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: #fff;
+  }
+
+  /* Pending approval page */
+  .pending-page {
+    max-width: 440px;
+    margin: 40px auto;
+    min-height: auto;
+  }
+
+  /* Exam pages */
+  .exam-start-page,
+  .exam-result-page,
+  .exam-question-page {
+    max-width: 700px;
+    margin: 20px auto;
+  }
+  .question-indicator-row {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Practice pages */
+  .practice-home-page,
+  .practice-question-page,
+  .practice-result-page {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Order pages */
+  .order-confirm-page,
+  .order-list-page {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* My courses / My orders / My wrong / My exams / My learning / My certificates */
+  .my-courses-page,
+  .my-orders-page,
+  .my-wrong-page,
+  .my-exam-records-page,
+  .my-learning-records-page,
+  .certificates-page {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  /* Course detail page */
+  .course-detail-page {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Chapter list page */
+  .chapter-list-page {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Offline checkin page */
+  .checkin-page {
+    max-width: 500px;
+    margin: 0 auto;
+  }
 }

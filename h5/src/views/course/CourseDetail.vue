@@ -84,7 +84,7 @@
     </div>
 
     <!-- Bottom Bar -->
-    <div class="bottom-bar safe-bottom">
+    <div v-if="accessChecked" class="bottom-bar safe-bottom">
       <!-- 线下课程：打卡按钮 -->
       <template v-if="course.courseType === 'OFFLINE'">
         <van-button v-if="!checkedIn" type="warning" block round size="large" @click="goCheckin" class="bottom-btn checkin-btn">
@@ -132,6 +132,7 @@ const courseId = route.params.id
 const course = ref({})
 const chapters = ref([])
 const purchased = ref(false)
+const accessChecked = ref(false)
 const isPaid = ref(false)
 const descExpanded = ref(false)
 const checkedIn = ref(false)
@@ -196,6 +197,7 @@ async function fetchDetail() {
     const res = await get('/courses/' + courseId + '/access')
     if (res.data) purchased.value = res.data.accessible
   } catch (e) { purchased.value = false }
+  accessChecked.value = true
   if (course.value.courseType === 'OFFLINE') {
     try {
       const res = await get('/checkin/status/' + courseId)

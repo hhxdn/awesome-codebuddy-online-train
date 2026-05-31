@@ -297,7 +297,7 @@ public class H5UserController {
             Map<String, Object> item = new HashMap<>();
             item.put("id", course.getId());
             item.put("title", course.getTitle());
-            item.put("coverUrl", course.getCover());
+            item.put("cover", course.getCover());
             item.put("price", course.getPrice());
             item.put("finishedChapters", 0);
             result.add(item);
@@ -312,7 +312,7 @@ public class H5UserController {
         Map<String, Object> item = new HashMap<>();
         item.put("id", course.getId());
         item.put("title", course.getTitle());
-        item.put("coverUrl", course.getCover());
+        item.put("cover", course.getCover());
         item.put("price", course.getPrice());
 
         // 学习进度

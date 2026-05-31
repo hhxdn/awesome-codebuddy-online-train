@@ -126,4 +126,12 @@ onMounted(() => {
   font-size: 12px;
   color: var(--text-muted);
 }
+
+@media (min-width: 768px) {
+  .my-exam-records-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+}
 </style>

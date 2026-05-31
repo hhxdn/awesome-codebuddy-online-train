@@ -177,4 +177,70 @@ onMounted(() => {
   height: 46px; font-size: 14px; border: 1px solid #E34D59 !important;
   color: var(--text-secondary) !important;
 }
+
+/* ========================================
+   Desktop (>=768px) overrides
+   ======================================== */
+@media (min-width: 768px) {
+  .profile-page {
+    padding-bottom: 0;
+  }
+
+  /* Profile header - full width blue bar on desktop */
+  .profile-page :deep(.profile-header) {
+    padding: 48px 40px 40px;
+    border-radius: 0 0 16px 16px;
+  }
+
+  /* Settings icon - align with centered content */
+  .header-setting {
+    right: calc((100% - 700px) / 2 + 12px);
+    top: 24px;
+  }
+
+  /* Stats row - centered card on desktop */
+  .profile-page :deep(.stats-row) {
+    max-width: 700px;
+    margin: -16px auto 0;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    position: relative;
+    z-index: 2;
+    padding: 24px 40px;
+  }
+
+  /* Fix divider position for wider stats row */
+  .profile-page :deep(.stat-item:not(:last-child)::after) {
+    right: -50px;
+  }
+
+  /* Menu label - align with centered menu */
+  .menu-label {
+    padding-left: calc((100% - 700px) / 2 + 20px);
+    padding-right: calc((100% - 700px) / 2 + 20px);
+  }
+
+  /* Logout - centered card */
+  .logout-wrap {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+}
+
+/* Large desktop (>=1200px) */
+@media (min-width: 1200px) {
+  .profile-page :deep(.stats-row) {
+    max-width: 800px;
+  }
+
+  .header-setting {
+    right: calc((100% - 800px) / 2 + 12px);
+  }
+
+  .menu-label {
+    padding-left: calc((100% - 800px) / 2 + 20px);
+    padding-right: calc((100% - 800px) / 2 + 20px);
+  }
+}
 </style>

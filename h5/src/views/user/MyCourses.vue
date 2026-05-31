@@ -1,6 +1,6 @@
 <template>
   <div class="my-courses-page">
-    <van-nav-bar title="我的课程" />
+    <van-nav-bar title="我的课程" left-arrow @click-left="$router.back()" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list v-model:loading="loading" :finished="finished" finished-text="— 没有更多课程 —">
@@ -117,5 +117,13 @@ onMounted(() => {
   color: var(--text-muted);
   margin-top: 6px;
   display: block;
+}
+
+@media (min-width: 768px) {
+  .my-courses-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
 }
 </style>

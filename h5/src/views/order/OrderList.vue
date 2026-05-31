@@ -133,4 +133,12 @@ onMounted(() => fetchOrders())
 }
 .order-time { font-size: 12px; color: var(--text-muted); }
 .order-actions { display: flex; gap: 8px; }
+
+@media (min-width: 768px) {
+  .order-list-page {
+    max-width: 700px;
+    margin: 0 auto;
+    min-height: auto;
+  }
+}
 </style>
