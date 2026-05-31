@@ -74,7 +74,7 @@
       width="800px"
     >
       <div v-if="answers.length === 0" style="text-align: center; color: #909399; padding: 40px;">
-        该考试为线下考试，无在线答题记录
+        {{ detailExamType === 'OFFLINE' ? '该考试为线下考试，无在线答题记录' : '暂无答题记录' }}
       </div>
       <div v-for="(item, idx) in answers" :key="idx" style="margin-bottom: 16px; padding: 12px; background: #f5f7fa; border-radius: 4px;">
         <div style="font-weight: bold; margin-bottom: 8px;">
@@ -145,6 +145,7 @@ const query = reactive({ examId: null })
 
 const detailVisible = ref(false)
 const answers = ref([])
+const detailExamType = ref('ONLINE')
 
 // 录入线下成绩
 const scoreDialogVisible = ref(false)
@@ -196,9 +197,11 @@ async function fetchData() {
 async function handleViewDetail(row) {
   detailVisible.value = true
   answers.value = []
+  detailExamType.value = row.examType || 'ONLINE'
   try {
     const res = await get(`/admin/exams/records/${row.id}`)
     answers.value = res.data?.answers || res.data?.details || []
+    detailExamType.value = res.data?.paper?.examType || row.examType || 'ONLINE'
   } catch { answers.value = [] }
 }
 
