@@ -116,7 +116,7 @@ async function getUserLocation() {
   // 2. 回退：腾讯地图 IP 定位 API
   try {
     const res = await fetch(
-      `https://apis.map.qq.com/ws/location/v1/ip?key=${props.apiKey}&output=json`
+      `/tmap/ws/location/v1/ip?key=${props.apiKey}&output=json`
     )
     const data = await res.json()
     if (data.status === 0 && data.result && data.result.location) {
@@ -225,7 +225,7 @@ async function searchPlace() {
   const keyword = searchKeyword.value.trim()
   try {
     // 使用腾讯地图 WebService 地点搜索 API（支持多结果和建议）
-    const url = `https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(keyword)}&key=${props.apiKey}&output=json`
+    const url = `/tmap/ws/place/v1/suggestion?keyword=${encodeURIComponent(keyword)}&key=${props.apiKey}&output=json`
     const res = await fetch(url)
     const data = await res.json()
 

@@ -27,6 +27,11 @@ export default defineConfig({
       '/api': {
         target: 'http://127.0.0.1:8088',
         changeOrigin: true
+      },
+      '/tmap': {
+        target: 'https://apis.map.qq.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/tmap/, '')
       }
     }
   }
