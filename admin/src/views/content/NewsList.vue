@@ -64,7 +64,7 @@
           />
         </el-form-item>
         <el-form-item label="封面图">
-          <el-input v-model="form.cover" placeholder="请输入封面图URL" />
+          <ImageUpload v-model="form.cover" tip="支持 jpg/png/gif/webp，建议 16:9 比例" />
         </el-form-item>
         <el-form-item label="来源">
           <el-input v-model="form.source" placeholder="如：官方博客、技术社区等" />
@@ -93,6 +93,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { get, post, put, del } from '@/api'
+import ImageUpload from '@/components/ImageUpload.vue'
 
 const loading = ref(false)
 const tableData = ref([])

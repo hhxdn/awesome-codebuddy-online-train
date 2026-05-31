@@ -36,7 +36,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
-          <el-input v-model="form.coverUrl" placeholder="请输入封面图片URL" />
+          <ImageUpload v-model="form.coverUrl" tip="支持 jpg/png/gif/webp，建议 16:9 比例" />
         </el-form-item>
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入课程描述" />
@@ -108,9 +108,9 @@
               <el-input v-model="row.title" placeholder="章节标题" size="small" />
             </template>
           </el-table-column>
-          <el-table-column label="视频URL" min-width="250">
+          <el-table-column label="视频上传" min-width="280">
             <template #default="{ row }">
-              <el-input v-model="row.videoUrl" placeholder="视频URL" size="small" />
+              <VideoUpload v-model="row.videoUrl" tip="支持 mp4/flv/mov，上传后将提交到腾讯云点播处理" />
             </template>
           </el-table-column>
           <el-table-column label="排序" width="100">
@@ -139,6 +139,8 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { get, post, put } from '@/api'
+import ImageUpload from '@/components/ImageUpload.vue'
+import VideoUpload from '@/components/VideoUpload.vue'
 
 const route = useRoute()
 const router = useRouter()

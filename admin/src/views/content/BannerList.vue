@@ -51,8 +51,8 @@
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入Banner标题" />
         </el-form-item>
-        <el-form-item label="图片URL" prop="imageUrl">
-          <el-input v-model="form.imageUrl" placeholder="请输入图片URL地址" />
+        <el-form-item label="Banner图片" prop="imageUrl">
+          <ImageUpload v-model="form.imageUrl" tip="支持 jpg/png/gif/webp，建议尺寸 750×300" />
         </el-form-item>
         <el-form-item label="图片预览" v-if="form.imageUrl">
           <el-image
@@ -80,6 +80,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { get, post, put, del } from '@/api'
+import ImageUpload from '@/components/ImageUpload.vue'
 
 const loading = ref(false)
 const tableData = ref([])
@@ -99,7 +100,7 @@ const form = reactive({
 
 const rules = {
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
-  imageUrl: [{ required: true, message: '请输入图片URL', trigger: 'blur' }]
+  imageUrl: [{ required: true, message: '请上传Banner图片', trigger: 'change' }]
 }
 
 function resetForm() {

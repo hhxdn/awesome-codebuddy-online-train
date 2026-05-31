@@ -14,8 +14,8 @@ spring:
     time-zone: GMT+8
   servlet:
     multipart:
-      max-file-size: 100MB
-      max-request-size: 100MB
+      max-file-size: 500MB
+      max-request-size: 500MB
 
 mybatis-plus:
   configuration:
@@ -40,6 +40,19 @@ jwt:
 
 upload:
   path: ./uploads/
+
+# 腾讯云配置
+tencent:
+  cloud:
+    secret-id: your-secret-id
+    secret-key: your-secret-key
+  cos:
+    region: ap-guangzhou
+    bucket: your-bucket-1234567890
+    cdn-domain:  # 可选，CDN加速域名，如 https://cdn.example.com
+  vod:
+    sub-app-id: 0
+    region: ap-guangzhou
 
 # 微信支付配置
 wx:
