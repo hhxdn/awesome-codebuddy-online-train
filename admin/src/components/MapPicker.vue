@@ -189,30 +189,40 @@ function placeMarker(latLng) {
 }
 
 async function searchPlace() {
-  if (!searchKeyword.value.trim() || !sdkReady.value) return
+  if (!searchKeyword.value.trim()) {
+    searchMsg.value = '请输入地点名称'
+    return
+  }
+  if (!sdkReady.value) {
+    searchMsg.value = '地图正在初始化，请稍候...'
+    return
+  }
   searching.value = true
   searchMsg.value = ''
 
   const keyword = searchKeyword.value.trim()
   try {
     // 使用 TMap SDK 内置 geocoder 做地址解析（走 JavaScript API 配额，无需 WebService）
+    // 地址中最好包含城市名，否则可能解析不准确
     const geoResult = await geocoder.getLocation({ address: keyword })
+    console.log('geocoder getLocation result:', JSON.stringify(geoResult))
     if (geoResult && geoResult.status === 0 && geoResult.result) {
       const loc = geoResult.result.location
       if (loc) {
-        const latLng = new window.TMap.LatLng(loc.lat, loc.lng)
+        const latLng = loc instanceof window.TMap.LatLng ? loc : new window.TMap.LatLng(loc.lat, loc.lng)
         map.setCenter(latLng)
         map.setZoom(17)
         placeMarker(latLng)
         currentAddress.value = geoResult.result.address || keyword
         searchMsg.value = ''
+        searching.value = false
         return
       }
     }
-    searchMsg.value = '未找到该地点，请尝试更精确的关键词'
+    searchMsg.value = `未找到"${keyword}"，请加上城市名试试（如：北京市${keyword}）`
   } catch (e) {
     console.error('搜索失败:', e)
-    searchMsg.value = '搜索失败，SDK 地址解析异常'
+    searchMsg.value = `搜索失败: ${e.message || 'SDK 地址解析异常'}`
   } finally {
     searching.value = false
   }
