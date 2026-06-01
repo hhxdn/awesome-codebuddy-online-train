@@ -4,9 +4,11 @@ import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.Chapter;
 import com.onlinetrain.entity.LearningRecord;
 import com.onlinetrain.entity.Question;
+import com.onlinetrain.entity.StudentExerciseAccess;
 import com.onlinetrain.service.ChapterService;
 import com.onlinetrain.service.LearningRecordService;
 import com.onlinetrain.service.QuestionService;
+import com.onlinetrain.service.StudentExerciseAccessService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,6 +39,9 @@ public class H5ChapterController {
     @Autowired
     private LearningRecordService learningRecordService;
 
+    @Autowired
+    private StudentExerciseAccessService exerciseAccessService;
+
     /**
      * 章节详情
      */
@@ -52,10 +57,27 @@ public class H5ChapterController {
 
     /**
      * 章节题目列表（练习用，隐藏答案）
+     * 需要管理员开通习题权限后才能访问
      */
     @GetMapping("/{chapterId}/questions")
     @ApiOperation("章节题目列表")
-    public Result<List<Question>> questions(@PathVariable Long chapterId) {
+    public Result<List<Question>> questions(@PathVariable Long chapterId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        Chapter chapter = chapterService.getById(chapterId);
+        if (chapter == null) {
+            return Result.notFound("章节不存在");
+        }
+
+        // 检查习题权限：管理员开通后学员才能看到习题
+        Long courseId = chapter.getCourseId();
+        StudentExerciseAccess access = exerciseAccessService.lambdaQuery()
+                .eq(StudentExerciseAccess::getUserId, userId)
+                .eq(StudentExerciseAccess::getCourseId, courseId)
+                .one();
+        if (access == null) {
+            return Result.error(403, "习题练习权限未开通，请联系管理员");
+        }
+
         List<Question> questions = questionService.lambdaQuery()
                 .eq(Question::getChapterId, chapterId)
                 .eq(Question::getStatus, 1)

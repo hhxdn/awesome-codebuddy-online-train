@@ -95,6 +95,28 @@
             暂无订单记录
           </div>
         </el-tab-pane>
+
+        <el-tab-pane label="习题权限" name="exercise">
+          <div v-if="exercisesLoading" style="text-align: center; padding: 40px;">
+            <el-icon class="is-loading"><i class="el-icon-loading" /></el-icon>
+          </div>
+          <el-table v-else :data="exerciseAccessList" border stripe>
+            <el-table-column prop="courseTitle" label="课程名称" min-width="200" show-overflow-tooltip />
+            <el-table-column label="习题权限" width="120" align="center">
+              <template #default="{ row }">
+                <el-switch
+                  :model-value="row.hasAccess"
+                  active-text="已开通"
+                  inactive-text="未开通"
+                  @change="(val) => toggleExerciseAccess(row, val)"
+                />
+              </template>
+            </el-table-column>
+          </el-table>
+          <div v-if="exerciseAccessList.length === 0 && !exercisesLoading" style="text-align: center; padding: 40px; color: #909399;">
+            该学员暂无购买课程
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -104,17 +126,20 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ArrowLeft } from '@element-plus/icons-vue'
-import { get } from '@/api'
+import { get, post, del } from '@/api'
+import { ElMessage } from 'element-plus'
 
 const route = useRoute()
 const loading = ref(false)
 const tabLoading = ref(false)
+const exercisesLoading = ref(false)
 const activeTab = ref('learning')
 const student = ref({})
 
 const learningRecords = ref([])
 const examRecords = ref([])
 const orderRecords = ref([])
+const exerciseAccessList = ref([])
 
 function formatDuration(seconds) {
   if (!seconds || seconds <= 0) return '0分钟'
@@ -153,11 +178,38 @@ async function fetchTabData(tab) {
 }
 
 watch(activeTab, (tab) => {
+  if (tab === 'exercise') {
+    if (exerciseAccessList.value.length === 0) fetchExerciseAccess()
+    return
+  }
   const arr = { learning: learningRecords, exam: examRecords, order: orderRecords }[tab]
-  if (arr.value.length === 0) {
+  if (arr && arr.value.length === 0) {
     fetchTabData(tab)
   }
 })
+
+async function fetchExerciseAccess() {
+  exercisesLoading.value = true
+  try {
+    const res = await get(`/admin/students/${route.params.id}/exercise-access`)
+    exerciseAccessList.value = res.data || []
+  } catch { exerciseAccessList.value = [] } finally { exercisesLoading.value = false }
+}
+
+async function toggleExerciseAccess(row, val) {
+  try {
+    if (val) {
+      await post(`/admin/students/${route.params.id}/exercise-access/${row.courseId}`)
+    } else {
+      await del(`/admin/students/${route.params.id}/exercise-access/${row.courseId}`)
+    }
+    row.hasAccess = val
+    ElMessage.success(val ? '已开通习题权限' : '已撤销习题权限')
+  } catch {
+    row.hasAccess = !val
+    ElMessage.error('操作失败')
+  }
+}
 
 onMounted(() => {
   fetchStudent()

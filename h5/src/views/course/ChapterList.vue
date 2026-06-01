@@ -49,7 +49,7 @@
           <van-button size="mini" round type="primary" plain @click.stop="goVideo(chapter)">
             视频
           </van-button>
-          <van-button size="mini" round type="warning" plain @click.stop="goPractice(chapter)">
+          <van-button v-if="hasExerciseAccess" size="mini" round type="warning" plain @click.stop="goPractice(chapter)">
             练习
           </van-button>
         </div>
@@ -70,6 +70,7 @@ const route = useRoute()
 const router = useRouter()
 const courseId = route.params.id
 const chapters = ref([])
+const hasExerciseAccess = ref(false)
 
 const totalCount = computed(() => chapters.value.length)
 const finishedCount = computed(() => chapters.value.filter(c => c.status === 'completed').length)
@@ -89,6 +90,10 @@ async function fetchChapters() {
       { id: 3, title: '第三章：数据访问层', duration: '25:20', status: '' }
     ]
   }
+  try {
+    const res = await get('/courses/' + courseId + '/exercise-access')
+    if (res.data) hasExerciseAccess.value = res.data.hasExerciseAccess || false
+  } catch (e) { hasExerciseAccess.value = false }
 }
 
 function goVideo(chapter) {

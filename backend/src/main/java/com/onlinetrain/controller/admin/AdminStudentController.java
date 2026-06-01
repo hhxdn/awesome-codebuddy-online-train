@@ -36,6 +36,9 @@ public class AdminStudentController {
     @Autowired
     private ChapterService chapterService;
 
+    @Autowired
+    private StudentExerciseAccessService exerciseAccessService;
+
     @GetMapping("/students")
     @ApiOperation("学员列表")
     public Result<PageResult<User>> list(
@@ -189,6 +192,71 @@ public class AdminStudentController {
         user.setApprovalStatus("REJECTED");
         userService.updateById(user);
         return Result.ok("已拒绝");
+    }
+
+    /**
+     * 获取学员习题访问权限列表
+     */
+    @GetMapping("/students/{id}/exercise-access")
+    @ApiOperation("学员习题访问权限列表")
+    public Result<List<Map<String, Object>>> exerciseAccessList(@PathVariable Long id) {
+        // 获取学员已购买课程
+        List<Order> paidOrders = orderService.lambdaQuery()
+                .eq(Order::getUserId, id)
+                .eq(Order::getStatus, "PAID")
+                .list();
+        Set<Long> courseIds = paidOrders.stream().map(Order::getCourseId).collect(Collectors.toSet());
+
+        // 获取已开通习题权限的课程
+        List<StudentExerciseAccess> accessList = exerciseAccessService.lambdaQuery()
+                .eq(StudentExerciseAccess::getUserId, id)
+                .list();
+        Set<Long> accessCourseIds = accessList.stream()
+                .map(StudentExerciseAccess::getCourseId).collect(Collectors.toSet());
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Long cid : courseIds) {
+            Course course = courseService.getById(cid);
+            if (course == null) continue;
+            Map<String, Object> item = new HashMap<>();
+            item.put("courseId", cid);
+            item.put("courseTitle", course.getTitle());
+            item.put("hasAccess", accessCourseIds.contains(cid));
+            result.add(item);
+        }
+        return Result.ok(result);
+    }
+
+    /**
+     * 开通学员某课程习题权限
+     */
+    @PostMapping("/students/{id}/exercise-access/{courseId}")
+    @ApiOperation("开通学员习题权限")
+    public Result<String> grantExerciseAccess(@PathVariable Long id, @PathVariable Long courseId) {
+        StudentExerciseAccess existing = exerciseAccessService.lambdaQuery()
+                .eq(StudentExerciseAccess::getUserId, id)
+                .eq(StudentExerciseAccess::getCourseId, courseId)
+                .one();
+        if (existing == null) {
+            StudentExerciseAccess access = new StudentExerciseAccess();
+            access.setUserId(id);
+            access.setCourseId(courseId);
+            exerciseAccessService.save(access);
+        }
+        return Result.ok("已开通");
+    }
+
+    /**
+     * 撤销学员某课程习题权限
+     */
+    @DeleteMapping("/students/{id}/exercise-access/{courseId}")
+    @ApiOperation("撤销学员习题权限")
+    public Result<String> revokeExerciseAccess(@PathVariable Long id, @PathVariable Long courseId) {
+        exerciseAccessService.lambdaUpdate()
+                .eq(StudentExerciseAccess::getUserId, id)
+                .eq(StudentExerciseAccess::getCourseId, courseId)
+                .remove();
+        return Result.ok("已撤销");
     }
 
     /**

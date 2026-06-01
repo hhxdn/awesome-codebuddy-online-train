@@ -1,9 +1,13 @@
 package com.onlinetrain.controller.api;
 
 import com.onlinetrain.common.Result;
+import com.onlinetrain.entity.Chapter;
 import com.onlinetrain.entity.Question;
+import com.onlinetrain.entity.StudentExerciseAccess;
 import com.onlinetrain.entity.WrongQuestion;
+import com.onlinetrain.service.ChapterService;
 import com.onlinetrain.service.QuestionService;
+import com.onlinetrain.service.StudentExerciseAccessService;
 import com.onlinetrain.service.WrongQuestionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +34,12 @@ public class H5PracticeController {
     @Autowired
     private WrongQuestionService wrongQuestionService;
 
+    @Autowired
+    private ChapterService chapterService;
+
+    @Autowired
+    private StudentExerciseAccessService exerciseAccessService;
+
     /**
      * 提交练习答案 - body: {chapterId, answers: [{questionId, answer}]}
      */
@@ -41,6 +51,19 @@ public class H5PracticeController {
             HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         Long chapterId = Long.valueOf(params.get("chapterId").toString());
+
+        // 检查习题权限
+        Chapter chapter = chapterService.getById(chapterId);
+        if (chapter != null) {
+            StudentExerciseAccess access = exerciseAccessService.lambdaQuery()
+                    .eq(StudentExerciseAccess::getUserId, userId)
+                    .eq(StudentExerciseAccess::getCourseId, chapter.getCourseId())
+                    .one();
+            if (access == null) {
+                return Result.error(403, "习题练习权限未开通，请联系管理员");
+            }
+        }
+
         List<Map<String, Object>> answers = (List<Map<String, Object>>) params.get("answers");
 
         List<Question> questions = questionService.lambdaQuery()

@@ -8,11 +8,13 @@ import com.onlinetrain.entity.Course;
 import com.onlinetrain.entity.CourseCategory;
 import com.onlinetrain.entity.Question;
 import com.onlinetrain.entity.Order;
+import com.onlinetrain.entity.StudentExerciseAccess;
 import com.onlinetrain.service.ChapterService;
 import com.onlinetrain.service.CourseCategoryService;
 import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.QuestionService;
 import com.onlinetrain.service.OrderService;
+import com.onlinetrain.service.StudentExerciseAccessService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,9 @@ public class H5CourseController {
 
     @Autowired
     private CourseCategoryService categoryService;
+
+    @Autowired
+    private StudentExerciseAccessService exerciseAccessService;
 
     /**
      * 课程列表（带筛选）
@@ -189,6 +194,24 @@ public class H5CourseController {
 
         result.put("accessible", false);
         result.put("reason", "需要购买课程或对应分类");
+        return Result.ok(result);
+    }
+
+    /**
+     * 检查学员是否有课程习题练习权限
+     */
+    @GetMapping("/{id}/exercise-access")
+    @ApiOperation("检查习题练习权限")
+    public Result<Map<String, Object>> checkExerciseAccess(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        Map<String, Object> result = new HashMap<>();
+        result.put("courseId", id);
+
+        StudentExerciseAccess access = exerciseAccessService.lambdaQuery()
+                .eq(StudentExerciseAccess::getUserId, userId)
+                .eq(StudentExerciseAccess::getCourseId, id)
+                .one();
+        result.put("hasExerciseAccess", access != null);
         return Result.ok(result);
     }
 }

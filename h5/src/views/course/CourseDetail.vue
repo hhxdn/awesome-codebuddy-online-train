@@ -69,7 +69,7 @@
           </div>
           <div class="chapter-right">
             <van-button
-              v-if="!isPaid || purchased"
+              v-if="(!isPaid || purchased) && hasExerciseAccess"
               size="small"
               round
               plain
@@ -148,6 +148,7 @@ const descExpanded = ref(false)
 const checkedIn = ref(false)
 const reservationInfo = ref(null)
 const belongCategory = ref(null)
+const hasExerciseAccess = ref(false)
 
 let _allCats = null
 
@@ -204,6 +205,10 @@ async function fetchDetail() {
     const res = await get('/courses/' + courseId + '/chapters')
     if (res.data) chapters.value = res.data
   } catch (e) { chapters.value = [] }
+  try {
+    const res = await get('/courses/' + courseId + '/exercise-access')
+    if (res.data) hasExerciseAccess.value = res.data.hasExerciseAccess || false
+  } catch (e) { hasExerciseAccess.value = false }
   try {
     const res = await get('/courses/' + courseId + '/access')
     if (res.data) purchased.value = res.data.accessible
