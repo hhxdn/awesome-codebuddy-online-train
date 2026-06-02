@@ -39,6 +39,9 @@ public class AdminStudentController {
     @Autowired
     private StudentExerciseAccessService exerciseAccessService;
 
+    @Autowired
+    private ExamPaperService examPaperService;
+
     @GetMapping("/students")
     @ApiOperation("学员列表")
     public Result<PageResult<User>> list(
@@ -155,6 +158,17 @@ public class AdminStudentController {
             item.put("isPass", r.getIsPass());
             item.put("status", r.getStatus());
             item.put("createTime", r.getCreateTime());
+            item.put("startTime", r.getStartTime());
+            item.put("submitTime", r.getSubmitTime());
+            // 关联试卷信息
+            if (r.getExamPaperId() != null) {
+                ExamPaper paper = examPaperService.getById(r.getExamPaperId());
+                item.put("examTitle", paper != null ? paper.getTitle() : "");
+                item.put("totalScore", paper != null ? paper.getTotalScore() : 0);
+            } else {
+                item.put("examTitle", "");
+                item.put("totalScore", 0);
+            }
             return item;
         }).collect(Collectors.toList());
         return Result.ok(result);
