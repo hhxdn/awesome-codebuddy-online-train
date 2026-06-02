@@ -162,12 +162,32 @@ public class AdminStudentController {
 
     @GetMapping("/students/{id}/orders")
     @ApiOperation("学员订单")
-    public Result<List<Order>> studentOrders(@PathVariable Long id) {
+    public Result<List<Map<String, Object>>> studentOrders(@PathVariable Long id) {
         List<Order> orders = orderService.lambdaQuery()
                 .eq(Order::getUserId, id)
                 .orderByDesc(Order::getCreateTime)
                 .list();
-        return Result.ok(orders);
+
+        List<Map<String, Object>> result = orders.stream().map(o -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", o.getId());
+            item.put("orderNo", o.getOrderNo());
+            item.put("courseId", o.getCourseId());
+            item.put("amount", o.getAmount());
+            item.put("payMethod", o.getPayMethod());
+            item.put("status", o.getStatus());
+            item.put("createTime", o.getCreateTime());
+            item.put("payTime", o.getPayTime());
+            // 关联课程名称
+            if (o.getCourseId() != null) {
+                Course course = courseService.getById(o.getCourseId());
+                item.put("courseName", course != null ? course.getTitle() : "");
+            } else {
+                item.put("courseName", "");
+            }
+            return item;
+        }).collect(Collectors.toList());
+        return Result.ok(result);
     }
 
     @PutMapping("/students/{id}/approve")
