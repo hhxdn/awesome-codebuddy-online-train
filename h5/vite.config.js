@@ -34,6 +34,9 @@ export default defineConfig({
       ]
     }
   },
+  build: {
+    modulePreload: false
+  },
   server: {
     host: '127.0.0.1',
     port: 3001,
