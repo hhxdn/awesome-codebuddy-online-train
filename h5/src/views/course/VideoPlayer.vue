@@ -1,10 +1,6 @@
 <template>
   <div class="video-player-page">
-    <van-nav-bar :title="chapter.title || '视频播放'" left-text="返回" left-arrow @click-left="$router.back()">
-      <template #right>
-        <span class="nav-chapter-title" v-if="chapter.title">{{ chapter.title }}</span>
-      </template>
-    </van-nav-bar>
+    <van-nav-bar :title="chapter.title || '视频播放'" left-text="返回" left-arrow @click-left="$router.back()" />
 
     <!-- Video Player -->
     <div class="video-container">
@@ -40,13 +36,6 @@
           {{ formatSpeed(speed) }}
         </span>
       </div>
-    </div>
-
-    <!-- Chapter Info -->
-    <div class="chapter-info-bar" v-if="chapter.title">
-      <van-icon name="play-circle-o" size="18" color="var(--primary)" />
-      <span>{{ chapter.title }}</span>
-      <span class="chapter-duration" v-if="chapter.duration">{{ chapter.duration }}</span>
     </div>
 
     <!-- Next Chapter -->
@@ -211,15 +200,6 @@ function goNext() {
   min-height: 100vh;
 }
 
-.nav-chapter-title {
-  font-size: 12px;
-  color: var(--text-muted);
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .video-container {
   background: #000;
   position: relative;
@@ -293,22 +273,6 @@ function goNext() {
   background: linear-gradient(135deg, #0052D9, #366EF4);
   color: #fff;
   box-shadow: 0 2px 8px rgba(0, 82, 217, 0.35);
-}
-
-.chapter-info-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #1a1a1a;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.chapter-duration {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.4);
-  margin-left: auto;
 }
 
 .next-section {
