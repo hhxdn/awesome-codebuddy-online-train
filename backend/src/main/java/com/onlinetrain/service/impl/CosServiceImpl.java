@@ -43,6 +43,9 @@ public class CosServiceImpl implements CosService {
         Region region = new Region(config.getCos().getRegion());
         ClientConfig clientConfig = new ClientConfig(region);
         clientConfig.setHttpProtocol(HttpProtocol.https);
+        // 上传大视频文件超时设置：100 分钟
+        clientConfig.setSocketTimeout(100 * 60 * 1000);
+        clientConfig.setConnectionTimeout(100 * 60 * 1000);
         cosClient = new COSClient(cred, clientConfig);
 
         // CDN 域名优先，否则用 COS 默认域名

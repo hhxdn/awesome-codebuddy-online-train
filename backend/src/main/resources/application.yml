@@ -1,9 +1,19 @@
 server:
   port: 8088
+  tomcat:
+    connection-timeout: 6000000
 
 spring:
   application:
     name: online-train
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+      resolve-lazily: true
+  mvc:
+    async:
+      request-timeout: 6000000
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://14.103.222.243:3306/online_train?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
@@ -12,10 +22,6 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
-  servlet:
-    multipart:
-      max-file-size: 500MB
-      max-request-size: 500MB
 
 mybatis-plus:
   configuration:
