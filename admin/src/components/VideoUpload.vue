@@ -100,7 +100,7 @@ function handleSuccess(response) {
   uploading.value = false
   if (response.code === 0 || response.code === 200) {
     const data = response.data || {}
-    const url = data.cosUrl || data.url || ''
+    const url = data.playbackUrl || data.cosUrl || data.url || ''
     emit('update:modelValue', url)
 
     vodInfo.taskId = data.taskId || ''
