@@ -308,14 +308,22 @@ server {
     location /admin {
         alias /opt/online-train/admin/dist;
         index index.html;
-        try_files $uri $uri/ /admin/index.html;
+        try_files $uri $uri/ @admin;
+    }
+    location @admin {
+        root /opt/online-train/admin/dist;
+        try_files /index.html =404;
     }
 
     # H5学员端
     location /h5 {
         alias /opt/online-train/h5/dist;
         index index.html;
-        try_files $uri $uri/ /h5/index.html;
+        try_files $uri $uri/ @h5;
+    }
+    location @h5 {
+        root /opt/online-train/h5/dist;
+        try_files /index.html =404;
     }
 
     # 上传文件
@@ -333,10 +341,28 @@ server {
 }
 ```
 
-部署后修复文件权限（宝塔 Nginx 以 `www` 用户运行）：
+### 8.8 更新到服务器（每次打包后）
 
 ```bash
+# 1. 上传 zip 文件到服务器 /opt/online-train/
+scp h5-dist.zip admin-dist.zip user@server:/opt/online-train/
+
+# 2. SSH 到服务器解压
+ssh user@server
+cd /opt/online-train
+unzip -o admin-dist.zip    # 解压到 admin/dist/
+unzip -o h5-dist.zip       # 解压到 h5/dist/
+
+# 3. 修复文件权限（宝塔 Nginx 以 www 用户运行）
 chown -R www:www /opt/online-train/
+
+# 4. 确认文件存在
+ls -la /opt/online-train/h5/dist/assets/index-*.js
+ls -la /opt/online-train/admin/dist/assets/index-*.js
+
+# 5. 重载 Nginx
+nginx -t && nginx -s reload
+```
 chmod -R 755 /opt/online-train/
 ```
 
