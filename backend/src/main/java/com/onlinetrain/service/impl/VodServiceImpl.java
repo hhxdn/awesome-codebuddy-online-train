@@ -12,9 +12,12 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -35,7 +38,27 @@ public class VodServiceImpl implements VodService {
         this.httpClient = new OkHttpClient.Builder()
                 .connectTimeout(java.time.Duration.ofSeconds(30))
                 .readTimeout(java.time.Duration.ofSeconds(60))
+                .sslSocketFactory(createTrustAllSslFactory(), (X509TrustManager) TRUST_ALL_CERTS[0])
+                .hostnameVerifier((hostname, session) -> true)
                 .build();
+    }
+
+    private static final TrustManager[] TRUST_ALL_CERTS = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+            }
+    };
+
+    private static SSLSocketFactory createTrustAllSslFactory() {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, TRUST_ALL_CERTS, new SecureRandom());
+            return sslContext.getSocketFactory();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
