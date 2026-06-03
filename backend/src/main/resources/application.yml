@@ -6,9 +6,9 @@ spring:
     name: online-train
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/online_train?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://14.103.222.243:3306/online_train?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
     username: root
-    password: root
+    password: D3AhKexTMcLXLBmK
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
