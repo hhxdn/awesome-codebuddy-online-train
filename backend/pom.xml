@@ -130,6 +130,13 @@
             </exclusions>
         </dependency>
 
+        <!-- 腾讯云 VOD (云点播) SDK -->
+        <dependency>
+            <groupId>com.tencentcloudapi</groupId>
+            <artifactId>tencentcloud-sdk-java-vod</artifactId>
+            <version>3.1.1478</version>
+        </dependency>
+
         <!-- OkHttp3 (微信支付API调用) -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
@@ -144,6 +151,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>tencentcloud</id>
+            <url>https://mirrors.tencent.com/repository/maven/tencentcloud-sdk-java/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>maven-central</id>
+            <url>https://repo1.maven.org/maven2/</url>
+            <releases><enabled>true</enabled></releases>
+            <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <plugins>
