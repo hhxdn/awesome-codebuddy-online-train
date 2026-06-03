@@ -279,7 +279,27 @@ async function handleSubmit() {
 
   submitting.value = true
   try {
-    const data = { ...form }
+    // 只发送后端需要的字段，过滤掉纯前端状态字段
+    const data = {
+      title: form.title,
+      categoryId: form.categoryId,
+      courseType: form.courseType,
+      coverUrl: form.coverUrl,
+      description: form.description,
+      sortOrder: form.sortOrder,
+      isFree: form.isFree,
+      price: form.price,
+      isRecommend: form.isRecommend,
+      longitude: form.longitude,
+      latitude: form.latitude,
+      checkinRadius: form.checkinRadius,
+      prerequisiteCourseId: form.prerequisiteCourseId,
+      chapters: form.chapters.map((ch, i) => ({
+        title: ch.title || '',
+        videoUrl: ch.videoUrl || '',
+        sortOrder: ch.sortOrder || i + 1
+      }))
+    }
     if (isEdit.value) {
       await put(`/admin/courses/${route.params.id}`, data)
     } else {
