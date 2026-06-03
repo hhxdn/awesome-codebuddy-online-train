@@ -59,24 +59,13 @@ public class AdminUploadController {
             return Result.error("仅支持上传视频文件");
         }
         try {
-            // 1. 先上传到 COS 作为中转
-            String cosUrl = cosService.uploadVideo(file);
-            log.info("Video uploaded to COS: {} -> {}", file.getOriginalFilename(), cosUrl);
-
-            // 2. 通过 VOD PullUpload 拉取到点播
-            String mediaName = file.getOriginalFilename();
-            if (mediaName != null && mediaName.contains(".")) {
-                mediaName = mediaName.substring(0, mediaName.lastIndexOf("."));
-            }
-            Map<String, String> vodResult = vodService.pullUpload(cosUrl, mediaName);
+            // 直接上传到 VOD（ApplyUpload → PUT → CommitUpload）
+            Map<String, String> vodResult = vodService.directUpload(file);
 
             Map<String, String> data = new HashMap<>();
-            data.put("cosUrl", cosUrl);
-            data.put("taskId", vodResult.getOrDefault("taskId", ""));
             data.put("fileId", vodResult.getOrDefault("fileId", ""));
             data.put("playbackUrl", vodResult.getOrDefault("playbackUrl", ""));
-            data.put("note", "视频已提交到腾讯云点播处理，转码完成后可通过 fileId 获取播放地址");
-            log.info("Video submitted to VOD: {} -> taskId={}", file.getOriginalFilename(), data.get("taskId"));
+            log.info("Video uploaded to VOD: {} -> fileId={}", file.getOriginalFilename(), data.get("fileId"));
             return Result.ok(data);
         } catch (Exception e) {
             log.error("Video upload failed", e);

@@ -9,6 +9,7 @@ import com.onlinetrain.service.VodService;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -97,6 +98,94 @@ public class VodServiceImpl implements VodService {
             log.error("VOD PullUpload HTTP error: mediaName={}", mediaName, e);
             throw new RuntimeException("视频上传失败: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Map<String, String> directUpload(MultipartFile file) throws IOException {
+        String originalFilename = file.getOriginalFilename();
+        String mediaName = originalFilename;
+        String mediaType = "mp4";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            mediaName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
+            String ext = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+            if (!ext.isEmpty()) {
+                mediaType = ext;
+            }
+        }
+
+        // 1. ApplyUpload - 申请上传凭证
+        JSONObject applyParams = new JSONObject();
+        applyParams.put("MediaType", mediaType);
+        applyParams.put("MediaName", originalFilename);
+        if (config.getVod().getSubAppId() != null && config.getVod().getSubAppId() > 0) {
+            applyParams.put("SubAppId", config.getVod().getSubAppId());
+        }
+
+        String applyResponse = callApi("ApplyUpload", applyParams.toJSONString());
+        JSONObject applyResp = JSON.parseObject(applyResponse).getJSONObject("Response");
+        if (applyResp.containsKey("Error")) {
+            JSONObject error = applyResp.getJSONObject("Error");
+            log.error("VOD ApplyUpload error: {}", error);
+            throw new RuntimeException("VOD上传失败: " + error.getString("Message"));
+        }
+
+        String uploadAddress = applyResp.getString("UploadAddress");
+        String uploadAuth = applyResp.getString("UploadAuth");
+        String vodSessionKey = applyResp.getString("VodSessionKey");
+        log.info("VOD ApplyUpload success: mediaName={}, uploadAddress={}", mediaName, uploadAddress);
+
+        // 2. 上传文件到 VOD 存储（使用长超时的 client）
+        OkHttpClient uploadClient = new OkHttpClient.Builder()
+                .connectTimeout(java.time.Duration.ofSeconds(30))
+                .readTimeout(java.time.Duration.ofMinutes(30))
+                .writeTimeout(java.time.Duration.ofMinutes(30))
+                .proxy(Proxy.NO_PROXY)
+                .sslSocketFactory(createTrustAllSslFactory(), (X509TrustManager) TRUST_ALL_CERTS[0])
+                .hostnameVerifier((hostname, session) -> true)
+                .build();
+
+        byte[] fileBytes = file.getBytes();
+        RequestBody fileBody = RequestBody.create(fileBytes, MediaType.parse("video/" + mediaType));
+        Request uploadRequest = new Request.Builder()
+                .url(uploadAddress)
+                .put(fileBody)
+                .addHeader("Authorization", uploadAuth)
+                .addHeader("Content-Type", "video/" + mediaType)
+                .build();
+
+        try (Response uploadResponse = uploadClient.newCall(uploadRequest).execute()) {
+            if (!uploadResponse.isSuccessful()) {
+                String errBody = uploadResponse.body() != null ? uploadResponse.body().string() : "";
+                log.error("VOD file upload failed: status={}, body={}", uploadResponse.code(), errBody);
+                throw new RuntimeException("VOD上传失败: HTTP " + uploadResponse.code());
+            }
+            log.info("VOD file upload success: status={}", uploadResponse.code());
+        }
+
+        // 3. CommitUpload - 确认上传
+        JSONObject commitParams = new JSONObject();
+        commitParams.put("VodSessionKey", vodSessionKey);
+        if (config.getVod().getSubAppId() != null && config.getVod().getSubAppId() > 0) {
+            commitParams.put("SubAppId", config.getVod().getSubAppId());
+        }
+
+        String commitResponse = callApi("CommitUpload", commitParams.toJSONString());
+        JSONObject commitResp = JSON.parseObject(commitResponse).getJSONObject("Response");
+        if (commitResp.containsKey("Error")) {
+            JSONObject error = commitResp.getJSONObject("Error");
+            log.error("VOD CommitUpload error: {}", error);
+            throw new RuntimeException("VOD上传失败: " + error.getString("Message"));
+        }
+
+        String fileId = commitResp.getString("FileId");
+        log.info("VOD CommitUpload success: fileId={}", fileId);
+
+        Map<String, String> result = new HashMap<>();
+        result.put("fileId", fileId);
+        if (fileId != null) {
+            result.put("playbackUrl", "https://" + fileId + ".vod2.myqcloud.com");
+        }
+        return result;
     }
 
     @Override
