@@ -7,7 +7,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://14.103.222.243:3306/online_train?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
-    username: root
+    username: online_train
     password: D3AhKexTMcLXLBmK
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
