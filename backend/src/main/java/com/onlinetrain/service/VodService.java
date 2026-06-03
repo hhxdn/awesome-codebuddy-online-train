@@ -31,4 +31,11 @@ public interface VodService {
      * @return 包含播放URL等信息的 Map
      */
     Map<String, String> getMediaInfo(String fileId);
+
+    /**
+     * 获取视频详情（包含转码状态、转码后播放地址、时长等）
+     * @param fileId VOD 文件ID
+     * @return 包含 transcodeStatus, transcodePlaybackUrl, duration 等字段的 Map
+     */
+    Map<String, String> describeMediaInfo(String fileId);
 }

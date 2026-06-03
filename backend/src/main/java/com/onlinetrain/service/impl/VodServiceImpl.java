@@ -178,4 +178,73 @@ public class VodServiceImpl implements VodService {
             return Collections.emptyMap();
         }
     }
+
+    @Override
+    public Map<String, String> describeMediaInfo(String fileId) {
+        Map<String, String> result = new HashMap<>();
+        result.put("fileId", fileId);
+        result.put("transcodeStatus", "PENDING");
+
+        try {
+            DescribeMediaInfosRequest req = new DescribeMediaInfosRequest();
+            req.setFileIds(new String[]{fileId});
+            if (config.getVod().getSubAppId() != null && config.getVod().getSubAppId() > 0) {
+                req.setSubAppId(config.getVod().getSubAppId().longValue());
+            }
+
+            DescribeMediaInfosResponse resp = vodClient.DescribeMediaInfos(req);
+            MediaInfo[] mediaInfoSet = resp.getMediaInfoSet();
+
+            if (mediaInfoSet == null || mediaInfoSet.length == 0) {
+                log.warn("VOD media not found: fileId={}", fileId);
+                result.put("transcodeStatus", "FAILED");
+                return result;
+            }
+
+            MediaInfo info = mediaInfoSet[0];
+
+            // 基本信息
+            if (info.getBasicInfo() != null) {
+                result.put("name", info.getBasicInfo().getName());
+                result.put("status", info.getBasicInfo().getStatus());
+                // VOD 媒体状态: NORMAL=正常, UPLOADING=上传中, CHECKING=审核中, BLOCKED=已封禁
+            }
+
+            // 元数据（时长等）
+            if (info.getMetaData() != null) {
+                if (info.getMetaData().getDuration() != null) {
+                    result.put("duration", String.valueOf(Math.round(info.getMetaData().getDuration())));
+                }
+            }
+
+            // 转码信息
+            MediaTranscodeInfo transcodeInfo = info.getTranscodeInfo();
+            if (transcodeInfo != null && transcodeInfo.getTranscodeSet() != null
+                    && transcodeInfo.getTranscodeSet().length > 0) {
+                MediaTranscodeItem[] items = transcodeInfo.getTranscodeSet();
+                // 查找转码完成的输出（优先选标清/高清的 mp4 输出）
+                for (MediaTranscodeItem item : items) {
+                    if (item.getUrl() != null && !item.getUrl().isEmpty()) {
+                        result.put("transcodeStatus", "DONE");
+                        result.put("transcodePlaybackUrl", item.getUrl());
+                        // 优先用 hls 自适应码流
+                        if (item.getUrl().endsWith(".m3u8")) {
+                            break;  // HLS 优先
+                        }
+                    }
+                }
+                log.info("VOD transcode info: fileId={}, status={}, url={}",
+                        fileId, result.get("transcodeStatus"), result.get("transcodePlaybackUrl"));
+            } else {
+                log.info("VOD transcode not yet available: fileId={}, basicStatus={}",
+                        fileId, result.get("status"));
+            }
+
+            return result;
+        } catch (TencentCloudSDKException e) {
+            log.error("VOD DescribeMediaInfos error: fileId={}", fileId, e);
+            result.put("transcodeStatus", "FAILED");
+            return result;
+        }
+    }
 }

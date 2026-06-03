@@ -3,12 +3,14 @@ package com.onlinetrain;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * 在线培训系统启动类
  */
 @SpringBootApplication
 @MapperScan("com.onlinetrain.mapper")
+@EnableScheduling
 public class OnlineTrainApplication {
 
     public static void main(String[] args) {

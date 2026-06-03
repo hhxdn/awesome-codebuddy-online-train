@@ -103,6 +103,14 @@ public class AdminCourseController {
                 chapter.setVideoUrl((String) ch.get("videoUrl"));
                 chapter.setSortOrder(ch.get("sortOrder") != null
                         ? Integer.valueOf(ch.get("sortOrder").toString()) : i + 1);
+                // VOD 字段：如果前端传了 fileId，说明是通过 VOD 上传的，记录 fileId 和即时播放地址
+                String fileId = (String) ch.get("fileId");
+                String playbackUrl = (String) ch.get("playbackUrl");
+                if (fileId != null && !fileId.isEmpty()) {
+                    chapter.setVodFileId(fileId);
+                    chapter.setVodPlaybackUrl(playbackUrl != null ? playbackUrl : chapter.getVideoUrl());
+                    chapter.setVodTranscodeStatus("PENDING");
+                }
                 chapterService.save(chapter);
                 savedChapters.add(chapter);
             }
@@ -129,7 +137,10 @@ public class AdminCourseController {
         Course course = JSON.parseObject(JSON.toJSONString(params), Course.class);
         courseService.updateById(course);
 
-        // 先删除旧章节，再重新保存
+        // 先删除旧章节，再重新保存（保留旧章节的 VOD 信息用于新记录）
+        List<Chapter> oldChapters = chapterService.list(new LambdaQueryWrapper<Chapter>()
+                .eq(Chapter::getCourseId, id));
+
         chapterService.remove(new LambdaQueryWrapper<Chapter>()
                 .eq(Chapter::getCourseId, id));
 
@@ -145,6 +156,26 @@ public class AdminCourseController {
                 chapter.setVideoUrl((String) ch.get("videoUrl"));
                 chapter.setSortOrder(ch.get("sortOrder") != null
                         ? Integer.valueOf(ch.get("sortOrder").toString()) : i + 1);
+                // VOD 字段处理：
+                // 1. 如果前端传了 fileId（新上传），使用新的 VOD 信息
+                // 2. 如果前端传了 vodFileId（编辑已有章节），保留原有 VOD 信息
+                String fileId = (String) ch.get("fileId");
+                String vodFileId = (String) ch.get("vodFileId");
+                String playbackUrl = (String) ch.get("playbackUrl");
+                String vodPlaybackUrl = (String) ch.get("vodPlaybackUrl");
+                String vodTranscodeStatus = (String) ch.get("vodTranscodeStatus");
+
+                if (fileId != null && !fileId.isEmpty()) {
+                    // 新上传的视频
+                    chapter.setVodFileId(fileId);
+                    chapter.setVodPlaybackUrl(playbackUrl != null ? playbackUrl : chapter.getVideoUrl());
+                    chapter.setVodTranscodeStatus("PENDING");
+                } else if (vodFileId != null && !vodFileId.isEmpty()) {
+                    // 编辑已有章节，保留 VOD 信息
+                    chapter.setVodFileId(vodFileId);
+                    chapter.setVodPlaybackUrl(vodPlaybackUrl);
+                    chapter.setVodTranscodeStatus(vodTranscodeStatus != null ? vodTranscodeStatus : "DONE");
+                }
                 chapterService.save(chapter);
                 savedChapters.add(chapter);
             }
@@ -176,17 +207,58 @@ public class AdminCourseController {
 
     @PostMapping("/courses/{id}/chapters")
     @ApiOperation("添加章节")
-    public Result<Chapter> addChapter(@PathVariable Long id, @RequestBody Chapter chapter) {
+    public Result<Chapter> addChapter(@PathVariable Long id, @RequestBody Map<String, Object> params) {
+        Chapter chapter = new Chapter();
         chapter.setCourseId(id);
+        chapter.setTitle((String) params.get("title"));
+        chapter.setVideoUrl((String) params.get("videoUrl"));
+        chapter.setSortOrder(params.get("sortOrder") != null
+                ? Integer.valueOf(params.get("sortOrder").toString()) : 0);
+        // VOD 字段
+        String fileId = (String) params.get("fileId");
+        String playbackUrl = (String) params.get("playbackUrl");
+        String vodFileId = (String) params.get("vodFileId");
+        if (fileId != null && !fileId.isEmpty()) {
+            chapter.setVodFileId(fileId);
+            chapter.setVodPlaybackUrl(playbackUrl != null ? playbackUrl : chapter.getVideoUrl());
+            chapter.setVodTranscodeStatus("PENDING");
+        } else if (vodFileId != null && !vodFileId.isEmpty()) {
+            chapter.setVodFileId(vodFileId);
+            chapter.setVodPlaybackUrl((String) params.get("vodPlaybackUrl"));
+            chapter.setVodTranscodeStatus(
+                    params.get("vodTranscodeStatus") != null
+                            ? params.get("vodTranscodeStatus").toString() : "DONE");
+        }
         chapterService.save(chapter);
         return Result.ok(chapter);
     }
 
     @PutMapping("/courses/{id}/chapters/{chapterId}")
     @ApiOperation("更新章节")
-    public Result<Chapter> updateChapter(@PathVariable Long id, @PathVariable Long chapterId, @RequestBody Chapter chapter) {
+    public Result<Chapter> updateChapter(@PathVariable Long id, @PathVariable Long chapterId,
+                                         @RequestBody Map<String, Object> params) {
+        Chapter chapter = new Chapter();
         chapter.setId(chapterId);
         chapter.setCourseId(id);
+        chapter.setTitle((String) params.get("title"));
+        chapter.setVideoUrl((String) params.get("videoUrl"));
+        chapter.setSortOrder(params.get("sortOrder") != null
+                ? Integer.valueOf(params.get("sortOrder").toString()) : 0);
+        // VOD 字段
+        String fileId = (String) params.get("fileId");
+        String playbackUrl = (String) params.get("playbackUrl");
+        String vodFileId = (String) params.get("vodFileId");
+        if (fileId != null && !fileId.isEmpty()) {
+            chapter.setVodFileId(fileId);
+            chapter.setVodPlaybackUrl(playbackUrl != null ? playbackUrl : chapter.getVideoUrl());
+            chapter.setVodTranscodeStatus("PENDING");
+        } else if (vodFileId != null && !vodFileId.isEmpty()) {
+            chapter.setVodFileId(vodFileId);
+            chapter.setVodPlaybackUrl((String) params.get("vodPlaybackUrl"));
+            chapter.setVodTranscodeStatus(
+                    params.get("vodTranscodeStatus") != null
+                            ? params.get("vodTranscodeStatus").toString() : "DONE");
+        }
         chapterService.updateById(chapter);
         return Result.ok(chapter);
     }

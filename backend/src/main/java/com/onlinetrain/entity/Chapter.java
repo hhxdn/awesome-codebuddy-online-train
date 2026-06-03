@@ -24,6 +24,15 @@ public class Chapter {
     /** 视频地址 */
     private String videoUrl;
 
+    /** VOD文件ID */
+    private String vodFileId;
+
+    /** VOD上传后即时播放地址(转码前) */
+    private String vodPlaybackUrl;
+
+    /** VOD转码状态: PENDING/TRANSCODING/DONE/FAILED */
+    private String vodTranscodeStatus;
+
     /** 视频时长(秒) */
     private Integer videoDuration;
 
