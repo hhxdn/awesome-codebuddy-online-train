@@ -34,6 +34,9 @@ public class CosServiceImpl implements CosService {
 
     @PostConstruct
     public void init() {
+        // 禁用 Java 系统代理，避免 macOS 误读已禁用的代理配置
+        System.setProperty("java.net.useSystemProxies", "false");
+
         COSCredentials cred = new BasicCOSCredentials(
                 config.getCloud().getSecretId(),
                 config.getCloud().getSecretKey());

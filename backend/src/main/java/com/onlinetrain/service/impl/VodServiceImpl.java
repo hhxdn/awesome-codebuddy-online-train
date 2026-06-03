@@ -14,6 +14,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -38,6 +39,7 @@ public class VodServiceImpl implements VodService {
         this.httpClient = new OkHttpClient.Builder()
                 .connectTimeout(java.time.Duration.ofSeconds(30))
                 .readTimeout(java.time.Duration.ofSeconds(60))
+                .proxy(Proxy.NO_PROXY) // 禁用系统代理，避免 macOS 误读已禁用的代理配置
                 .sslSocketFactory(createTrustAllSslFactory(), (X509TrustManager) TRUST_ALL_CERTS[0])
                 .hostnameVerifier((hostname, session) -> true)
                 .build();
