@@ -20,7 +20,7 @@
     </div>
 
     <!-- 颁发证书弹窗 -->
-    <el-dialog v-model="dialogVisible" title="颁发结业证书" width="500px">
+    <el-dialog v-model="dialogVisible" title="颁发结业证书" width="550px">
       <el-form label-width="90px">
         <el-form-item label="证书类型" required>
           <el-radio-group v-model="issueForm.certType" @change="onCertTypeChange">
@@ -37,6 +37,21 @@
           <el-select v-model="issueForm.courseId" placeholder="选择课程" filterable style="width: 100%;">
             <el-option v-for="c in courses" :key="c.id" :label="c.title" :value="c.id" />
           </el-select>
+        </el-form-item>
+        <el-form-item label="证书附件">
+          <el-upload
+            v-model:file-list="issueForm.fileList"
+            :auto-upload="false"
+            :limit="1"
+            accept=".doc,.docx,.pdf,.jpg,.jpeg,.png"
+            :on-exceed="handleExceed"
+            :before-upload="beforeUpload"
+          >
+            <el-button type="primary" plain>选择文件</el-button>
+            <template #tip>
+              <div class="el-upload__tip">支持图片、Word、PDF格式，上传后即为学员可查看的证书文件</div>
+            </template>
+          </el-upload>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -124,7 +139,7 @@ const fileInput = ref(null)
 const uploadingRow = ref(null)
 
 const query = reactive({ certType: '', keyword: '' })
-const issueForm = reactive({ certType: 'COURSE', userId: null, courseId: null })
+const issueForm = reactive({ certType: 'COURSE', userId: null, courseId: null, fileList: [] })
 
 async function fetchCourses() {
   try {
@@ -163,6 +178,7 @@ function openIssueDialog() {
   issueForm.certType = 'COURSE'
   issueForm.userId = null
   issueForm.courseId = null
+  issueForm.fileList = []
   dialogVisible.value = true
 }
 
@@ -172,14 +188,46 @@ function onCertTypeChange() {
   }
 }
 
+function beforeUpload(file) {
+  const validTypes = ['image/jpeg', 'image/png', 'image/jpg',
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  const isValidType = validTypes.includes(file.type) ||
+    file.name.endsWith('.doc') || file.name.endsWith('.docx') ||
+    file.name.endsWith('.pdf')
+  if (!isValidType) {
+    ElMessage.error('仅支持图片、Word、PDF格式文件')
+    return false
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    ElMessage.error('文件大小不能超过 20MB')
+    return false
+  }
+  return false // 阻止自动上传，手动控制
+}
+
+function handleExceed() {
+  ElMessage.warning('只能上传一个附件，请先移除已有文件')
+}
+
 async function submitIssue() {
   if (!issueForm.userId) { ElMessage.warning('请选择学员'); return }
   if (issueForm.certType === 'COURSE' && !issueForm.courseId) { ElMessage.warning('请选择课程'); return }
   submitting.value = true
   try {
-    const body = { userId: issueForm.userId, certType: issueForm.certType }
-    if (issueForm.certType === 'COURSE') body.courseId = issueForm.courseId
-    await post('/admin/certificates', body)
+    const formData = new FormData()
+    formData.append('userId', issueForm.userId)
+    formData.append('certType', issueForm.certType)
+    if (issueForm.certType === 'COURSE') {
+      formData.append('courseId', issueForm.courseId)
+    }
+    // 如果有附件，一并上传
+    if (issueForm.fileList.length > 0 && issueForm.fileList[0].raw) {
+      formData.append('file', issueForm.fileList[0].raw)
+    }
+    await post('/admin/certificates', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
     ElMessage.success('证书颁发成功')
     dialogVisible.value = false
     fetchData()

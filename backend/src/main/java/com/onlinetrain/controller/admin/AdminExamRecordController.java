@@ -9,6 +9,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -43,6 +44,9 @@ public class AdminExamRecordController {
 
     @Autowired
     private CourseService courseService;
+
+    @Autowired
+    private CosService cosService;
 
     @GetMapping("/records")
     @ApiOperation("考试记录列表")
@@ -181,8 +185,10 @@ public class AdminExamRecordController {
      * body: { examRecordId }
      */
     @PostMapping("/records/{recordId}/issue-certificate")
-    @ApiOperation("颁发结业证书（线下考试通过后）")
-    public Result<Map<String, Object>> issueCertificate(@PathVariable Long recordId) {
+    @ApiOperation("颁发结业证书（线下考试通过后，支持直接上传附件）")
+    public Result<Map<String, Object>> issueCertificate(
+            @PathVariable Long recordId,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
         ExamRecord record = examRecordService.getById(recordId);
         if (record == null) return Result.notFound("考试记录不存在");
 
@@ -229,12 +235,38 @@ public class AdminExamRecordController {
         certificate.setCertNo(certNo);
         certificate.setIssueTime(LocalDateTime.now());
         certificate.setStatus(1);
+
+        // 如果有附件，直接上传
+        if (file != null && !file.isEmpty()) {
+            String contentType = file.getContentType();
+            String lowerName = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+            boolean valid = contentType != null && (contentType.startsWith("image/")
+                    || contentType.equals("application/pdf")
+                    || contentType.equals("application/msword")
+                    || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                    || lowerName.endsWith(".doc")
+                    || lowerName.endsWith(".docx")
+                    || lowerName.endsWith(".pdf"));
+            if (!valid) {
+                return Result.error("仅支持上传图片、Word、PDF格式文件");
+            }
+            try {
+                String url = cosService.uploadImage(file);
+                certificate.setAttachmentUrl(url);
+            } catch (Exception e) {
+                return Result.error("附件上传失败: " + e.getMessage());
+            }
+        }
+
         certificateService.save(certificate);
 
         Map<String, Object> result = new HashMap<>();
         result.put("id", certificate.getId());
         result.put("certNo", certNo);
         result.put("title", title);
+        if (certificate.getAttachmentUrl() != null) {
+            result.put("attachmentUrl", certificate.getAttachmentUrl());
+        }
         return Result.ok("证书颁发成功", result);
     }
 }

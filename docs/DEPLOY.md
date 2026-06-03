@@ -299,16 +299,21 @@ server {
     gzip_min_length 1k;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
 
+    # 根路径重定向到 H5 学员端（否则因无 index.html 会 403）
+    location = / {
+        return 301 /h5/;
+    }
+
     # 管理后台
     location /admin {
-        alias /opt/online-train/admin;
+        alias /opt/online-train/admin/dist;
         index index.html;
         try_files $uri $uri/ /admin/index.html;
     }
 
     # H5学员端
     location /h5 {
-        alias /opt/online-train/h5;
+        alias /opt/online-train/h5/dist;
         index index.html;
         try_files $uri $uri/ /h5/index.html;
     }
@@ -326,6 +331,13 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     }
 }
+```
+
+部署后修复文件权限（宝塔 Nginx 以 `www` 用户运行）：
+
+```bash
+chown -R www:www /opt/online-train/
+chmod -R 755 /opt/online-train/
 ```
 
 重载 Nginx：

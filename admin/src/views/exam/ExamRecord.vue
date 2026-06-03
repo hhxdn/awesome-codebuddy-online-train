@@ -126,6 +126,38 @@
         <el-button type="primary" :loading="scoreSubmitting" @click="submitOfflineScore">确认录入</el-button>
       </template>
     </el-dialog>
+
+    <!-- 颁发证书弹窗（带附件上传） -->
+    <el-dialog
+      v-model="certDialogVisible"
+      title="颁发结业证书"
+      width="500px"
+    >
+      <div style="margin-bottom: 12px; color: #606266;">
+        为学员 <b>{{ certInfo.userName }}</b>（{{ certInfo.examTitle }}）颁发结业证书
+      </div>
+      <el-form label-width="90px">
+        <el-form-item label="证书附件">
+          <el-upload
+            v-model:file-list="certInfo.fileList"
+            :auto-upload="false"
+            :limit="1"
+            accept=".doc,.docx,.pdf,.jpg,.jpeg,.png"
+            :on-exceed="() => ElMessage.warning('只能上传一个附件')"
+            :before-upload="beforeCertUpload"
+          >
+            <el-button type="primary" plain>选择文件</el-button>
+            <template #tip>
+              <div class="el-upload__tip">支持图片、Word、PDF，上传后即为证书文件</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="certDialogVisible = false">取消</el-button>
+        <el-button type="primary" :loading="certSubmitting" @click="submitIssueCert">确定颁发</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -156,6 +188,16 @@ const scoreForm = reactive({
   userId: null,
   score: 0,
   isPass: false
+})
+
+// 颁发证书
+const certDialogVisible = ref(false)
+const certSubmitting = ref(false)
+const certInfo = reactive({
+  recordId: null,
+  userName: '',
+  examTitle: '',
+  fileList: []
 })
 const scoreRules = {
   examPaperId: [{ required: true, message: '请选择试卷', trigger: 'change' }],
@@ -232,20 +274,48 @@ async function submitOfflineScore() {
   } finally { scoreSubmitting.value = false }
 }
 
-async function handleIssueCert(row) {
+function handleIssueCert(row) {
+  certInfo.recordId = row.id
+  certInfo.userName = row.userName || ''
+  certInfo.examTitle = row.examTitle || ''
+  certInfo.fileList = []
+  certDialogVisible.value = true
+}
+
+function beforeCertUpload(file) {
+  const validTypes = ['image/jpeg', 'image/png', 'image/jpg',
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document']
+  const isValidType = validTypes.includes(file.type) ||
+    file.name.endsWith('.doc') || file.name.endsWith('.docx') ||
+    file.name.endsWith('.pdf')
+  if (!isValidType) {
+    ElMessage.error('仅支持图片、Word、PDF格式文件')
+    return false
+  }
+  if (file.size > 20 * 1024 * 1024) {
+    ElMessage.error('文件大小不能超过 20MB')
+    return false
+  }
+  return false // 阻止自动上传
+}
+
+async function submitIssueCert() {
+  certSubmitting.value = true
   try {
-    await ElMessageBox.confirm('确定为该学员颁发结业证书吗？', '颁发证书', {
-      type: 'info',
-      confirmButtonText: '确定颁发'
+    const formData = new FormData()
+    if (certInfo.fileList.length > 0 && certInfo.fileList[0].raw) {
+      formData.append('file', certInfo.fileList[0].raw)
+    }
+    await post(`/admin/exams/records/${certInfo.recordId}/issue-certificate`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
     })
-    await post(`/admin/exams/records/${row.id}/issue-certificate`)
     ElMessage.success('证书颁发成功')
+    certDialogVisible.value = false
     fetchData()
   } catch (e) {
-    if (e !== 'cancel' && e !== 'close') {
-      ElMessage.error(e.response?.data?.message || '颁发失败')
-    }
-  }
+    ElMessage.error(e.response?.data?.message || '颁发失败')
+  } finally { certSubmitting.value = false }
 }
 
 onMounted(() => {

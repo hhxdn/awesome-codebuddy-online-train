@@ -3,8 +3,12 @@ package com.onlinetrain.controller.admin;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
+import com.onlinetrain.entity.Chapter;
+import com.onlinetrain.entity.Course;
 import com.onlinetrain.entity.Question;
 import com.onlinetrain.entity.QuestionOption;
+import com.onlinetrain.service.ChapterService;
+import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.QuestionOptionService;
 import com.onlinetrain.service.QuestionService;
 import io.swagger.annotations.Api;
@@ -33,9 +37,15 @@ public class AdminQuestionController {
     @Autowired
     private QuestionOptionService questionOptionService;
 
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private ChapterService chapterService;
+
     @GetMapping("/questions")
     @ApiOperation("题目列表")
-    public Result<PageResult<Question>> list(
+    public Result<PageResult<Map<String, Object>>> list(
             @RequestParam(required = false) Long courseId,
             @RequestParam(required = false) Long chapterId,
             @RequestParam(required = false) String type,
@@ -51,7 +61,33 @@ public class AdminQuestionController {
         if (type != null && !type.isEmpty()) wrapper.eq(Question::getType, type);
         wrapper.orderByDesc(Question::getCreateTime);
 
-        return Result.ok(PageResult.of(questionService.page(pageParam, wrapper)));
+        Page<Question> questionPage = questionService.page(pageParam, wrapper);
+
+        // 填充课程名称和章节名称
+        List<Map<String, Object>> enrichedRecords = new ArrayList<>();
+        for (Question q : questionPage.getRecords()) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", q.getId());
+            item.put("courseId", q.getCourseId());
+            item.put("chapterId", q.getChapterId());
+            item.put("type", q.getType());
+            item.put("content", q.getContent());
+            item.put("score", q.getScore());
+            item.put("status", q.getStatus());
+            item.put("createTime", q.getCreateTime());
+
+            // 课程名称
+            Course course = courseService.getById(q.getCourseId());
+            item.put("courseName", course != null ? course.getTitle() : "未知课程");
+
+            // 章节名称
+            Chapter chapter = chapterService.getById(q.getChapterId());
+            item.put("chapterName", chapter != null ? chapter.getTitle() : "未知章节");
+
+            enrichedRecords.add(item);
+        }
+
+        return Result.ok(PageResult.of(enrichedRecords, questionPage.getTotal(), questionPage.getCurrent(), questionPage.getSize()));
     }
 
     @GetMapping("/questions/{id}")

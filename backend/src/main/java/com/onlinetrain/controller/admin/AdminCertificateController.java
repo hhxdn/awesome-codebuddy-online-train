@@ -113,15 +113,15 @@ public class AdminCertificateController {
     }
 
     /**
-     * 颁发结业证书
+     * 颁发结业证书（支持直接上传附件）
      */
     @PostMapping("/certificates")
     @ApiOperation("颁发结业证书")
-    public Result<Map<String, Object>> issue(@RequestBody Map<String, Object> params) {
-        Long userId = Long.valueOf(params.get("userId").toString());
-        String certType = params.get("certType") != null ? params.get("certType").toString() : "COURSE";
-        Long courseId = params.containsKey("courseId") && params.get("courseId") != null
-                ? Long.valueOf(params.get("courseId").toString()) : null;
+    public Result<Map<String, Object>> issue(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "COURSE") String certType,
+            @RequestParam(required = false) Long courseId,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
 
         User user = userService.getById(userId);
         if (user == null) {
@@ -153,12 +153,38 @@ public class AdminCertificateController {
         certificate.setCertNo(certNo);
         certificate.setIssueTime(LocalDateTime.now());
         certificate.setStatus(1);
+
+        // 如果有附件，直接上传
+        if (file != null && !file.isEmpty()) {
+            String contentType = file.getContentType();
+            String lowerName = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase() : "";
+            boolean valid = contentType != null && (contentType.startsWith("image/")
+                    || contentType.equals("application/pdf")
+                    || contentType.equals("application/msword")
+                    || contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+                    || lowerName.endsWith(".doc")
+                    || lowerName.endsWith(".docx")
+                    || lowerName.endsWith(".pdf"));
+            if (!valid) {
+                return Result.error("仅支持上传图片、Word、PDF格式文件");
+            }
+            try {
+                String url = cosService.uploadImage(file);
+                certificate.setAttachmentUrl(url);
+            } catch (Exception e) {
+                return Result.error("附件上传失败: " + e.getMessage());
+            }
+        }
+
         certificateService.save(certificate);
 
         Map<String, Object> result = new HashMap<>();
         result.put("id", certificate.getId());
         result.put("certNo", certNo);
         result.put("title", title);
+        if (certificate.getAttachmentUrl() != null) {
+            result.put("attachmentUrl", certificate.getAttachmentUrl());
+        }
         return Result.ok("证书颁发成功", result);
     }
 
