@@ -136,12 +136,13 @@ public class VodServiceImpl implements VodService {
 
             Map<String, String> result = new HashMap<>();
             result.put("fileId", fileId);
-            if (fileId != null) {
+            // 使用 VOD 返回的真实播放地址（源文件），优先用 mediaUrl
+            if (mediaUrl != null && !mediaUrl.isEmpty()) {
+                result.put("playbackUrl", mediaUrl);
+            } else {
                 result.put("playbackUrl", "https://" + fileId + ".vod2.myqcloud.com");
             }
-            if (mediaUrl != null) {
-                result.put("mediaUrl", mediaUrl);
-            }
+            result.put("mediaUrl", mediaUrl);
             return result;
         } catch (TencentCloudSDKException e) {
             log.error("VOD directUpload error: {}", e.toString());
