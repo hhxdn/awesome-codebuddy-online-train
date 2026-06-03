@@ -131,6 +131,13 @@ public class VodServiceImpl implements VodService {
         String timestamp = String.valueOf(System.currentTimeMillis() / 1000);
         String date = new SimpleDateFormat("yyyy-MM-dd").format(new Date(Long.parseLong(timestamp) * 1000));
 
+        log.info("VOD callApi: action={}, secretId={}, secretKeyLen={}, region={}, subAppId={}",
+                action,
+                config.getCloud().getSecretId(),
+                config.getCloud().getSecretKey() != null ? config.getCloud().getSecretKey().length() : 0,
+                config.getVod().getRegion(),
+                config.getVod().getSubAppId());
+
         // 1. 拼接规范请求串
         String httpMethod = "POST";
         String canonicalUri = "/";
@@ -147,6 +154,8 @@ public class VodServiceImpl implements VodService {
                 + signedHeaders + "\n"
                 + hashedPayload;
 
+        log.debug("VOD canonicalRequest: {}", canonicalRequest);
+
         // 2. 拼接待签名字符串
         String algorithm = "TC3-HMAC-SHA256";
         String credentialScope = date + "/" + SERVICE + "/tc3_request";
@@ -155,6 +164,8 @@ public class VodServiceImpl implements VodService {
                 + timestamp + "\n"
                 + credentialScope + "\n"
                 + hashedCanonicalRequest;
+
+        log.debug("VOD stringToSign: {}", stringToSign);
 
         // 3. 计算签名
         byte[] secretDate = hmac256(("TC3" + config.getCloud().getSecretKey()).getBytes(StandardCharsets.UTF_8), date);
@@ -168,6 +179,9 @@ public class VodServiceImpl implements VodService {
                 + "Credential=" + config.getCloud().getSecretId() + "/" + credentialScope + ", "
                 + "SignedHeaders=" + signedHeaders + ", "
                 + "Signature=" + signatureHex;
+
+        log.info("VOD Authorization: {}", authorization);
+        log.info("VOD payload: {}", payload);
 
         // 5. 发送请求
         RequestBody body = RequestBody.create(payload, JSON_MEDIA);
@@ -187,7 +201,9 @@ public class VodServiceImpl implements VodService {
             if (response.body() == null) {
                 throw new IOException("Empty response body");
             }
-            return response.body().string();
+            String respBody = response.body().string();
+            log.info("VOD response: {}", respBody);
+            return respBody;
         }
     }
 
