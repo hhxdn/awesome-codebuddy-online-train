@@ -65,7 +65,11 @@ public class AdminUploadController {
             Map<String, String> data = new HashMap<>();
             data.put("fileId", vodResult.getOrDefault("fileId", ""));
             data.put("playbackUrl", vodResult.getOrDefault("playbackUrl", ""));
-            log.info("Video uploaded to VOD: {} -> fileId={}", file.getOriginalFilename(), data.get("fileId"));
+            String coverUrl = vodResult.get("coverUrl");
+            if (coverUrl != null && !coverUrl.isEmpty()) {
+                data.put("coverUrl", coverUrl);
+            }
+            log.info("Video uploaded to VOD: {} -> fileId={}, coverUrl={}", file.getOriginalFilename(), data.get("fileId"), coverUrl);
             return Result.ok(data);
         } catch (Exception e) {
             log.error("Video upload failed", e);

@@ -132,7 +132,8 @@ public class VodServiceImpl implements VodService {
             CommitUploadResponse commitResp = vodClient.CommitUpload(commitReq);
             String fileId = commitResp.getFileId();
             String mediaUrl = commitResp.getMediaUrl();
-            log.info("VOD CommitUpload success: fileId={}, mediaUrl={}", fileId, mediaUrl);
+            String coverUrl = commitResp.getCoverUrl();
+            log.info("VOD CommitUpload success: fileId={}, mediaUrl={}, coverUrl={}", fileId, mediaUrl, coverUrl);
 
             Map<String, String> result = new HashMap<>();
             result.put("fileId", fileId);
@@ -143,6 +144,10 @@ public class VodServiceImpl implements VodService {
                 result.put("playbackUrl", "https://" + fileId + ".vod2.myqcloud.com");
             }
             result.put("mediaUrl", mediaUrl);
+            // VOD 自动截取的封面图
+            if (coverUrl != null && !coverUrl.isEmpty()) {
+                result.put("coverUrl", coverUrl);
+            }
             return result;
         } catch (TencentCloudSDKException e) {
             log.error("VOD directUpload error: {}", e.toString());
