@@ -2,12 +2,9 @@
 set -e
 BASE="/Users/ascendking/IdeaProjects/my_projects/awesome-codebuddy-online-train"
 cd "$BASE"
-rm -rf _pkg h5-dist.zip admin-dist.zip
-mkdir -p _pkg/h5 _pkg/admin
-cp -r h5/dist _pkg/h5/
-cp -r admin/dist _pkg/admin/
-cd _pkg && zip -r ../h5-dist.zip h5/ && zip -r ../admin-dist.zip admin/
-cd "$BASE" && rm -rf _pkg
+rm -f h5-dist.zip admin-dist.zip
+cd h5/dist && zip -rq ../../h5-dist.zip . && cd ../..
+cd admin/dist && zip -rq ../../admin-dist.zip . && cd ../..
 echo "=== h5 ==="
 unzip -l h5-dist.zip | grep -E "index\.html|index-B5pw|index-Cq8c" | head -5
 echo "=== admin ==="
