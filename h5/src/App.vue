@@ -12,10 +12,19 @@
       <component :is="Component" />
     </keep-alive>
   </router-view>
+
+  <!-- 答疑解惑浮动按钮 -->
+  <div v-if="!showWechatTip && route.name !== 'QaSubmit'" class="qa-float-btn" @click="$router.push('/qa-submit')">
+    <van-icon name="chat-o" size="22" />
+    <span class="qa-float-text">答疑解惑</span>
+  </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
 
 const WECHAT_ONLY_KEY = 'wechat_only_mode'
 const showWechatTip = ref(false)
@@ -70,5 +79,31 @@ onMounted(() => {
   border-radius: 8px;
   color: #07c160;
   font-weight: 500;
+}
+
+/* 答疑解惑浮动按钮 */
+.qa-float-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 120px;
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #1989fa, #07c160);
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(25, 137, 250, 0.4);
+  cursor: pointer;
+  color: #fff;
+}
+.qa-float-btn:active {
+  transform: scale(0.92);
+}
+.qa-float-text {
+  font-size: 10px;
+  margin-top: 1px;
 }
 </style>

@@ -214,6 +214,12 @@ const routes = [
     name: 'AboutUs',
     component: () => import('../views/user/AboutUs.vue'),
     meta: { title: '关于我们' }
+  },
+  {
+    path: '/qa-submit',
+    name: 'QaSubmit',
+    component: () => import('../views/QaSubmit.vue'),
+    meta: { title: '答疑解惑', noAuth: true }
   }
 ]
 

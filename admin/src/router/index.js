@@ -153,6 +153,12 @@ const routes = [
         meta: { title: '随机组卷' }
       },
       {
+        path: '/qa-questions',
+        name: 'QaList',
+        component: () => import('@/views/qa/QaList.vue'),
+        meta: { title: '答疑解惑' }
+      },
+      {
         path: '/system/users',
         name: 'SystemUserList',
         component: () => import('@/views/system/SystemUserList.vue'),

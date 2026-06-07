@@ -53,6 +53,7 @@ public class WebConfig implements WebMvcConfigurer {
                         "/api/config",
                         "/api/config/**",
                         "/api/payment/callback/**",
+                        "/api/qa/**",
                         "/api/wx/oauth-callback",
                         "/doc.html",
                         "/webjars/**",
