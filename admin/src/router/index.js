@@ -51,6 +51,18 @@ const routes = [
         meta: { title: '新闻资讯' }
       },
       {
+        path: '/news-modules',
+        name: 'NewsModuleList',
+        component: () => import('@/views/content/NewsModuleList.vue'),
+        meta: { title: '新闻模块' }
+      },
+      {
+        path: '/config',
+        name: 'SystemConfig',
+        component: () => import('@/views/content/SystemConfig.vue'),
+        meta: { title: '系统配置' }
+      },
+      {
         path: '/about',
         name: 'AboutUs',
         component: () => import('@/views/content/AboutUs.vue'),

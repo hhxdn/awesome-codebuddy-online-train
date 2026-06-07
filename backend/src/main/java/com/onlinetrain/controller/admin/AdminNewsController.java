@@ -21,11 +21,15 @@ public class AdminNewsController {
 
     @GetMapping("/news")
     @ApiOperation("新闻列表")
-    public Result<List<NewsArticle>> list() {
-        List<NewsArticle> list = newsArticleService.lambdaQuery()
-                .orderByAsc(NewsArticle::getSortOrder)
-                .orderByDesc(NewsArticle::getCreateTime)
-                .list();
+    public Result<List<NewsArticle>> list(@RequestParam(required = false) Long moduleId) {
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<NewsArticle> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        if (moduleId != null) {
+            wrapper.eq(NewsArticle::getModuleId, moduleId);
+        }
+        wrapper.orderByAsc(NewsArticle::getSortOrder)
+                .orderByDesc(NewsArticle::getCreateTime);
+        List<NewsArticle> list = newsArticleService.list(wrapper);
         return Result.ok(list);
     }
 

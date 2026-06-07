@@ -22,13 +22,17 @@ public class H5NewsController {
     private NewsArticleService newsArticleService;
 
     @GetMapping
-    @ApiOperation("新闻列表（已发布，按排序+时间）")
-    public Result<List<NewsArticle>> list() {
-        List<NewsArticle> list = newsArticleService.lambdaQuery()
-                .eq(NewsArticle::getStatus, 1)
-                .orderByAsc(NewsArticle::getSortOrder)
-                .orderByDesc(NewsArticle::getCreateTime)
-                .list();
+    @ApiOperation("新闻列表（支持按模块筛选）")
+    public Result<List<NewsArticle>> list(@RequestParam(required = false) Long moduleId) {
+        com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<NewsArticle> wrapper =
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<>();
+        wrapper.eq(NewsArticle::getStatus, 1);
+        if (moduleId != null) {
+            wrapper.eq(NewsArticle::getModuleId, moduleId);
+        }
+        wrapper.orderByAsc(NewsArticle::getSortOrder)
+                .orderByDesc(NewsArticle::getCreateTime);
+        List<NewsArticle> list = newsArticleService.list(wrapper);
         return Result.ok(list);
     }
 

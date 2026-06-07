@@ -2,7 +2,12 @@
   <div class="page-container" v-loading="loading">
     <div class="card-container">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <h3>新闻资讯管理</h3>
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h3>新闻资讯管理</h3>
+          <el-select v-model="filterModuleId" placeholder="全部模块" clearable style="width: 150px;" @change="fetchData">
+            <el-option v-for="m in modules" :key="m.id" :label="m.name" :value="m.id" />
+          </el-select>
+        </div>
         <el-button type="primary" @click="handleAdd">新增资讯</el-button>
       </div>
       <el-table :data="tableData" border stripe>
@@ -21,6 +26,14 @@
           </template>
         </el-table-column>
         <el-table-column prop="title" label="标题" min-width="180" show-overflow-tooltip />
+        <el-table-column label="所属模块" width="120">
+          <template #default="{ row }">
+            <el-tag v-if="row.moduleId" size="small" type="primary">
+              {{ getModuleName(row.moduleId) }}
+            </el-tag>
+            <span v-else style="color: #c0c4cc;">未分类</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="summary" label="摘要" min-width="200" show-overflow-tooltip />
         <el-table-column prop="source" label="来源" width="120" show-overflow-tooltip />
         <el-table-column prop="viewCount" label="阅读量" width="80" />
@@ -54,6 +67,11 @@
       <el-form ref="formRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title" placeholder="请输入新闻标题" />
+        </el-form-item>
+        <el-form-item label="所属模块">
+          <el-select v-model="form.moduleId" placeholder="请选择模块" clearable>
+            <el-option v-for="m in modules" :key="m.id" :label="m.name" :value="m.id" />
+          </el-select>
         </el-form-item>
         <el-form-item label="摘要">
           <el-input
@@ -93,6 +111,8 @@ import RichTextEditor from '@/components/RichTextEditor.vue'
 
 const loading = ref(false)
 const tableData = ref([])
+const modules = ref([])
+const filterModuleId = ref(null)
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增资讯')
 const submitting = ref(false)
@@ -106,6 +126,7 @@ const form = reactive({
   cover: '',
   content: '',
   source: '',
+  moduleId: null,
   sortOrder: 0
 })
 
@@ -211,6 +232,7 @@ async function handleSubmit() {
 }
 
 onMounted(() => {
+  fetchModules()
   fetchData()
 })
 </script>

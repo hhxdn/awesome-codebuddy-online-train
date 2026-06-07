@@ -76,6 +76,7 @@
         :columns="genderColumns"
         @confirm="onGenderConfirm"
         @cancel="showGenderPicker = false"
+        :default-index="genderColumns.indexOf(form.gender)"
       />
     </van-popup>
 
@@ -85,6 +86,7 @@
         :columns="educationColumns"
         @confirm="onEducationConfirm"
         @cancel="showEducationPicker = false"
+        :default-index="educationColumns.indexOf(form.education)"
       />
     </van-popup>
   </div>
@@ -114,13 +116,25 @@ const form = reactive({
 const genderColumns = ['男', '女']
 const educationColumns = ['高中', '中专', '大专', '本科', '硕士', '博士', '其他']
 
-function onGenderConfirm({ selectedOptions }) {
-  form.gender = selectedOptions[0].text
+function onGenderConfirm(value) {
+  if (value && value.selectedOptions) {
+    form.gender = value.selectedOptions[0].text
+  } else if (typeof value === 'string') {
+    form.gender = value
+  } else if (value && value.text) {
+    form.gender = value.text
+  }
   showGenderPicker.value = false
 }
 
-function onEducationConfirm({ selectedOptions }) {
-  form.education = selectedOptions[0].text
+function onEducationConfirm(value) {
+  if (value && value.selectedOptions) {
+    form.education = value.selectedOptions[0].text
+  } else if (typeof value === 'string') {
+    form.education = value
+  } else if (value && value.text) {
+    form.education = value.text
+  }
   showEducationPicker.value = false
 }
 

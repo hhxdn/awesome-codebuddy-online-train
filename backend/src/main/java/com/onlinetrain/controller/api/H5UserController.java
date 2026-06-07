@@ -85,7 +85,7 @@ public class H5UserController {
     }
 
     /**
-     * 用户注册
+     * 用户注册（简化：手机号+密码+真实姓名，直接通过审核）
      */
     @PostMapping("/register")
     @ApiOperation("用户注册")
@@ -93,6 +93,7 @@ public class H5UserController {
         String phone = params.get("phone");
         String password = params.get("password");
         String confirmPassword = params.get("confirmPassword");
+        String realName = params.get("realName");
 
         if (phone == null || phone.isEmpty()) {
             return Result.error("手机号不能为空");
@@ -115,10 +116,11 @@ public class H5UserController {
         User user = new User();
         user.setPhone(phone);
         user.setPassword(passwordEncoder.encode(password));
-        user.setNickname("用户" + phone.substring(Math.max(0, phone.length() - 4)));
+        user.setRealName(realName != null ? realName : ("用户" + phone.substring(Math.max(0, phone.length() - 4))));
+        user.setNickname(user.getRealName());
         user.setRole("STUDENT");
         user.setStatus(1);
-        user.setApprovalStatus("PENDING");
+        user.setApprovalStatus("APPROVED");  // 直接通过，无需审核
         user.setRegisterTime(LocalDateTime.now());
         userService.save(user);
 
@@ -128,7 +130,7 @@ public class H5UserController {
         result.put("token", token);
         user.setPassword(null);
         result.put("user", user);
-        result.put("approvalStatus", "PENDING");
+        result.put("approvalStatus", "APPROVED");
         return Result.ok(result);
     }
 
@@ -328,7 +330,7 @@ public class H5UserController {
     }
 
     /**
-     * 提交用户资料（注册后的信息补充）
+     * 提交用户资料（报名学习时的信息补充，包括性别/年龄/学历/专业/联系电话）
      */
     @PostMapping("/submit-profile")
     @ApiOperation("提交用户资料")
@@ -346,22 +348,25 @@ public class H5UserController {
         String major = params.get("major");
         String contactPhone = params.get("contactPhone") != null ? params.get("contactPhone") : params.get("phone");
 
-        if (realName == null || realName.isEmpty()) {
-            return Result.error("姓名不能为空");
+        if (realName != null && !realName.isEmpty()) {
+            user.setRealName(realName);
         }
-        if (gender == null || gender.isEmpty()) {
-            return Result.error("性别不能为空");
+        if (gender != null && !gender.isEmpty()) {
+            user.setGender(gender);
         }
-
-        user.setRealName(realName);
-        user.setGender(gender);
-        user.setEducation(education);
-        user.setMajor(major);
-        user.setPhone(contactPhone);
+        if (education != null && !education.isEmpty()) {
+            user.setEducation(education);
+        }
+        if (major != null && !major.isEmpty()) {
+            user.setMajor(major);
+        }
+        if (contactPhone != null && !contactPhone.isEmpty()) {
+            user.setPhone(contactPhone);
+        }
         if (ageStr != null && !ageStr.isEmpty()) {
             try { user.setAge(Integer.parseInt(ageStr)); } catch (NumberFormatException ignored) {}
         }
-        user.setApprovalStatus("PENDING");
+        // 不再设置为PENDING，直接保存
         userService.updateById(user);
 
         return Result.ok("提交成功");

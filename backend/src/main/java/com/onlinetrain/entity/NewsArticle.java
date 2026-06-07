@@ -33,6 +33,9 @@ public class NewsArticle {
     /** 阅读量 */
     private Integer viewCount;
 
+    /** 所属模块ID */
+    private Long moduleId;
+
     /** 排序 */
     private Integer sortOrder;
 

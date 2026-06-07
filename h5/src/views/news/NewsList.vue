@@ -1,6 +1,25 @@
 <template>
   <div class="news-list-page page-fade-in">
     <van-nav-bar title="最新资讯" left-arrow @click-left="$router.back()" fixed placeholder />
+    
+    <!-- Module Tabs -->
+    <div class="module-tabs" v-if="modules.length > 0">
+      <div class="tabs-scroll">
+        <div
+          class="tab-chip"
+          :class="{ active: activeModule === 0 }"
+          @click="switchModule(0)"
+        >全部</div>
+        <div
+          v-for="mod in modules"
+          :key="mod.id"
+          class="tab-chip"
+          :class="{ active: activeModule === mod.id }"
+          @click="switchModule(mod.id)"
+        >{{ mod.name }}</div>
+      </div>
+    </div>
+
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <div class="news-items" v-if="list.length > 0">
         <div
@@ -32,19 +51,37 @@ import { get } from '../../api'
 import EmptyState from '../../components/EmptyState.vue'
 
 const list = ref([])
+const modules = ref([])
+const activeModule = ref(0)
 const loading = ref(true)
 const refreshing = ref(false)
+
+async function fetchModules() {
+  try {
+    const res = await get('/config/news-modules')
+    modules.value = res.data || []
+  } catch (e) {
+    modules.value = []
+  }
+}
 
 async function fetchData() {
   loading.value = true
   try {
-    const res = await get('/news')
+    const params = {}
+    if (activeModule.value > 0) params.moduleId = activeModule.value
+    const res = await get('/news', params)
     list.value = res.data || []
   } catch (e) {
     list.value = []
   } finally {
     loading.value = false
   }
+}
+
+function switchModule(id) {
+  activeModule.value = id
+  fetchData()
 }
 
 function onRefresh() {
@@ -64,6 +101,7 @@ function formatTime(time) {
 }
 
 onMounted(() => {
+  fetchModules()
   fetchData()
 })
 </script>
@@ -72,6 +110,45 @@ onMounted(() => {
 .news-list-page {
   min-height: 100vh;
   background: var(--bg-color);
+}
+
+.module-tabs {
+  background: #fff;
+  position: sticky;
+  top: 46px;
+  z-index: 99;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.tabs-scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.tabs-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.tab-chip {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 16px;
+  background: var(--bg-color);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.tab-chip.active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
 }
 
 .news-items {

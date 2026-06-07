@@ -162,6 +162,8 @@ const categories = ref([])
 const courseList = ref([])
 const banners = ref([])
 const newsList = ref([])
+const newsModules = ref([])
+const activeNewsModule = ref(0)
 const showAllCategories = ref(false)
 
 // 当前选中的一级分类下的二级列表
@@ -280,6 +282,7 @@ onMounted(() => {
   fetchCategories()
   fetchCourses()
   fetchBanners()
+  fetchNewsModules()
   fetchNews()
 })
 </script>
@@ -479,6 +482,37 @@ onMounted(() => {
 
 .news-time {
   color: var(--text-placeholder);
+}
+
+/* News Tabs */
+.news-tabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 0 0 10px 0;
+  scrollbar-width: none;
+}
+.news-tabs::-webkit-scrollbar { display: none; }
+.news-tab {
+  flex-shrink: 0;
+  padding: 4px 12px;
+  border-radius: 14px;
+  background: var(--bg-color);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.news-tab.active {
+  background: var(--primary-bg);
+  color: var(--primary);
+  font-weight: 500;
+}
+.news-empty {
+  text-align: center;
+  padding: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
 }
 
 /* Category Bar */

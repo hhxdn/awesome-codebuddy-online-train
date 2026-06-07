@@ -96,7 +96,7 @@ const activeTab = ref('login')
 const loading = ref(false)
 
 const loginForm = reactive({ phone: '', password: '' })
-const registerForm = reactive({ phone: '', password: '', confirmPassword: '' })
+const registerForm = reactive({ phone: '', realName: '', password: '', confirmPassword: '' })
 
 function switchTab(tab) { activeTab.value = tab }
 function pwdValidator(val) { return val.length >= 6 }
@@ -124,15 +124,17 @@ async function onLogin() {
 async function onRegister() {
   if (registerForm.password !== registerForm.confirmPassword) { showToast('两次密码不一致'); return }
   if (registerForm.password.length < 6) { showToast('密码至少6位'); return }
+  if (!registerForm.realName) { showToast('请输入真实姓名'); return }
   loading.value = true
   try {
     const res = await post('/user/register', {
-      phone: registerForm.phone, password: registerForm.password, confirmPassword: registerForm.confirmPassword
+      phone: registerForm.phone, realName: registerForm.realName,
+      password: registerForm.password, confirmPassword: registerForm.confirmPassword
     })
     if (res.data?.token) {
       setToken(res.data.token); setUser(res.data.user)
       showToast('注册成功')
-      router.replace('/register-profile')
+      router.replace('/')
     } else { showToast(res.message || '注册失败') }
   } catch (e) { showToast(e.message || '注册失败') }
   loading.value = false

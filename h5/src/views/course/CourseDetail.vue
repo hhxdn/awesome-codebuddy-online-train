@@ -231,8 +231,21 @@ function goChapter(ch) {
   router.push('/video/' + ch.id)
 }
 function goPractice(ch) {
-  if (isPaid.value && !purchased.value) { showToast('请先购买课程'); return }
+  // 未购买付费课程 → 跳转报名学习
+  if (isPaid.value && !purchased.value) {
+    router.push('/enroll')
+    return
+  }
+  // 已购买但无练习权限 → 提示
+  if (!hasExerciseAccess.value) {
+    showToast('您还没有该课程的练习题权限，请联系管理员开通')
+    return
+  }
   router.push('/practice/' + ch.id)
+}
+function startLearnOrEnroll() {
+  // 免费课程也走报名学习流程
+  router.push('/enroll')
 }
 function startLearn() {
   if (chapters.value.length > 0) router.push('/video/' + chapters.value[0].id)
