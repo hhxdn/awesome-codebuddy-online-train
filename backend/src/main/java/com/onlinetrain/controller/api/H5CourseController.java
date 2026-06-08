@@ -54,6 +54,9 @@ public class H5CourseController {
     @Autowired
     private StudentExerciseAccessService exerciseAccessService;
 
+    @Autowired
+    private QuestionService questionService;
+
     /**
      * 课程列表（带筛选）
      */
@@ -212,6 +215,53 @@ public class H5CourseController {
                 .eq(StudentExerciseAccess::getCourseId, id)
                 .one();
         result.put("hasExerciseAccess", access != null);
+        return Result.ok(result);
+    }
+
+    /**
+     * 获取当前学员所有有练习题权限的课程（含章节和题目统计）
+     */
+    @GetMapping("/exercise/my-courses")
+    @ApiOperation("获取学员练习题权限课程列表")
+    public Result<List<Map<String, Object>>> myExerciseCourses(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+
+        // 查询学员有练习权限的所有课程
+        List<StudentExerciseAccess> accessList = exerciseAccessService.lambdaQuery()
+                .eq(StudentExerciseAccess::getUserId, userId)
+                .list();
+
+        if (accessList.isEmpty()) {
+            return Result.ok(List.of());
+        }
+
+        List<Map<String, Object>> result = accessList.stream().map(access -> {
+            Map<String, Object> item = new HashMap<>();
+            Long courseId = access.getCourseId();
+            Course course = courseService.getById(courseId);
+            if (course == null) return null;
+
+            item.put("courseId", courseId);
+            item.put("courseTitle", course.getTitle());
+            item.put("courseCover", course.getCover());
+            item.put("price", course.getPrice());
+
+            // 统计章节数
+            long chapterCount = chapterService.lambdaQuery()
+                    .eq(Chapter::getCourseId, courseId)
+                    .count();
+            item.put("chapterCount", chapterCount);
+
+            // 统计题目总数
+            long questionCount = questionService.lambdaQuery()
+                    .eq(Question::getCourseId, courseId)
+                    .eq(Question::getStatus, 1)
+                    .count();
+            item.put("questionCount", questionCount);
+
+            return item;
+        }).filter(item -> item != null).toList();
+
         return Result.ok(result);
     }
 }

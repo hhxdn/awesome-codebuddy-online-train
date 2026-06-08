@@ -19,10 +19,13 @@
         <router-link to="/courses" class="nav-item" :class="{ active: active === 1 }">
           <van-icon name="apps-o" size="20" /><span>课程中心</span>
         </router-link>
-        <router-link to="/exam" class="nav-item" :class="{ active: active === 2 }">
+        <router-link to="/practice-courses" class="nav-item" :class="{ active: active === 2 }">
+          <van-icon name="edit" size="20" /><span>练习</span>
+        </router-link>
+        <router-link to="/exam" class="nav-item" :class="{ active: active === 3 }">
           <van-icon name="certificate" size="20" /><span>在线考试</span>
         </router-link>
-        <router-link to="/mine" class="nav-item" :class="{ active: active === 3 }">
+        <router-link to="/mine" class="nav-item" :class="{ active: active === 4 }">
           <van-icon name="user-o" size="20" /><span>个人中心</span>
         </router-link>
       </nav>
@@ -48,6 +51,7 @@
     >
       <van-tabbar-item to="/home" icon="home-o">首页</van-tabbar-item>
       <van-tabbar-item to="/courses" icon="apps-o">课程</van-tabbar-item>
+      <van-tabbar-item to="/practice-courses" icon="edit">练习</van-tabbar-item>
       <van-tabbar-item to="/exam" icon="certificate">考试</van-tabbar-item>
       <van-tabbar-item to="/mine" icon="user-o">我的</van-tabbar-item>
     </van-tabbar>
@@ -61,7 +65,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const active = ref(0)
 
-const tabMap = { home: 0, courses: 1, exam: 2, mine: 3, 'my-courses': 3, 'my-orders': 3, 'my-wrong': 3, 'my-exams': 3, 'my-learning': 3, 'my-certificates': 3 }
+const tabMap = { home: 0, courses: 1, 'practice-courses': 2, exam: 3, mine: 4, 'my-courses': 4, 'my-orders': 4, 'my-wrong': 4, 'my-exams': 4, 'my-learning': 4, 'my-certificates': 4 }
 
 watch(
   () => route.path,

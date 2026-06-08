@@ -132,7 +132,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showDialog } from 'vant'
 import { get } from '../../api'
 import EmptyState from '../../components/EmptyState.vue'
 
@@ -236,9 +236,15 @@ function goPractice(ch) {
     router.push('/enroll')
     return
   }
-  // 已购买但无练习权限 → 提示
+  // 已购买但无练习权限 → 醒目提示
   if (!hasExerciseAccess.value) {
-    showToast('您还没有该课程的练习题权限，请联系管理员开通')
+    showDialog({
+      title: '暂无练习权限',
+      message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
+      confirmButtonText: '我知道了',
+      confirmButtonColor: '#0052D9',
+      theme: 'round-button'
+    })
     return
   }
   router.push('/practice/' + ch.id)

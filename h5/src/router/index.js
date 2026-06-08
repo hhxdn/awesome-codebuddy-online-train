@@ -46,6 +46,12 @@ const routes = [
         meta: { title: '考试' }
       },
       {
+        path: 'practice-courses',
+        name: 'PracticeCourseList',
+        component: () => import('../views/practice/PracticeCourses.vue'),
+        meta: { title: '练习' }
+      },
+      {
         path: 'mine',
         name: 'Profile',
         component: () => import('../views/user/Profile.vue'),
