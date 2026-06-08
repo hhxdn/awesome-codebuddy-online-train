@@ -62,7 +62,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { showDialog } from 'vant'
 import { get } from '../../api'
 
 const router = useRouter()
@@ -81,31 +80,8 @@ async function fetchCourses() {
   }
 }
 
-async function goCoursePractice(item) {
-  // 进入练习前检查是否有练习题权限
-  try {
-    const res = await get('/courses/' + item.courseId + '/exercise-access')
-    if (res.data && res.data.hasExerciseAccess) {
-      // 有权限，跳转到课程详情页的章节练习
-      router.push('/course/' + item.courseId)
-    } else {
-      showDialog({
-        title: '暂无练习权限',
-        message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
-        confirmButtonText: '我知道了',
-        confirmButtonColor: '#0052D9',
-        theme: 'round-button'
-      })
-    }
-  } catch (e) {
-    showDialog({
-      title: '暂无练习权限',
-      message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
-      confirmButtonText: '我知道了',
-      confirmButtonColor: '#0052D9',
-      theme: 'round-button'
-    })
-  }
+function goCoursePractice(item) {
+  router.push('/course/' + item.courseId)
 }
 
 onMounted(() => fetchCourses())

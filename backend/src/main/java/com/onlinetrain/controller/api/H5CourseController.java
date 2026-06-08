@@ -103,16 +103,35 @@ public class H5CourseController {
     }
 
     /**
-     * 章节列表
+     * 章节列表（含各章节题目数量）
      */
     @GetMapping("/{id}/chapters")
     @ApiOperation("章节列表")
-    public Result<List<Chapter>> chapters(@PathVariable Long id) {
+    public Result<List<Map<String, Object>>> chapters(@PathVariable Long id) {
         List<Chapter> chapters = chapterService.lambdaQuery()
                 .eq(Chapter::getCourseId, id)
                 .orderByAsc(Chapter::getSortOrder)
                 .list();
-        return Result.ok(chapters);
+
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Chapter ch : chapters) {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", ch.getId());
+            item.put("courseId", ch.getCourseId());
+            item.put("title", ch.getTitle());
+            item.put("videoUrl", ch.getVideoUrl());
+            item.put("duration", ch.getVideoDuration() != null ? formatDuration(ch.getVideoDuration()) : "视频");
+            item.put("sortOrder", ch.getSortOrder());
+            item.put("createTime", ch.getCreateTime());
+            // 统计该章节的题目数
+            long questionCount = questionService.lambdaQuery()
+                    .eq(Question::getChapterId, ch.getId())
+                    .eq(Question::getStatus, 1)
+                    .count();
+            item.put("questionCount", questionCount);
+            result.add(item);
+        }
+        return Result.ok(result);
     }
 
     /**
@@ -276,5 +295,14 @@ public class H5CourseController {
         }).collect(Collectors.toList());
 
         return Result.ok(result);
+    }
+
+    private String formatDuration(int seconds) {
+        if (seconds >= 3600) {
+            return (seconds / 3600) + "小时" + ((seconds % 3600) / 60) + "分钟";
+        } else if (seconds >= 60) {
+            return (seconds / 60) + "分钟" + (seconds % 60) + "秒";
+        }
+        return seconds + "秒";
     }
 }

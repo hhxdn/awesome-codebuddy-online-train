@@ -69,7 +69,7 @@
           </div>
           <div class="chapter-right">
             <van-button
-              v-if="(!isPaid || purchased) && hasExerciseAccess"
+              v-if="(!isPaid || purchased) && (ch.questionCount > 0)"
               size="small"
               round
               plain
@@ -148,7 +148,6 @@ const descExpanded = ref(false)
 const checkedIn = ref(false)
 const reservationInfo = ref(null)
 const belongCategory = ref(null)
-const hasExerciseAccess = ref(false)
 
 let _allCats = null
 
@@ -206,10 +205,6 @@ async function fetchDetail() {
     if (res.data) chapters.value = res.data
   } catch (e) { chapters.value = [] }
   try {
-    const res = await get('/courses/' + courseId + '/exercise-access')
-    if (res.data) hasExerciseAccess.value = res.data.hasExerciseAccess || false
-  } catch (e) { hasExerciseAccess.value = false }
-  try {
     const res = await get('/courses/' + courseId + '/access')
     if (res.data) purchased.value = res.data.accessible
   } catch (e) { purchased.value = false }
@@ -236,11 +231,11 @@ function goPractice(ch) {
     router.push('/enroll')
     return
   }
-  // 已购买但无练习权限 → 醒目提示
-  if (!hasExerciseAccess.value) {
+  // 该章节没有配置练习题 → 提示
+  if (!ch.questionCount || ch.questionCount === 0) {
     showDialog({
-      title: '暂无练习权限',
-      message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
+      title: '暂无练习题',
+      message: '该章节还没有配置练习题，请联系管理员添加题目后再来练习。',
       confirmButtonText: '我知道了',
       confirmButtonColor: '#0052D9',
       theme: 'round-button'
