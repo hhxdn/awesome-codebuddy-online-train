@@ -77,7 +77,7 @@ CREATE TABLE `chapter` (
   `vod_file_id` varchar(100) DEFAULT NULL COMMENT 'VOD文件ID',
   `vod_playback_url` varchar(500) DEFAULT NULL COMMENT 'VOD上传后即时播放地址(转码前)',
   `vod_transcode_status` varchar(20) DEFAULT 'PENDING' COMMENT 'VOD转码状态: PENDING/TRANSCODING/DONE/FAILED',
-  `video_duration` int(11) DEFAULT '0' COMMENT '视频时长(秒)',
+  `video_duration` int(11) DEFAULT NULL COMMENT '视频时长(秒)',
   `sort_order` int(11) DEFAULT '0' COMMENT '排序',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `deleted` tinyint(4) DEFAULT '0' COMMENT '逻辑删除',

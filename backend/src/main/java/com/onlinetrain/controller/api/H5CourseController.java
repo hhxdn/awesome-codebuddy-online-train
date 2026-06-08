@@ -120,7 +120,7 @@ public class H5CourseController {
             item.put("courseId", ch.getCourseId());
             item.put("title", ch.getTitle());
             item.put("videoUrl", ch.getVideoUrl());
-            item.put("duration", ch.getVideoDuration() != null ? formatDuration(ch.getVideoDuration()) : "视频");
+            item.put("duration", ch.getVideoDuration() != null && ch.getVideoDuration() > 0 ? formatDuration(ch.getVideoDuration()) : "视频");
             item.put("sortOrder", ch.getSortOrder());
             item.put("createTime", ch.getCreateTime());
             // 统计该章节的题目数
@@ -298,6 +298,7 @@ public class H5CourseController {
     }
 
     private String formatDuration(int seconds) {
+        if (seconds <= 0) return "视频";
         if (seconds >= 3600) {
             return (seconds / 3600) + "小时" + ((seconds % 3600) / 60) + "分钟";
         } else if (seconds >= 60) {
