@@ -35,12 +35,27 @@
     </div>
 
     <!-- News List -->
-    <div class="news-section" v-if="newsList.length > 0">
+    <div class="news-section">
       <div class="news-header">
         <span class="news-header-title">最新资讯</span>
         <span class="news-header-more" @click="$router.push('/news')">更多 <van-icon name="arrow" /></span>
       </div>
-      <div class="news-list">
+      <!-- News Module Tabs -->
+      <div class="news-tabs" v-if="newsModules.length > 0">
+        <div 
+          class="news-tab" 
+          :class="{ active: activeNewsModule === 0 }" 
+          @click="switchNewsTab(0)"
+        >全部</div>
+        <div 
+          v-for="mod in newsModules" 
+          :key="mod.id" 
+          class="news-tab" 
+          :class="{ active: activeNewsModule === mod.id }" 
+          @click="switchNewsTab(mod.id)"
+        >{{ mod.name }}</div>
+      </div>
+      <div class="news-list" v-if="newsList.length > 0">
         <div
           v-for="item in newsList"
           :key="item.id"
@@ -57,6 +72,9 @@
             </div>
           </div>
         </div>
+      </div>
+      <div class="news-empty" v-else>
+        <span>暂无资讯</span>
       </div>
     </div>
 
@@ -247,11 +265,25 @@ async function fetchBanners() {
   } catch (e) { banners.value = [] }
 }
 
-async function fetchNews() {
+async function fetchNewsModules() {
   try {
-    const res = await get('/news')
+    const res = await get('/config/news-modules')
+    if (res.data) newsModules.value = res.data
+  } catch (e) { newsModules.value = [] }
+}
+
+async function fetchNews({ moduleId } = {}) {
+  try {
+    const params = {}
+    if (moduleId && moduleId > 0) params.moduleId = moduleId
+    const res = await get('/news', params)
     newsList.value = (res.data || []).slice(0, 4)
   } catch (e) { newsList.value = [] }
+}
+
+function switchNewsTab(moduleId) {
+  activeNewsModule.value = moduleId
+  fetchNews({ moduleId })
 }
 
 function goBannerLink(banner) {
