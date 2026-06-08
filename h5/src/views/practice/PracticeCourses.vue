@@ -8,13 +8,13 @@
     <!-- 加载中 -->
     <van-loading v-if="loading" class="loading-center" size="32" type="spinner" color="var(--primary)" />
 
-    <!-- 无练习权限提示 -->
+    <!-- 暂无练习题课程 -->
     <div v-else-if="courses.length === 0" class="empty-state">
       <van-icon name="notes-o" size="64" color="#C9CDD4" />
-      <p class="empty-title">暂无练习权限</p>
-      <p class="empty-desc">您还没有开通任何课程的练习题权限，请联系管理员为您开通</p>
+      <p class="empty-title">暂无练习题</p>
+      <p class="empty-desc">目前还没有上架包含练习题的课程，请耐心等待</p>
       <van-button round plain type="primary" size="small" @click="$router.push('/courses')">
-        去选课
+        浏览课程
       </van-button>
     </div>
 
@@ -62,6 +62,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { showDialog } from 'vant'
 import { get } from '../../api'
 
 const router = useRouter()
@@ -71,7 +72,7 @@ const loading = ref(true)
 async function fetchCourses() {
   loading.value = true
   try {
-    const res = await get('/courses/exercise/my-courses')
+    const res = await get('/courses/with-exercises')
     if (res.data) courses.value = res.data
   } catch (e) {
     courses.value = []
@@ -80,9 +81,31 @@ async function fetchCourses() {
   }
 }
 
-function goCoursePractice(item) {
-  // 跳转到课程详情页的章节练习
-  router.push('/course/' + item.courseId)
+async function goCoursePractice(item) {
+  // 进入练习前检查是否有练习题权限
+  try {
+    const res = await get('/courses/' + item.courseId + '/exercise-access')
+    if (res.data && res.data.hasExerciseAccess) {
+      // 有权限，跳转到课程详情页的章节练习
+      router.push('/course/' + item.courseId)
+    } else {
+      showDialog({
+        title: '暂无练习权限',
+        message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
+        confirmButtonText: '我知道了',
+        confirmButtonColor: '#0052D9',
+        theme: 'round-button'
+      })
+    }
+  } catch (e) {
+    showDialog({
+      title: '暂无练习权限',
+      message: '您还没有开通该课程的练习题权限。\n\n请联系管理员为您开通练习权限后再进入练习。',
+      confirmButtonText: '我知道了',
+      confirmButtonColor: '#0052D9',
+      theme: 'round-button'
+    })
+  }
 }
 
 onMounted(() => fetchCourses())

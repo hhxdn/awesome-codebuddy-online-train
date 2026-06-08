@@ -219,48 +219,61 @@ public class H5CourseController {
     }
 
     /**
-     * 获取当前学员所有有练习题权限的课程（含章节和题目统计）
+     * 获取所有有练习题的课程（含章节和题目统计），不做权限过滤
      */
-    @GetMapping("/exercise/my-courses")
-    @ApiOperation("获取学员练习题权限课程列表")
-    public Result<List<Map<String, Object>>> myExerciseCourses(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    @GetMapping("/with-exercises")
+    @ApiOperation("获取所有有练习题的课程列表")
+    public Result<List<Map<String, Object>>> coursesWithExercises() {
+        // 查询所有有题目（status=1）的课程ID，去重
+        List<Object> courseIdObjs = questionService.listObjs(
+                new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Question>()
+                        .select(Question::getCourseId)
+                        .eq(Question::getStatus, 1)
+                        .groupBy(Question::getCourseId)
+        );
 
-        // 查询学员有练习权限的所有课程
-        List<StudentExerciseAccess> accessList = exerciseAccessService.lambdaQuery()
-                .eq(StudentExerciseAccess::getUserId, userId)
-                .list();
-
-        if (accessList.isEmpty()) {
+        if (courseIdObjs == null || courseIdObjs.isEmpty()) {
             return Result.ok(Collections.emptyList());
         }
 
-        List<Map<String, Object>> result = accessList.stream().map(access -> {
-            Map<String, Object> item = new HashMap<>();
-            Long courseId = access.getCourseId();
-            Course course = courseService.getById(courseId);
-            if (course == null) return null;
+        List<Long> courseIds = courseIdObjs.stream()
+                .map(obj -> Long.valueOf(obj.toString()))
+                .collect(Collectors.toList());
 
-            item.put("courseId", courseId);
+        // 查询上架状态的课程
+        List<Course> courses = courseService.lambdaQuery()
+                .in(Course::getId, courseIds)
+                .eq(Course::getStatus, "UP")
+                .orderByDesc(Course::getSortOrder)
+                .list();
+
+        if (courses.isEmpty()) {
+            return Result.ok(Collections.emptyList());
+        }
+
+        // 批量预取章节数和题目数，避免N+1查询
+        Map<Long, Long> chapterCountMap = new HashMap<>();
+        Map<Long, Long> questionCountMap = new HashMap<>();
+        for (Long cid : courseIds) {
+            long cc = chapterService.lambdaQuery().eq(Chapter::getCourseId, cid).count();
+            long qc = questionService.lambdaQuery()
+                    .eq(Question::getCourseId, cid)
+                    .eq(Question::getStatus, 1)
+                    .count();
+            chapterCountMap.put(cid, cc);
+            questionCountMap.put(cid, qc);
+        }
+
+        List<Map<String, Object>> result = courses.stream().map(course -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("courseId", course.getId());
             item.put("courseTitle", course.getTitle());
             item.put("courseCover", course.getCover());
             item.put("price", course.getPrice());
-
-            // 统计章节数
-            long chapterCount = chapterService.lambdaQuery()
-                    .eq(Chapter::getCourseId, courseId)
-                    .count();
-            item.put("chapterCount", chapterCount);
-
-            // 统计题目总数
-            long questionCount = questionService.lambdaQuery()
-                    .eq(Question::getCourseId, courseId)
-                    .eq(Question::getStatus, 1)
-                    .count();
-            item.put("questionCount", questionCount);
-
+            item.put("chapterCount", chapterCountMap.getOrDefault(course.getId(), 0L));
+            item.put("questionCount", questionCountMap.getOrDefault(course.getId(), 0L));
             return item;
-        }).filter(item -> item != null).collect(Collectors.toList());
+        }).collect(Collectors.toList());
 
         return Result.ok(result);
     }
