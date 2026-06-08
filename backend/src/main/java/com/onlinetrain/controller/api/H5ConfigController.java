@@ -46,15 +46,4 @@ public class H5ConfigController {
         return Result.ok(result);
     }
 
-    @GetMapping("/{key}")
-    @ApiOperation("获取指定配置项")
-    public Result<SystemConfig> getConfig(@PathVariable String key) {
-        SystemConfig config = systemConfigService.lambdaQuery()
-                .eq(SystemConfig::getConfigKey, key)
-                .one();
-        if (config == null) {
-            return Result.notFound("配置不存在");
-        }
-        return Result.ok(config);
-    }
 }
