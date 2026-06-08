@@ -26,7 +26,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast, showConfirmDialog } from 'vant'
+import { showToast, showConfirmDialog, showDialog } from 'vant'
 import { get, post } from '../../api'
 import QuestionViewer from '../../components/QuestionViewer.vue'
 
@@ -48,15 +48,18 @@ async function fetchQuestions() {
       viewerRef.value?.initAnswers(questions.value)
     }
   } catch (e) {
-    questions.value = [
-      { id: 1, content: 'Spring Boot的默认配置文件是什么？', type: 'SINGLE',
-        options: ['application.xml', 'application.properties', 'config.yml', 'settings.xml'], answer: 1 },
-      { id: 2, content: '以下哪些是Spring Boot的特性？', type: 'MULTIPLE',
-        options: ['自动配置', '起步依赖', 'Actuator监控', 'XML配置'], answer: [0, 1, 2] },
-      { id: 3, content: 'Spring Boot只能用于Web开发', type: 'JUDGE', answer: false },
-      { id: 4, content: '请简述Spring Boot的自动配置原理', type: 'ESSAY', answer: '' }
-    ]
-    viewerRef.value?.initAnswers(questions.value)
+    const msg = (e && e.response && e.response.data && e.response.data.message)
+      || (e && e.message)
+      || '获取练习题失败'
+    showDialog({
+      title: '提示',
+      message: msg,
+      confirmButtonText: '返回',
+      confirmButtonColor: '#0052D9',
+      theme: 'round-button'
+    }).then(() => {
+      router.back()
+    })
   }
 }
 

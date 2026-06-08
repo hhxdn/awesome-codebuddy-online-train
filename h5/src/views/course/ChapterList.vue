@@ -63,6 +63,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { showDialog } from 'vant'
 import { get } from '../../api'
 import EmptyState from '../../components/EmptyState.vue'
 
@@ -100,7 +101,29 @@ function goVideo(chapter) {
   router.push('/video/' + chapter.id)
 }
 
-function goPractice(chapter) {
+async function goPractice(chapter) {
+  try {
+    const res = await get('/courses/' + courseId + '/exercise-access')
+    if (!res.data || !res.data.hasExerciseAccess) {
+      showDialog({
+        title: '练习权限未开通',
+        message: '您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习。',
+        confirmButtonText: '我知道了',
+        confirmButtonColor: '#0052D9',
+        theme: 'round-button'
+      })
+      return
+    }
+  } catch (e) {
+    showDialog({
+      title: '练习权限未开通',
+      message: '您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习。',
+      confirmButtonText: '我知道了',
+      confirmButtonColor: '#0052D9',
+      theme: 'round-button'
+    })
+    return
+  }
   router.push('/practice/' + chapter.id)
 }
 

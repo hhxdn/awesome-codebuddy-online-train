@@ -33,8 +33,18 @@
       </div>
     </div>
 
+    <!-- No Exercise Access -->
+    <div v-if="!hasExerciseAccess" class="empty-state">
+      <van-icon name="lock" size="56" color="#E34D59" />
+      <p class="empty-title">练习权限未开通</p>
+      <p class="empty-desc">您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习</p>
+      <van-button round plain type="primary" size="small" @click="$router.back()">
+        返回
+      </van-button>
+    </div>
+
     <!-- Empty State -->
-    <div v-if="totalCount === 0" class="empty-state">
+    <div v-else-if="totalCount === 0" class="empty-state">
       <van-icon name="notes-o" size="56" color="#C9CDD4" />
       <p class="empty-title">该章节暂无练习题</p>
       <p class="empty-desc">练习题正在紧急筹备中，请先学习其他章节</p>
@@ -92,19 +102,37 @@ const totalCount = ref(0)
 const bestScore = ref(0)
 const practiceCount = ref(0)
 const historyList = ref([])
+const hasExerciseAccess = ref(true)
 
 async function fetchData() {
+  // 先检查练习题权限
   try {
-    const res = await get('/chapters/' + chapterId)
-    if (res.data) chapter.value = res.data
+    const chRes = await get('/chapters/' + chapterId)
+    if (chRes.data) {
+      chapter.value = chRes.data
+      // 用课程的 exercise-access 接口检查权限
+      const courseId = chRes.data.courseId
+      if (courseId) {
+        try {
+          const accessRes = await get('/courses/' + courseId + '/exercise-access')
+          hasExerciseAccess.value = accessRes.data && accessRes.data.hasExerciseAccess
+        } catch (e) {
+          hasExerciseAccess.value = false
+        }
+      }
+    }
   } catch (e) {
-    chapter.value = { id: chapterId, title: '第一章：Spring Boot入门' }
+    chapter.value = { id: chapterId, title: '未知章节' }
+    hasExerciseAccess.value = false
   }
+
+  // 无权限则不加载统计数据
+  if (!hasExerciseAccess.value) return
 
   try {
     const res = await get('/chapters/' + chapterId + '/practice/stats')
     if (res.data) {
-      totalCount.value = res.data.totalCount || 10
+      totalCount.value = res.data.totalCount || 0
       bestScore.value = res.data.bestScore || 0
       practiceCount.value = res.data.practiceCount || 0
       historyList.value = res.data.records || []

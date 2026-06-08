@@ -225,7 +225,7 @@ function goChapter(ch) {
   if (isPaid.value && !purchased.value) { showToast('请先购买课程'); return }
   router.push('/video/' + ch.id)
 }
-function goPractice(ch) {
+async function goPractice(ch) {
   // 未购买付费课程 → 跳转报名学习
   if (isPaid.value && !purchased.value) {
     router.push('/enroll')
@@ -236,6 +236,29 @@ function goPractice(ch) {
     showDialog({
       title: '暂无练习题',
       message: '该章节还没有配置练习题，请联系管理员添加题目后再来练习。',
+      confirmButtonText: '我知道了',
+      confirmButtonColor: '#0052D9',
+      theme: 'round-button'
+    })
+    return
+  }
+  // 检查练习题权限
+  try {
+    const res = await get('/courses/' + courseId + '/exercise-access')
+    if (!res.data || !res.data.hasExerciseAccess) {
+      showDialog({
+        title: '练习权限未开通',
+        message: '您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习。',
+        confirmButtonText: '我知道了',
+        confirmButtonColor: '#0052D9',
+        theme: 'round-button'
+      })
+      return
+    }
+  } catch (e) {
+    showDialog({
+      title: '练习权限未开通',
+      message: '您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习。',
       confirmButtonText: '我知道了',
       confirmButtonColor: '#0052D9',
       theme: 'round-button'
