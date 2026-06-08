@@ -22,11 +22,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * H5课程控制器
@@ -53,9 +56,6 @@ public class H5CourseController {
 
     @Autowired
     private StudentExerciseAccessService exerciseAccessService;
-
-    @Autowired
-    private QuestionService questionService;
 
     /**
      * 课程列表（带筛选）
@@ -232,7 +232,7 @@ public class H5CourseController {
                 .list();
 
         if (accessList.isEmpty()) {
-            return Result.ok(List.of());
+            return Result.ok(Collections.emptyList());
         }
 
         List<Map<String, Object>> result = accessList.stream().map(access -> {
@@ -260,7 +260,7 @@ public class H5CourseController {
             item.put("questionCount", questionCount);
 
             return item;
-        }).filter(item -> item != null).toList();
+        }).filter(item -> item != null).collect(Collectors.toList());
 
         return Result.ok(result);
     }
