@@ -47,9 +47,8 @@ request.interceptors.response.use(
       handleAuthExpired(res.message || '登录已过期，请重新登录')
       return Promise.reject(new Error(res.message || '登录已过期'))
     }
-    // 业务错误码（非 200 非 0）
+    // 业务错误码（非 200 非 0）— 不在此处弹Toast，交给业务页面自行处理
     if (res.code !== undefined && res.code !== 200 && res.code !== 0) {
-      showToast(res.message || '请求失败')
       return Promise.reject(new Error(res.message || '请求失败'))
     }
     return res

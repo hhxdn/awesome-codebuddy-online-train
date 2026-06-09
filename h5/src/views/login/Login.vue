@@ -142,7 +142,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showDialog } from 'vant'
 import { setToken, setUser } from '../../utils/auth'
 import { post } from '../../api'
 
@@ -217,7 +217,9 @@ async function onRegister() {
       showToast('注册成功')
       router.replace('/')
     } else { showToast(res.message || '注册失败') }
-  } catch (e) { showToast(e.message || '注册失败') }
+  } catch (e) {
+    showDialog({ title: '注册失败', message: e.message || '请稍后重试', confirmButtonText: '知道了' })
+  }
   loading.value = false
 }
 </script>
