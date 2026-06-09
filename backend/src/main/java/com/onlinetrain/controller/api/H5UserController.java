@@ -85,7 +85,7 @@ public class H5UserController {
     }
 
     /**
-     * 用户注册（简化：手机号+密码+真实姓名，直接通过审核）
+     * 用户注册（手机号+密码+姓名+性别+学历+年龄+专业+联系电话）
      */
     @PostMapping("/register")
     @ApiOperation("用户注册")
@@ -94,7 +94,13 @@ public class H5UserController {
         String password = params.get("password");
         String confirmPassword = params.get("confirmPassword");
         String realName = params.get("realName");
+        String gender = params.get("gender");
+        String ageStr = params.get("age");
+        String education = params.get("education");
+        String major = params.get("major");
+        String contactPhone = params.get("contactPhone") != null ? params.get("contactPhone") : phone;
 
+        // 基本校验
         if (phone == null || phone.isEmpty()) {
             return Result.error("手机号不能为空");
         }
@@ -108,6 +114,23 @@ public class H5UserController {
             return Result.error("两次输入的密码不一致");
         }
 
+        // 信息完整性校验
+        if (realName == null || realName.isEmpty()) {
+            return Result.error("请输入真实姓名");
+        }
+        if (gender == null || gender.isEmpty()) {
+            return Result.error("请选择性别");
+        }
+        if (ageStr == null || ageStr.isEmpty()) {
+            return Result.error("请输入年龄");
+        }
+        if (education == null || education.isEmpty()) {
+            return Result.error("请选择学历");
+        }
+        if (major == null || major.isEmpty()) {
+            return Result.error("请输入专业");
+        }
+
         User existUser = userService.lambdaQuery().eq(User::getPhone, phone).one();
         if (existUser != null) {
             return Result.error("该手机号已注册，请直接登录");
@@ -116,11 +139,16 @@ public class H5UserController {
         User user = new User();
         user.setPhone(phone);
         user.setPassword(passwordEncoder.encode(password));
-        user.setRealName(realName != null ? realName : ("用户" + phone.substring(Math.max(0, phone.length() - 4))));
-        user.setNickname(user.getRealName());
+        user.setRealName(realName);
+        user.setNickname(realName);
+        user.setGender(gender);
+        user.setEducation(education);
+        user.setMajor(major);
+        // contactPhone如果与注册手机号不同则保存到phone字段
+        try { user.setAge(Integer.parseInt(ageStr)); } catch (NumberFormatException e) { user.setAge(null); }
         user.setRole("STUDENT");
         user.setStatus(1);
-        user.setApprovalStatus("APPROVED");  // 直接通过，无需审核
+        user.setApprovalStatus("APPROVED");
         user.setRegisterTime(LocalDateTime.now());
         userService.save(user);
 

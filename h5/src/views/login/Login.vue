@@ -59,6 +59,45 @@
               :rules="[{ required: true, message: '请输入手机号' }, { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确' }]"
             />
             <van-field
+              v-model="registerForm.realName" name="realName"
+              placeholder="真实姓名"
+              left-icon="user-o"
+              :rules="[{ required: true, message: '请输入真实姓名' }]"
+            />
+            <van-field
+              v-model="registerForm.gender"
+              name="gender"
+              placeholder="请选择性别"
+              left-icon="friends-o"
+              :rules="[{ required: true, message: '请选择性别' }]"
+              is-link readonly
+              @click="showGenderPicker = true"
+            />
+            <van-field
+              v-model="registerForm.age"
+              name="age"
+              type="digit"
+              placeholder="年龄"
+              left-icon="birthday-cake-o"
+              :rules="[{ required: true, message: '请输入年龄' }]"
+            />
+            <van-field
+              v-model="registerForm.education"
+              name="education"
+              placeholder="请选择学历"
+              left-icon="certificate"
+              :rules="[{ required: true, message: '请选择学历' }]"
+              is-link readonly
+              @click="showEducationPicker = true"
+            />
+            <van-field
+              v-model="registerForm.major"
+              name="major"
+              placeholder="专业"
+              left-icon="bookmark-o"
+              :rules="[{ required: true, message: '请输入专业' }]"
+            />
+            <van-field
               v-model="registerForm.password" name="password" type="password"
               placeholder="设置密码（至少6位）"
               left-icon="lock"
@@ -79,6 +118,24 @@
         </van-form>
       </div>
 
+      <!-- 性别选择器 -->
+      <van-popup v-model:show="showGenderPicker" position="bottom" round>
+        <van-picker
+          :columns="genderColumns"
+          @confirm="onGenderConfirm"
+          @cancel="showGenderPicker = false"
+        />
+      </van-popup>
+
+      <!-- 学历选择器 -->
+      <van-popup v-model:show="showEducationPicker" position="bottom" round>
+        <van-picker
+          :columns="educationColumns"
+          @confirm="onEducationConfirm"
+          @cancel="showEducationPicker = false"
+        />
+      </van-popup>
+
       <p class="login-agreement">登录即表示同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></p>
     </div>
   </div>
@@ -94,13 +151,42 @@ import { post } from '../../api'
 const router = useRouter()
 const activeTab = ref('login')
 const loading = ref(false)
+const showGenderPicker = ref(false)
+const showEducationPicker = ref(false)
 
 const loginForm = reactive({ phone: '', password: '' })
-const registerForm = reactive({ phone: '', realName: '', password: '', confirmPassword: '' })
+const registerForm = reactive({
+  phone: '', realName: '', gender: '', age: '', education: '', major: '',
+  password: '', confirmPassword: ''
+})
+
+const genderColumns = ['男', '女']
+const educationColumns = ['高中', '中专', '大专', '本科', '硕士', '博士', '其他']
 
 function switchTab(tab) { activeTab.value = tab }
 function pwdValidator(val) { return val.length >= 6 }
 function cpwdValidator(val) { return val === registerForm.password }
+
+function onGenderConfirm(value) {
+  if (value && value.selectedOptions) {
+    registerForm.gender = value.selectedOptions[0].text
+  } else if (typeof value === 'string') {
+    registerForm.gender = value
+  } else if (value && value.text) {
+    registerForm.gender = value.text
+  }
+  showGenderPicker.value = false
+}
+function onEducationConfirm(value) {
+  if (value && value.selectedOptions) {
+    registerForm.education = value.selectedOptions[0].text
+  } else if (typeof value === 'string') {
+    registerForm.education = value
+  } else if (value && value.text) {
+    registerForm.education = value.text
+  }
+  showEducationPicker.value = false
+}
 
 async function onLogin() {
   loading.value = true
@@ -124,12 +210,18 @@ async function onLogin() {
 async function onRegister() {
   if (registerForm.password !== registerForm.confirmPassword) { showToast('两次密码不一致'); return }
   if (registerForm.password.length < 6) { showToast('密码至少6位'); return }
-  if (!registerForm.realName) { showToast('请输入真实姓名'); return }
   loading.value = true
   try {
     const res = await post('/user/register', {
-      phone: registerForm.phone, realName: registerForm.realName,
-      password: registerForm.password, confirmPassword: registerForm.confirmPassword
+      phone: registerForm.phone,
+      realName: registerForm.realName,
+      gender: registerForm.gender,
+      age: registerForm.age,
+      education: registerForm.education,
+      major: registerForm.major,
+      contactPhone: registerForm.phone,
+      password: registerForm.password,
+      confirmPassword: registerForm.confirmPassword
     })
     if (res.data?.token) {
       setToken(res.data.token); setUser(res.data.user)

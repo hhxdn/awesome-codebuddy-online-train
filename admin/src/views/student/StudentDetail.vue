@@ -13,9 +13,19 @@
         </el-col>
         <el-col :span="20">
           <el-descriptions :column="3" border>
+            <el-descriptions-item label="姓名">{{ student.realName || '-' }}</el-descriptions-item>
             <el-descriptions-item label="手机号">{{ student.phone || '-' }}</el-descriptions-item>
             <el-descriptions-item label="注册时间">{{ student.registerTime || '-' }}</el-descriptions-item>
+            <el-descriptions-item label="性别">{{ student.gender || '-' }}</el-descriptions-item>
+            <el-descriptions-item label="年龄">{{ student.age || '-' }}</el-descriptions-item>
+            <el-descriptions-item label="学历">{{ student.education || '-' }}</el-descriptions-item>
+            <el-descriptions-item label="专业">{{ student.major || '-' }}</el-descriptions-item>
             <el-descriptions-item label="总学习时长">{{ formatDuration(student.totalStudyDuration || 0) }}</el-descriptions-item>
+            <el-descriptions-item label="审核状态">
+              <el-tag :type="student.approvalStatus === 'APPROVED' ? 'success' : student.approvalStatus === 'PENDING' ? 'warning' : 'danger'" size="small">
+                {{ student.approvalStatus === 'APPROVED' ? '已通过' : student.approvalStatus === 'PENDING' ? '待审核' : '已拒绝' }}
+              </el-tag>
+            </el-descriptions-item>
           </el-descriptions>
         </el-col>
       </el-row>
