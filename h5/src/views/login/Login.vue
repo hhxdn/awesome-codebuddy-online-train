@@ -70,8 +70,8 @@
               placeholder="请选择性别"
               left-icon="friends-o"
               :rules="[{ required: true, message: '请选择性别' }]"
-              is-link readonly
-              @click="showGenderPicker = true"
+              is-link readonly clickable
+              @click-input="showGenderPicker = true"
             />
             <van-field
               v-model="registerForm.age"
@@ -87,8 +87,8 @@
               placeholder="请选择学历"
               left-icon="certificate"
               :rules="[{ required: true, message: '请选择学历' }]"
-              is-link readonly
-              @click="showEducationPicker = true"
+              is-link readonly clickable
+              @click-input="showEducationPicker = true"
             />
             <van-field
               v-model="registerForm.major"
@@ -118,23 +118,21 @@
         </van-form>
       </div>
 
-      <!-- 性别选择器 -->
-      <van-popup v-model:show="showGenderPicker" position="bottom" round>
-        <van-picker
-          :columns="genderColumns"
-          @confirm="onGenderConfirm"
-          @cancel="showGenderPicker = false"
-        />
-      </van-popup>
+      <!-- 性别选择 -->
+      <van-action-sheet
+        v-model:show="showGenderPicker"
+        :actions="genderActions"
+        @select="onGenderSelect"
+        cancel-text="取消"
+      />
 
-      <!-- 学历选择器 -->
-      <van-popup v-model:show="showEducationPicker" position="bottom" round>
-        <van-picker
-          :columns="educationColumns"
-          @confirm="onEducationConfirm"
-          @cancel="showEducationPicker = false"
-        />
-      </van-popup>
+      <!-- 学历选择 -->
+      <van-action-sheet
+        v-model:show="showEducationPicker"
+        :actions="educationActions"
+        @select="onEducationSelect"
+        cancel-text="取消"
+      />
 
       <p class="login-agreement">登录即表示同意 <a href="#">用户协议</a> 和 <a href="#">隐私政策</a></p>
     </div>
@@ -160,31 +158,22 @@ const registerForm = reactive({
   password: '', confirmPassword: ''
 })
 
-const genderColumns = ['男', '女']
-const educationColumns = ['高中', '中专', '大专', '本科', '硕士', '博士', '其他']
+const genderActions = [{ name: '男' }, { name: '女' }]
+const educationActions = [
+  { name: '高中' }, { name: '中专' }, { name: '大专' },
+  { name: '本科' }, { name: '硕士' }, { name: '博士' }, { name: '其他' }
+]
 
 function switchTab(tab) { activeTab.value = tab }
 function pwdValidator(val) { return val.length >= 6 }
 function cpwdValidator(val) { return val === registerForm.password }
 
-function onGenderConfirm(value) {
-  if (value && value.selectedOptions) {
-    registerForm.gender = value.selectedOptions[0].text
-  } else if (typeof value === 'string') {
-    registerForm.gender = value
-  } else if (value && value.text) {
-    registerForm.gender = value.text
-  }
+function onGenderSelect(action) {
+  registerForm.gender = action.name
   showGenderPicker.value = false
 }
-function onEducationConfirm(value) {
-  if (value && value.selectedOptions) {
-    registerForm.education = value.selectedOptions[0].text
-  } else if (typeof value === 'string') {
-    registerForm.education = value
-  } else if (value && value.text) {
-    registerForm.education = value.text
-  }
+function onEducationSelect(action) {
+  registerForm.education = action.name
   showEducationPicker.value = false
 }
 
