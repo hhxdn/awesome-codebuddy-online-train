@@ -21,14 +21,14 @@
         </el-form-item>
       </el-form>
 
-      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+      <div class="import-actions">
         <el-button type="primary" @click="downloadTemplate">下载Excel模板</el-button>
         <el-upload
           :auto-upload="false"
           :on-change="handleFileChange"
           :limit="1"
           accept=".xlsx,.xls"
-          style="display: inline-block;"
+          class="upload-inline"
         >
           <el-button type="success">选择Excel文件</el-button>
         </el-upload>
@@ -37,7 +37,7 @@
           :on-change="handleWordFileChange"
           :limit="1"
           accept=".docx"
-          style="display: inline-block;"
+          class="upload-inline"
         >
           <el-button type="warning">选择Word文件</el-button>
         </el-upload>
@@ -69,9 +69,9 @@ B. 选项B
         </div>
         <el-table :data="previewData" border stripe max-height="400">
           <el-table-column type="index" label="#" width="50" />
-          <el-table-column label="题型" width="70">
+          <el-table-column label="题型" width="80">
             <template #default="{ row }">
-              <el-tag size="small" :type="tagType(row.type)">{{ row.type }}</el-tag>
+              <el-tag size="small" :type="tagType(row.type)">{{ typeLabel(row.type) }}</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="content" label="题目内容" min-width="200" show-overflow-tooltip />
@@ -84,16 +84,50 @@ B. 选项B
               <span v-else>-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="answer" label="答案" width="80" show-overflow-tooltip />
+          <el-table-column label="答案" width="80" show-overflow-tooltip>
+            <template #default="{ row }">
+              {{ answerLabel(row) }}
+            </template>
+          </el-table-column>
           <el-table-column prop="difficulty" label="难度" width="70">
             <template #default="{ row }">
               <el-tag v-if="row.difficulty" size="small" :type="difficultyTag(row.difficulty)">{{ row.difficulty }}</el-tag>
               <span v-else>-</span>
             </template>
           </el-table-column>
+          <el-table-column label="操作" width="70" fixed="right">
+            <template #default="{ row, $index }">
+              <el-button type="primary" link size="small" @click="previewQuestion(row, $index)">预览</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </el-card>
+
+    <!-- 题目预览弹窗 -->
+    <el-dialog v-model="previewVisible" title="题目预览" width="650px" destroy-on-close>
+      <template v-if="previewItem">
+        <el-descriptions :column="1" border size="small">
+          <el-descriptions-item label="题型">
+            <el-tag size="small" :type="tagType(previewItem.type)">{{ typeLabel(previewItem.type) }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="分值">{{ previewItem.score }}</el-descriptions-item>
+          <el-descriptions-item label="难度" v-if="previewItem.difficulty">
+            <el-tag size="small" :type="difficultyTag(previewItem.difficulty)">{{ previewItem.difficulty }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="题目内容">{{ previewItem.content }}</el-descriptions-item>
+          <el-descriptions-item label="选项" v-if="previewItem.options && previewItem.options.length > 0">
+            <div v-for="opt in previewItem.options" :key="opt.optionLabel" style="margin-bottom: 4px;">
+              <el-tag size="small" :type="opt.isCorrect ? 'success' : 'info'" style="margin-right: 6px;">{{ opt.optionLabel }}</el-tag>
+              {{ opt.content }}
+              <el-tag v-if="opt.isCorrect" size="small" type="success" style="margin-left: 6px;">正确</el-tag>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item label="答案">{{ answerLabel(previewItem) }}</el-descriptions-item>
+          <el-descriptions-item label="解析" v-if="previewItem.analysis">{{ previewItem.analysis }}</el-descriptions-item>
+        </el-descriptions>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,8 +145,15 @@ const courseId = ref(null)
 const chapterId = ref(null)
 const previewData = ref([])
 const importMode = ref('')  // 'excel' or 'word'
+const previewVisible = ref(false)
+const previewItem = ref(null)
 
 const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+
+function typeLabel(type) {
+  const map = { SINGLE: '单选', MULTIPLE: '多选', JUDGE: '判断', ESSAY: '简答' }
+  return map[type] || type
+}
 
 function tagType(type) {
   const map = { SINGLE: '', MULTIPLE: 'success', JUDGE: 'warning', ESSAY: 'danger' }
@@ -122,6 +163,20 @@ function tagType(type) {
 function difficultyTag(d) {
   const map = { '简单': 'success', '中等': 'warning', '困难': 'danger' }
   return map[d] || 'info'
+}
+
+function answerLabel(row) {
+  if (row.type === 'JUDGE') {
+    return row.answer === true || row.answer === 'true' ? '正确' : '错误'
+  }
+  if (row.answer === true) return '正确'
+  if (row.answer === false) return '错误'
+  return row.answer || '-'
+}
+
+function previewQuestion(row, index) {
+  previewItem.value = { ...row }
+  previewVisible.value = true
 }
 
 async function fetchCourses() {
@@ -282,3 +337,21 @@ onMounted(() => {
   fetchCourses()
 })
 </script>
+
+<style scoped>
+.import-actions {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.upload-inline {
+  display: inline-flex;
+  align-items: center;
+}
+.upload-inline :deep(.el-upload) {
+  display: inline-flex;
+  align-items: center;
+}
+</style>
