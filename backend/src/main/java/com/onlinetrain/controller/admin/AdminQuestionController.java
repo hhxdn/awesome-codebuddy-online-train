@@ -15,12 +15,16 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -289,21 +293,242 @@ public class AdminQuestionController {
                 q.setContent(qMap.get("content") != null ? qMap.get("content").toString() : "");
                 q.setType(qMap.get("type") != null ? qMap.get("type").toString() : "SINGLE");
                 q.setAnswer(qMap.get("answer") != null ? qMap.get("answer").toString() : null);
+                q.setAnalysis(qMap.get("analysis") != null ? qMap.get("analysis").toString() : null);
+                q.setDifficulty(qMap.get("difficulty") != null ? qMap.get("difficulty").toString() : null);
                 q.setScore(qMap.get("score") != null ? Integer.parseInt(qMap.get("score").toString()) : 1);
                 q.setStatus(1);
                 questionService.save(q);
 
                 if (qMap.get("options") instanceof List) {
-                    List<String> options = (List<String>) qMap.get("options");
-                    String[] labels = {"A", "B", "C", "D", "E", "F"};
-                    for (int i = 0; i < options.size() && i < labels.length; i++) {
-                        saveOption(q.getId(), labels[i], options.get(i), labels[i].equals(qMap.get("answer")));
+                    List<?> options = (List<?>) qMap.get("options");
+                    if (!options.isEmpty()) {
+                        // 判断是结构化Map选项还是纯字符串选项
+                        Object first = options.get(0);
+                        if (first instanceof Map) {
+                            @SuppressWarnings("unchecked")
+                            List<Map<String, Object>> structOpts = (List<Map<String, Object>>) options;
+                            for (Map<String, Object> optMap : structOpts) {
+                                String label = optMap.get("optionLabel") != null ? optMap.get("optionLabel").toString() : "";
+                                String content = optMap.get("content") != null ? optMap.get("content").toString() : "";
+                                if (!content.isEmpty()) {
+                                    boolean correct = optMap.get("isCorrect") != null
+                                            && (Boolean.parseBoolean(optMap.get("isCorrect").toString())
+                                            || "1".equals(optMap.get("isCorrect").toString())
+                                            || "true".equalsIgnoreCase(optMap.get("isCorrect").toString()));
+                                    saveOption(q.getId(), label, content, correct);
+                                }
+                            }
+                        } else {
+                            // 纯字符串列表（旧Excel模式）
+                            @SuppressWarnings("unchecked")
+                            List<String> strOpts = (List<String>) options;
+                            String[] labels = {"A", "B", "C", "D", "E", "F"};
+                            for (int i = 0; i < strOpts.size() && i < labels.length; i++) {
+                                saveOption(q.getId(), labels[i], strOpts.get(i), labels[i].equals(q.get("answer")));
+                            }
+                        }
                     }
                 }
                 importedCount++;
             } catch (Exception ignored) {}
         }
         return Result.ok("成功导入" + importedCount + "道题目", importedCount);
+    }
+
+    /**
+     * Word(.docx)批量导入
+     * 格式示例:
+     * 10. (知识点) 题目内容？（ ）
+     * A. 选项A
+     * B. 选项B
+     * 答案：ABC
+     * 解析：解析内容
+     * 难度：困难
+     */
+    @PostMapping("/questions/import-word")
+    @ApiOperation("Word批量导入")
+    public Result<Map<String, Object>> importWord(@RequestParam("file") MultipartFile file,
+                                                   @RequestParam(required = false) Long courseId,
+                                                   @RequestParam(required = false) Long chapterId,
+                                                   @RequestParam(defaultValue = "false") Boolean previewOnly) {
+        try (InputStream is = file.getInputStream();
+             XWPFDocument doc = new XWPFDocument(is)) {
+
+            // 提取所有段落文本
+            List<String> lines = new ArrayList<>();
+            for (XWPFParagraph para : doc.getParagraphs()) {
+                String text = para.getText().trim();
+                if (!text.isEmpty()) {
+                    lines.add(text);
+                } else if (!lines.isEmpty() && !lines.get(lines.size() - 1).isEmpty()) {
+                    lines.add("");  // 保留空行作为分隔
+                }
+            }
+
+            // 按空行分割成题目块
+            List<List<String>> blocks = new ArrayList<>();
+            List<String> currentBlock = new ArrayList<>();
+            for (String line : lines) {
+                if (line.isEmpty() && !currentBlock.isEmpty()) {
+                    blocks.add(new ArrayList<>(currentBlock));
+                    currentBlock.clear();
+                } else if (!line.isEmpty()) {
+                    currentBlock.add(line);
+                }
+            }
+            if (!currentBlock.isEmpty()) {
+                blocks.add(currentBlock);
+            }
+
+            List<Map<String, Object>> parsedQuestions = new ArrayList<>();
+            int errors = 0;
+
+            for (List<String> block : blocks) {
+                try {
+                    Map<String, Object> parsed = parseQuestionBlock(block);
+                    if (parsed != null) {
+                        parsedQuestions.add(parsed);
+                    } else {
+                        errors++;
+                    }
+                } catch (Exception e) {
+                    errors++;
+                }
+            }
+
+            // 如果是预览模式，直接返回解析结果
+            if (previewOnly) {
+                Map<String, Object> result = new HashMap<>();
+                result.put("total", parsedQuestions.size());
+                result.put("errors", errors);
+                result.put("preview", parsedQuestions);
+                return Result.ok("解析成功，共" + parsedQuestions.size() + "道题目", result);
+            }
+
+            // 导入题目
+            int importedCount = 0;
+            for (Map<String, Object> qMap : parsedQuestions) {
+                try {
+                    Question q = new Question();
+                    q.setCourseId(courseId);
+                    q.setChapterId(chapterId);
+                    q.setContent(qMap.get("content") != null ? qMap.get("content").toString() : "");
+                    q.setType(qMap.get("type") != null ? qMap.get("type").toString() : "SINGLE");
+                    q.setAnswer(qMap.get("answer") != null ? qMap.get("answer").toString() : null);
+                    q.setAnalysis(qMap.get("analysis") != null ? qMap.get("analysis").toString() : null);
+                    q.setDifficulty(qMap.get("difficulty") != null ? qMap.get("difficulty").toString() : null);
+                    q.setScore(qMap.get("score") != null ? Integer.parseInt(qMap.get("score").toString()) : 5);
+                    q.setStatus(1);
+                    questionService.save(q);
+
+                    // 保存选项
+                    if (qMap.get("options") instanceof List) {
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> options = (List<Map<String, Object>>) qMap.get("options");
+                        String answer = (String) qMap.get("answer");
+                        for (Map<String, Object> opt : options) {
+                            String label = (String) opt.get("label");
+                            String content = (String) opt.get("content");
+                            if (content != null && !content.isEmpty()) {
+                                boolean correct = answer != null && answer.contains(label);
+                                saveOption(q.getId(), label, content, correct);
+                            }
+                        }
+                    }
+                    importedCount++;
+                } catch (Exception ignored) {}
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("imported", importedCount);
+            result.put("total", parsedQuestions.size());
+            result.put("errors", errors);
+            result.put("preview", parsedQuestions);
+            return Result.ok("成功导入" + importedCount + "道题目", result);
+        } catch (Exception e) {
+            return Result.error("导入失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 解析单个题目块
+     */
+    private Map<String, Object> parseQuestionBlock(List<String> lines) {
+        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> options = new ArrayList<>();
+
+        String questionLine = null;
+        String answer = null;
+        String analysis = null;
+        String difficulty = null;
+        int optionStartIdx = -1;
+
+        // Pattern for matching option lines: "A. xxx" or "A．xxx" or "A、xxx"
+        Pattern optionPattern = Pattern.compile("^([A-H])\\s*[.．、]\\s*(.+)");
+        Pattern answerPattern = Pattern.compile("^答案[：:]\\s*(.+)");
+        Pattern analysisPattern = Pattern.compile("^解析[：:]\\s*(.+)");
+        Pattern difficultyPattern = Pattern.compile("^难度[：:]\\s*(.+)");
+
+        for (int i = 0; i < lines.size(); i++) {
+            String line = lines.get(i).trim();
+
+            Matcher am = answerPattern.matcher(line);
+            if (am.find()) {
+                answer = am.group(1).trim();
+                continue;
+            }
+
+            Matcher anm = analysisPattern.matcher(line);
+            if (anm.find()) {
+                analysis = anm.group(1).trim();
+                continue;
+            }
+
+            Matcher dm = difficultyPattern.matcher(line);
+            if (dm.find()) {
+                difficulty = dm.group(1).trim();
+                continue;
+            }
+
+            Matcher om = optionPattern.matcher(line);
+            if (om.find()) {
+                if (optionStartIdx < 0) optionStartIdx = i;
+                Map<String, Object> opt = new HashMap<>();
+                opt.put("label", om.group(1));
+                opt.put("content", om.group(2).trim());
+                options.add(opt);
+                continue;
+            }
+
+            // 如果不是以上任何特殊行，且还没找到选项，那就是题目行
+            if (optionStartIdx < 0) {
+                questionLine = line;
+            }
+        }
+
+        if (questionLine == null || questionLine.isEmpty()) return null;
+
+        // 清理题目行：去掉前面的题号
+        String content = questionLine.replaceFirst("^\\d+\\s*[.．、]?\\s*", "");
+        // 去掉后面可能的知识点括号
+        content = content.replaceFirst("^\\([^)]*\\)\\s*", "");
+        // 去掉末尾的（ ）
+        content = content.replaceAll("[（(]\\s*[）)]$", "").trim();
+
+        if (content.isEmpty()) return null;
+
+        // 判断题型：答案包含多个字母为多选
+        String type = (answer != null && answer.length() > 1 && answer.matches("[A-H]+")) ? "MULTIPLE" : "SINGLE";
+
+        result.put("content", content);
+        result.put("type", type);
+        result.put("answer", answer);
+        result.put("analysis", analysis);
+        result.put("difficulty", difficulty);
+        result.put("options", options);
+        result.put("score", 5);
+
+        return result;
     }
 
     private String getCellValue(Row row, int index) {

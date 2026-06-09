@@ -21,27 +21,45 @@
         </el-form-item>
       </el-form>
 
-      <div style="margin-bottom: 16px;">
-        <el-button type="primary" @click="downloadTemplate">下载模板</el-button>
+      <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+        <el-button type="primary" @click="downloadTemplate">下载Excel模板</el-button>
         <el-upload
           :auto-upload="false"
           :on-change="handleFileChange"
           :limit="1"
           accept=".xlsx,.xls"
-          style="display: inline-block; margin-left: 10px;"
+          style="display: inline-block;"
         >
           <el-button type="success">选择Excel文件</el-button>
         </el-upload>
+        <el-upload
+          :auto-upload="false"
+          :on-change="handleWordFileChange"
+          :limit="1"
+          accept=".docx"
+          style="display: inline-block;"
+        >
+          <el-button type="warning">选择Word文件</el-button>
+        </el-upload>
+        <el-tag v-if="importMode" size="small" effect="dark" type="warning">
+          {{ importMode === 'excel' ? 'Excel模式' : 'Word模式' }}
+        </el-tag>
       </div>
 
       <el-alert
-        title="模板说明"
+        title="导入说明"
         type="info"
         :closable="false"
         style="margin-bottom: 16px;"
       >
-        <div>模板包含以下列：题型(SINGLE/MULTIPLE/JUDGE/ESSAY)、题目内容、分值、选项A、选项A是否正确、选项B、选项B是否正确... 选项H、选项H是否正确、正确答案(判断/简答)、解析</div>
-        <div>题型说明：SINGLE=单选 MULTIPLE=多选 JUDGE=判断 ESSAY=简答</div>
+        <div><strong>Excel导入：</strong>题型(SINGLE/MULTIPLE/JUDGE/ESSAY)、题目内容、分值、选项A-H及是否正确、正确答案、解析</div>
+        <div><strong>Word导入：</strong>支持以下格式（题目间空行分隔）：</div>
+        <div style="background:#f5f7fa;padding:8px 12px;margin-top:4px;border-radius:4px;font-family:monospace;white-space:pre-wrap;line-height:1.6;">10. (知识点) 题目内容？（ ）
+A. 选项A
+B. 选项B
+答案：ABC
+解析：解析内容
+难度：困难</div>
       </el-alert>
 
       <div v-if="previewData.length > 0" class="card-container">
@@ -66,6 +84,13 @@
               <span v-else>-</span>
             </template>
           </el-table-column>
+          <el-table-column prop="answer" label="答案" width="80" show-overflow-tooltip />
+          <el-table-column prop="difficulty" label="难度" width="70">
+            <template #default="{ row }">
+              <el-tag v-if="row.difficulty" size="small" :type="difficultyTag(row.difficulty)">{{ row.difficulty }}</el-tag>
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </el-card>
@@ -85,12 +110,18 @@ const chapters = ref([])
 const courseId = ref(null)
 const chapterId = ref(null)
 const previewData = ref([])
+const importMode = ref('')  // 'excel' or 'word'
 
 const optionLabels = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
 function tagType(type) {
   const map = { SINGLE: '', MULTIPLE: 'success', JUDGE: 'warning', ESSAY: 'danger' }
   return map[type] || 'info'
+}
+
+function difficultyTag(d) {
+  const map = { '简单': 'success', '中等': 'warning', '困难': 'danger' }
+  return map[d] || 'info'
 }
 
 async function fetchCourses() {
@@ -123,6 +154,7 @@ function downloadTemplate() {
 }
 
 function handleFileChange(file) {
+  importMode.value = 'excel'
   const reader = new FileReader()
   reader.onload = (e) => {
     try {
@@ -172,6 +204,46 @@ function handleFileChange(file) {
   reader.readAsArrayBuffer(file.raw)
 }
 
+async function handleWordFileChange(file) {
+  importMode.value = 'word'
+  if (!courseId.value || !chapterId.value) {
+    ElMessage.warning('Word导入需要先选择课程和章节')
+    return
+  }
+  loading.value = true
+  try {
+    const formData = new FormData()
+    formData.append('file', file.raw)
+    if (courseId.value) formData.append('courseId', courseId.value)
+    if (chapterId.value) formData.append('chapterId', chapterId.value)
+    formData.append('previewOnly', 'true')
+
+    const res = await post('/admin/questions/import-word', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+    const data = res.data
+    previewData.value = (data.preview || []).map(item => ({
+      type: item.type,
+      content: item.content,
+      score: item.score || 5,
+      answer: item.answer,
+      analysis: item.analysis,
+      difficulty: item.difficulty,
+      options: (item.options || []).map(opt => ({
+        optionLabel: opt.label,
+        content: opt.content,
+        isCorrect: item.answer && item.answer.includes(opt.label)
+      }))
+    }))
+    ElMessage.success(`解析成功，共 ${previewData.value.length} 条数据`)
+  } catch {
+    previewData.value = []
+    ElMessage.error('Word文件解析失败')
+  } finally {
+    loading.value = false
+  }
+}
+
 async function handleImport() {
   if (!courseId.value || !chapterId.value) {
     ElMessage.warning('请先选择课程和章节')
@@ -179,14 +251,26 @@ async function handleImport() {
   }
   importing.value = true
   try {
-    const data = previewData.value.map(item => ({
-      ...item,
-      courseId: courseId.value,
-      chapterId: chapterId.value
-    }))
-    await post('/admin/questions/batch', { questions: data })
-    ElMessage.success(`成功导入 ${data.length} 道题目`)
+    if (importMode.value === 'word') {
+      // Word模式：直接调用导入接口（已在preview时上传解析过，这里用batch方式回传）
+      const data = previewData.value.map(item => ({
+        ...item,
+        courseId: courseId.value,
+        chapterId: chapterId.value
+      }))
+      await post('/admin/questions/batch', { questions: data })
+    } else {
+      // Excel模式
+      const data = previewData.value.map(item => ({
+        ...item,
+        courseId: courseId.value,
+        chapterId: chapterId.value
+      }))
+      await post('/admin/questions/batch', { questions: data })
+    }
+    ElMessage.success(`成功导入 ${previewData.value.length} 道题目`)
     previewData.value = []
+    importMode.value = ''
   } catch {
     ElMessage.error('导入失败')
   } finally {

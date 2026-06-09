@@ -19,6 +19,7 @@ public class Question {
     private Integer score;
     private String answer;
     private String analysis;
+    private String difficulty;
     private Integer status;
 
     @TableField(fill = FieldFill.INSERT)
