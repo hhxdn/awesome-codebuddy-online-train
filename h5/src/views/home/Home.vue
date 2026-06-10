@@ -211,7 +211,8 @@ async function fetchCategories() {
 async function fetchCourses() {
   loading.value = true
   try {
-    const params = {}
+    // 首页不分页，一次查全量课程
+    const params = { size: 100 }
     // 优先用最深级分类筛选
     const cid = activeL3.value > 0 ? activeL3.value : (activeL2.value > 0 ? activeL2.value : activeL1.value)
     if (cid > 0) params.categoryId = cid
