@@ -75,7 +75,13 @@ public class H5CourseController {
         wrapper.eq(Course::getStatus, "UP");
 
         if (categoryId != null) {
-            wrapper.eq(Course::getCategoryId, categoryId);
+            // 查询该分类及其所有子孙分类的ID，确保上级分类"全部"也能查到子分类下的课程
+            Set<Long> categoryIds = collectDescendantIds(categoryId);
+            if (!categoryIds.isEmpty()) {
+                wrapper.in(Course::getCategoryId, categoryIds);
+            } else {
+                wrapper.eq(Course::getCategoryId, categoryId);
+            }
         }
         if (keyword != null && !keyword.isEmpty()) {
             wrapper.like(Course::getTitle, keyword);
@@ -295,6 +301,33 @@ public class H5CourseController {
         }).collect(Collectors.toList());
 
         return Result.ok(result);
+    }
+
+    /**
+     * 收集指定分类及其所有子孙分类的ID集合
+     */
+    private Set<Long> collectDescendantIds(Long categoryId) {
+        Set<Long> ids = new HashSet<>();
+        ids.add(categoryId);
+
+        List<CourseCategory> allCategories = categoryService.list();
+        // 构建 parentId -> children 映射
+        Map<Long, List<CourseCategory>> childrenMap = allCategories.stream()
+                .filter(c -> c.getParentId() != null)
+                .collect(Collectors.groupingBy(CourseCategory::getParentId));
+
+        // 递归收集
+        collectChildren(categoryId, childrenMap, ids);
+        return ids;
+    }
+
+    private void collectChildren(Long parentId, Map<Long, List<CourseCategory>> childrenMap, Set<Long> ids) {
+        List<CourseCategory> children = childrenMap.get(parentId);
+        if (children == null) return;
+        for (CourseCategory child : children) {
+            ids.add(child.getId());
+            collectChildren(child.getId(), childrenMap, ids);
+        }
     }
 
     private String formatDuration(int seconds) {
