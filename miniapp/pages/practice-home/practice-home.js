@@ -6,7 +6,9 @@ Page({
     chapterId: '',
     chapter: {},
     stats: {},
-    historyList: []
+    historyList: [],
+    hasExerciseAccess: true,
+    loading: true
   },
 
   onLoad(options) {
@@ -16,11 +18,34 @@ Page({
 
   async fetchData() {
     const chapterId = this.data.chapterId
+    this.setData({ loading: true })
 
+    // 先获取章节信息和权限
     try {
-      const res = await app.get('/chapters/' + chapterId)
-      this.setData({ chapter: res.data || {} })
-    } catch (e) {}
+      const chRes = await app.get('/chapters/' + chapterId)
+      const chapter = chRes.data || {}
+      this.setData({ chapter })
+
+      // 检查练习题权限（与 H5 一致）
+      const courseId = chapter.courseId
+      if (courseId) {
+        try {
+          const accessRes = await app.get('/courses/' + courseId + '/exercise-access')
+          const hasAccess = accessRes.data && accessRes.data.hasExerciseAccess
+          this.setData({ hasExerciseAccess: hasAccess })
+        } catch (e) {
+          this.setData({ hasExerciseAccess: false })
+        }
+      }
+    } catch (e) {
+      this.setData({ chapter: { id: chapterId, title: '未知章节' }, hasExerciseAccess: false })
+    }
+
+    // 无权限则不加载统计数据（与 H5 一致）
+    if (!this.data.hasExerciseAccess) {
+      this.setData({ loading: false })
+      return
+    }
 
     try {
       const res = await app.get('/chapters/' + chapterId + '/practice/stats')
@@ -29,11 +54,28 @@ Page({
       this.setData({ stats: {} })
     }
 
-    // 练习历史需要从后端获取，这里暂用stats中的数据
-    // 如果后端有单独的练习记录接口可以替换
+    this.setData({ loading: false })
   },
 
   startPractice() {
+    if (!this.data.hasExerciseAccess) {
+      wx.showModal({
+        title: '练习权限未开通',
+        content: '您还没有开通该课程的练习题权限，请联系管理员为您开通后再来练习',
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#0052D9'
+      })
+      return
+    }
+    if (!this.data.stats.totalQuestions && this.data.stats.totalQuestions === 0) {
+      wx.showToast({ title: '该章节暂无练习题', icon: 'none' })
+      return
+    }
     wx.navigateTo({ url: '/pages/practice-question/practice-question?chapterId=' + this.data.chapterId })
+  },
+
+  goBack() {
+    wx.navigateBack()
   }
 })

@@ -34,7 +34,18 @@ Page({
       })
       this.setData({ questions, answers })
     } catch (e) {
-      wx.showToast({ title: '加载题目失败', icon: 'none' })
+      // app.js 已显示具体错误信息，这里用模态框确保用户看清
+      const msg = (e && e.message) || '加载题目失败'
+      wx.showModal({
+        title: '提示',
+        content: msg.includes('权限') || msg.includes('开通') ? msg : '加载题目失败，请稍后重试',
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#0052D9',
+        success: () => {
+          wx.navigateBack()
+        }
+      })
     }
   },
 
