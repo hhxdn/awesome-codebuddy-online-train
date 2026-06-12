@@ -9,6 +9,10 @@ Page({
     loading: false,
     categories: [],
     courseList: [],
+    banners: [],
+    newsList: [],
+    newsModules: [],
+    activeNewsModule: 0,
     gradients: [
       'linear-gradient(135deg, #0052D9, #366EF4)',
       'linear-gradient(135deg, #00A870, #2BA471)',
@@ -22,18 +26,21 @@ Page({
   onLoad() {
     this.fetchCategories()
     this.fetchCourses()
+    this.fetchBanners()
+    this.fetchNewsModules()
+    this.fetchNews()
   },
 
   onShow() {
-    // 首次加载后 onShow 才刷新（避免与 onLoad 重复请求）
     if (this._loaded && this.data.categories.length > 0) {
       this.fetchCourses()
+      this.fetchNews()
     }
     this._loaded = true
   },
 
   onPullDownRefresh() {
-    Promise.all([this.fetchCategories(), this.fetchCourses()]).finally(() => {
+    Promise.all([this.fetchCategories(), this.fetchCourses(), this.fetchBanners(), this.fetchNews()]).finally(() => {
       wx.stopPullDownRefresh()
     })
   },
@@ -52,7 +59,7 @@ Page({
   async fetchCourses() {
     this.setData({ loading: true })
     try {
-      const params = {}
+      const params = { size: 100 }
       const cid = this.data.activeL3 > 0 ? this.data.activeL3 : (this.data.activeL2 > 0 ? this.data.activeL2 : this.data.activeL1)
       if (cid > 0) params.categoryId = cid
       const res = await app.get('/courses', params)
@@ -61,6 +68,42 @@ Page({
       this.setData({ courseList: [] })
     }
     this.setData({ loading: false })
+  },
+
+  async fetchBanners() {
+    try {
+      const res = await app.get('/banners')
+      this.setData({ banners: res.data || [] })
+    } catch (e) {
+      this.setData({ banners: [] })
+    }
+  },
+
+  async fetchNewsModules() {
+    try {
+      const res = await app.get('/config/news-modules')
+      this.setData({ newsModules: res.data || [] })
+    } catch (e) {
+      this.setData({ newsModules: [] })
+    }
+  },
+
+  async fetchNews() {
+    try {
+      const params = {}
+      if (this.data.activeNewsModule > 0) params.moduleId = this.data.activeNewsModule
+      const res = await app.get('/news', params)
+      this.setData({ newsList: (res.data || []).slice(0, 4) })
+    } catch (e) {
+      this.setData({ newsList: [] })
+    }
+  },
+
+  switchNewsTab(e) {
+    const moduleId = e.currentTarget.dataset.id
+    this.setData({ activeNewsModule: moduleId }, () => {
+      this.fetchNews()
+    })
   },
 
   // 计算属性
@@ -107,5 +150,26 @@ Page({
 
   goSearch() {
     wx.navigateTo({ url: '/pages/search/search' })
+  },
+
+  goBannerLink(e) {
+    const item = e.currentTarget.dataset.item
+    if (!item.linkUrl) return
+    if (item.linkUrl.startsWith('http')) {
+      // 小程序无法直接打开外部链接，复制到剪贴板
+      wx.setClipboardData({ data: item.linkUrl })
+      wx.showToast({ title: '链接已复制', icon: 'none' })
+    } else if (item.linkUrl.startsWith('/')) {
+      wx.navigateTo({ url: item.linkUrl })
+    }
+  },
+
+  goNewsDetail(e) {
+    const id = e.currentTarget.dataset.id
+    wx.navigateTo({ url: '/pages/news-detail/news-detail?id=' + id })
+  },
+
+  goNewsList() {
+    wx.navigateTo({ url: '/pages/news-list/news-list' })
   }
 })

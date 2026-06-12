@@ -59,6 +59,30 @@ Page({
     wx.navigateTo({ url: '/pages/my-certificates/my-certificates' })
   },
 
+  goMyReservations() {
+    wx.navigateTo({ url: '/pages/my-reservations/my-reservations' })
+  },
+
+  goMyCourseReservations() {
+    wx.navigateTo({ url: '/pages/my-course-reservations/my-course-reservations' })
+  },
+
+  goPracticeCourses() {
+    wx.navigateTo({ url: '/pages/practice-courses/practice-courses' })
+  },
+
+  goNewsList() {
+    wx.navigateTo({ url: '/pages/news-list/news-list' })
+  },
+
+  goEnroll() {
+    wx.navigateTo({ url: '/pages/enroll/enroll' })
+  },
+
+  goQaSubmit() {
+    wx.navigateTo({ url: '/pages/qa-submit/qa-submit' })
+  },
+
   goAbout() {
     wx.navigateTo({ url: '/pages/about/about' })
   },

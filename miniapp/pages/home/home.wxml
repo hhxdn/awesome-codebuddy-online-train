@@ -16,6 +16,46 @@
     </view>
   </view>
 
+  <!-- Banner Carousel -->
+  <view class="banner-section" wx:if="{{banners.length > 0}}">
+    <swiper autoplay circular interval="3000" indicator-dots indicator-color="#0052D9" indicator-active-color="#fff">
+      <swiper-item wx:for="{{banners}}" wx:key="id">
+        <view class="banner-item" bindtap="goBannerLink" data-item="{{item}}">
+          <image src="{{item.imageUrl}}" mode="aspectFill" class="banner-image" />
+          <view wx:if="{{item.title}}" class="banner-title">{{item.title}}</view>
+        </view>
+      </swiper-item>
+    </swiper>
+  </view>
+
+  <!-- News Section -->
+  <view class="news-section">
+    <view class="news-header">
+      <text class="news-header-title">最新资讯</text>
+      <text class="news-header-more" bindtap="goNewsList">更多 ›</text>
+    </view>
+    <!-- News Module Tabs -->
+    <scroll-view wx:if="{{newsModules.length > 0}}" class="news-tabs" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="news-tab {{activeNewsModule === 0 ? 'active' : ''}}" bindtap="switchNewsTab" data-id="{{0}}">全部</view>
+      <view wx:for="{{newsModules}}" wx:key="id" class="news-tab {{activeNewsModule === item.id ? 'active' : ''}}" bindtap="switchNewsTab" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+    <view wx:if="{{newsList.length > 0}}" class="news-list">
+      <view wx:for="{{newsList}}" wx:key="id" class="news-item" bindtap="goNewsDetail" data-id="{{item.id}}">
+        <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" class="news-cover" />
+        <view class="news-info {{item.cover ? 'has-cover' : ''}}">
+          <text class="news-title text-ellipsis-2">{{item.title}}</text>
+          <view class="news-meta">
+            <text wx:if="{{item.source}}">{{item.source}}</text>
+            <text>{{item.viewCount || 0}}阅读</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view wx:elif="{{newsList.length === 0}}" class="news-empty">
+      <text>暂无资讯</text>
+    </view>
+  </view>
+
   <!-- Category Bar: 多级分类 -->
   <view class="category-bar">
     <!-- 一级 -->

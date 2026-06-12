@@ -19,7 +19,7 @@
   <!-- Exam List -->
   <scroll-view class="exam-scroll" scroll-y enhanced bindscrolltolower="onLoadMore" lower-threshold="100">
     <view class="exam-list" wx:if="{{examList.length > 0}}">
-      <view wx:for="{{examList}}" wx:key="id" class="exam-card" bindtap="goExamStart" data-id="{{item.id}}">
+      <view wx:for="{{examList}}" wx:key="id" class="exam-card" bindtap="goExamStart" data-item="{{item}}">
         <view class="exam-card-top">
           <view class="exam-card-left">
             <view class="exam-title text-ellipsis">{{item.title || item.name}}</view>
@@ -30,7 +30,8 @@
             </view>
           </view>
           <view class="exam-card-right">
-            <text wx:if="{{item.myStatus === 'PASSED'}}" class="exam-status status-passed">已通过</text>
+            <text wx:if="{{item.type === 'OFFLINE'}}" class="exam-status status-offline">线下考试</text>
+            <text wx:elif="{{item.myStatus === 'PASSED'}}" class="exam-status status-passed">已通过</text>
             <text wx:elif="{{item.myStatus === 'FAILED'}}" class="exam-status status-failed">未通过</text>
             <text wx:elif="{{item.myStatus === 'ATTENDED'}}" class="exam-status status-attended">已参加</text>
             <text wx:else class="exam-status status-new">新考试</text>

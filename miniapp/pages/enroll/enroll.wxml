@@ -1,0 +1,71 @@
+<!--pages/enroll/enroll.wxml-->
+<view class="enroll-page page-fade-in">
+  <!-- 步骤1：报考条件 -->
+  <view wx:if="{{step === 1}}" class="step-conditions">
+    <view class="page-header">
+      <view class="header-content">
+        <text class="header-title">报考条件</text>
+        <text class="header-subtitle">请仔细阅读以下报考条件</text>
+      </view>
+    </view>
+    <view class="conditions-card">
+      <text class="conditions-content">{{conditions}}</text>
+    </view>
+    <view class="step-action">
+      <button class="action-btn" bindtap="goStep2">已阅，开始填写信息</button>
+    </view>
+  </view>
+
+  <!-- 步骤2：填写报名信息 -->
+  <view wx:else class="step-form">
+    <view class="page-header">
+      <view class="header-content">
+        <text class="header-title">报名学习</text>
+        <text class="header-subtitle">请填写以下信息完成报名</text>
+      </view>
+    </view>
+
+    <view class="form-container">
+      <view class="form-group">
+        <view class="form-item">
+          <text class="form-label">姓名</text>
+          <input class="form-input" placeholder="请输入真实姓名" value="{{form.realName}}" bindinput="onInputChange" data-field="realName" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">性别</text>
+          <picker mode="selector" range="{{genderColumns}}" value="{{genderIndex}}" bindchange="onGenderChange">
+            <view class="form-picker {{form.gender ? '' : 'placeholder'}}">
+              {{form.gender || '请选择性别'}}
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">年龄</text>
+          <input class="form-input" type="number" placeholder="请输入年龄" value="{{form.age}}" bindinput="onInputChange" data-field="age" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">学历</text>
+          <picker mode="selector" range="{{educationColumns}}" value="{{educationIndex}}" bindchange="onEducationChange">
+            <view class="form-picker {{form.education ? '' : 'placeholder'}}">
+              {{form.education || '请选择学历'}}
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">专业</text>
+          <input class="form-input" placeholder="请输入所学专业" value="{{form.major}}" bindinput="onInputChange" data-field="major" />
+        </view>
+        <view class="form-item">
+          <text class="form-label">联系电话</text>
+          <input class="form-input" type="number" maxlength="11" placeholder="请输入联系电话" value="{{form.contactPhone}}" bindinput="onInputChange" data-field="contactPhone" />
+        </view>
+      </view>
+
+      <view class="form-action">
+        <button class="submit-btn" bindtap="onSubmit" loading="{{loading}}" disabled="{{loading}}">提交报名</button>
+      </view>
+    </view>
+  </view>
+</view>

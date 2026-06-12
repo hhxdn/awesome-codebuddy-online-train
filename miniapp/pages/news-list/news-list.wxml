@@ -1,0 +1,31 @@
+<!--pages/news-list/news-list.wxml-->
+<view class="news-list-page page-fade-in">
+  <!-- Module Tabs -->
+  <view class="module-tabs" wx:if="{{modules.length > 0}}">
+    <scroll-view class="tabs-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="tab-chip {{activeModule === 0 ? 'active' : ''}}" bindtap="switchModule" data-id="{{0}}">全部</view>
+      <view wx:for="{{modules}}" wx:key="id" class="tab-chip {{activeModule === item.id ? 'active' : ''}}" bindtap="switchModule" data-id="{{item.id}}">{{item.name}}</view>
+    </scroll-view>
+  </view>
+
+  <!-- News List -->
+  <view class="news-items" wx:if="{{list.length > 0}}">
+    <view wx:for="{{list}}" wx:key="id" class="news-item" bindtap="goDetail" data-id="{{item.id}}">
+      <image wx:if="{{item.cover}}" src="{{item.cover}}" mode="aspectFill" class="news-cover" />
+      <view class="news-info {{item.cover ? 'has-cover' : ''}}">
+        <view class="news-title text-ellipsis-2">{{item.title}}</view>
+        <view class="news-summary text-ellipsis-2" wx:if="{{item.summary}}">{{item.summary}}</view>
+        <view class="news-meta">
+          <text wx:if="{{item.source}}">{{item.source}}</text>
+          <text>{{item.viewCount || 0}}阅读</text>
+          <text>{{item.createTime}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- Empty -->
+  <view wx:elif="{{!loading}}" class="empty-wrap">
+    <text class="empty-text">暂无资讯</text>
+  </view>
+</view>

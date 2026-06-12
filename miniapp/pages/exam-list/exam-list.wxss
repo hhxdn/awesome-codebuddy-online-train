@@ -125,6 +125,7 @@
 .status-failed { background: #FDE8EC; color: var(--danger); }
 .status-attended { background: #E8F2FF; color: var(--primary); }
 .status-new { background: var(--primary-bg); color: var(--primary); }
+.status-offline { background: #FFF3E0; color: var(--warning); }
 
 .exam-card-bottom {
   margin-top: 20rpx;

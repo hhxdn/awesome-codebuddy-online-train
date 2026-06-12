@@ -1,0 +1,105 @@
+/* pages/my-course-reservations/my-course-reservations.wxss */
+.my-reservations-page {
+  background: var(--bg-color);
+  min-height: 100vh;
+  padding: 24rpx 0;
+}
+
+.reservation-card {
+  background: #fff;
+  margin: 16rpx 24rpx;
+  padding: 32rpx;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03);
+}
+
+.card-header {
+  display: flex;
+  gap: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.course-cover-mini {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+}
+
+.cover-icon {
+  font-size: 48rpx;
+}
+
+.header-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.course-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--text-color);
+  flex: 1;
+  margin-right: 20rpx;
+}
+
+.status-badge {
+  font-size: 24rpx;
+  font-weight: 500;
+  padding: 4rpx 20rpx;
+  border-radius: 24rpx;
+  flex-shrink: 0;
+}
+
+.badge-pending { background: #FDF6EC; color: #E6A23C; }
+.badge-confirmed { background: #F0F9EB; color: #67C23A; }
+.badge-cancelled { background: #F4F4F5; color: #909399; }
+.badge-completed { background: #ECF5FF; color: #409EFF; }
+
+.card-body {
+  padding-bottom: 20rpx;
+}
+
+.info-row {
+  font-size: 26rpx;
+  color: var(--text-secondary);
+  margin-top: 12rpx;
+}
+
+.card-footer {
+  border-top: 1rpx solid var(--border-light);
+  padding-top: 20rpx;
+  text-align: right;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12rpx 32rpx;
+  border-radius: 32rpx;
+  font-size: 26rpx;
+  border: none;
+}
+
+.action-btn.cancel {
+  background: #f5f5f5;
+  color: var(--text-muted);
+}
+
+.action-btn.checkin {
+  background: var(--warning);
+  color: #fff;
+}

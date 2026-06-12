@@ -1,0 +1,25 @@
+<!--pages/news-detail/news-detail.wxml-->
+<view class="news-detail-page page-fade-in">
+  <view class="detail-content" wx:if="{{article}}">
+    <view class="detail-title">{{article.title}}</view>
+    <view class="detail-meta">
+      <text wx:if="{{article.source}}">{{article.source}}</text>
+      <text>{{article.viewCount || 0}} 阅读</text>
+      <text>{{article.createTime}}</text>
+    </view>
+    <image wx:if="{{article.cover}}" src="{{article.cover}}" mode="widthFix" class="detail-cover" />
+    <view class="detail-body">
+      <rich-text nodes="{{article.content}}"></rich-text>
+    </view>
+  </view>
+
+  <view wx:elif="{{loading}}" class="loading-wrap">
+    <view class="loading-dot"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <view wx:else class="empty-wrap">
+    <text class="empty-text">资讯不存在</text>
+    <text class="empty-sub-text">该资讯可能已被删除或下架</text>
+  </view>
+</view>

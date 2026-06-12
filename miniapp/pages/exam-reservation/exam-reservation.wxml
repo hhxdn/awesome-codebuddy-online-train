@@ -1,0 +1,67 @@
+<!--pages/exam-reservation/exam-reservation.wxml-->
+<view class="reservation-page page-fade-in">
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading-dot"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <template wx:elif="{{exam}}">
+    <view class="exam-info-card">
+      <view class="exam-icon">
+        <text class="exam-icon-text">📍</text>
+      </view>
+      <text class="exam-title">{{exam.title}}</text>
+      <view class="exam-meta">
+        <text class="meta-item">⏱ 时长{{exam.durationMinutes || 60}}分钟</text>
+        <text class="meta-item">✅ 及格{{exam.passScore || 60}}分</text>
+      </view>
+      <view class="exam-notice">
+        <text>📍 此为线下考试，需预约后到场参加，成绩由管理员录入</text>
+      </view>
+    </view>
+
+    <!-- 已有预约 -->
+    <view wx:if="{{myReservation && myReservation.status !== 'CANCELLED'}}" class="status-card">
+      <view class="status-header">
+        <view class="status-dot dot-{{myReservation.status === 'PENDING' ? 'pending' : (myReservation.status === 'CONFIRMED' ? 'confirmed' : 'completed')}}"></view>
+        <text class="status-label">{{myReservation.status === 'PENDING' ? '待确认' : (myReservation.status === 'CONFIRMED' ? '已确认' : '已完成')}}</text>
+      </view>
+      <view wx:if="{{myReservation.reservationTime}}" class="status-detail">
+        <text>预约时间：{{myReservation.reservationTime}}</text>
+      </view>
+      <view class="status-detail">
+        <text>提交时间：{{myReservation.createTime}}</text>
+      </view>
+      <view wx:if="{{myReservation.status === 'PENDING'}}" class="status-action">
+        <button class="cancel-btn" bindtap="handleCancel">取消预约</button>
+      </view>
+    </view>
+
+    <!-- 预约表单 -->
+    <view wx:else class="reservation-form">
+      <view class="form-group">
+        <view class="form-item">
+          <text class="form-label">预约时间（选填）</text>
+          <picker mode="multiSelector" bindchange="onTimeChange">
+            <view class="form-picker {{reservationTime ? '' : 'placeholder'}}">
+              {{reservationTime || '选择考试时间'}}
+              <text class="picker-arrow">›</text>
+            </view>
+          </picker>
+        </view>
+        <view class="form-item">
+          <text class="form-label">备注（选填）</text>
+          <textarea class="form-textarea" placeholder="如有特殊需求可在此说明" value="{{remark}}" bindinput="onRemarkInput" maxlength="200" />
+        </view>
+      </view>
+
+      <view class="form-action">
+        <button class="reserve-btn" bindtap="handleReserve" loading="{{submitting}}" disabled="{{submitting}}">立即预约</button>
+      </view>
+    </view>
+  </template>
+
+  <view wx:else class="empty-wrap">
+    <text class="empty-text">考试信息不存在</text>
+  </view>
+</view>

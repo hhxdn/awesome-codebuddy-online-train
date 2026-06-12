@@ -26,7 +26,16 @@
     "pages/offline-checkin/offline-checkin",
     "pages/my-certificates/my-certificates",
     "pages/search/search",
-    "pages/about/about"
+    "pages/about/about",
+    "pages/news-list/news-list",
+    "pages/news-detail/news-detail",
+    "pages/qa-submit/qa-submit",
+    "pages/enroll/enroll",
+    "pages/course-reservation/course-reservation",
+    "pages/my-course-reservations/my-course-reservations",
+    "pages/exam-reservation/exam-reservation",
+    "pages/my-reservations/my-reservations",
+    "pages/practice-courses/practice-courses"
   ],
   "window": {
     "navigationBarTextStyle": "white",

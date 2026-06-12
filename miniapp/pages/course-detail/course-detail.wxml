@@ -63,6 +63,9 @@
       <button wx:if="{{!checkedIn}}" class="checkin-btn" bindtap="goCheckin">
         📍 线下打卡
       </button>
+      <button wx:if="{{!checkedIn}}" class="reserve-btn" bindtap="goReserve">
+        📅 预约课程
+      </button>
       <button wx:else class="checked-in-btn" disabled>
         ✅ 已打卡
       </button>

@@ -134,5 +134,9 @@ Page({
 
   goCheckin() {
     wx.navigateTo({ url: '/pages/offline-checkin/offline-checkin?courseId=' + this.data.courseId })
+  },
+
+  goReserve() {
+    wx.navigateTo({ url: '/pages/course-reservation/course-reservation?id=' + this.data.courseId })
   }
 })

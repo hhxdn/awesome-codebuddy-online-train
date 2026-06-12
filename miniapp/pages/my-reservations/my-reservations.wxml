@@ -1,0 +1,34 @@
+<!--pages/my-reservations/my-reservations.wxml-->
+<view class="my-reservations-page page-fade-in">
+  <view wx:if="{{list.length > 0}}">
+    <view wx:for="{{list}}" wx:key="id" class="reservation-card">
+      <view class="card-header">
+        <text class="exam-title text-ellipsis">{{item.examTitle}}</text>
+        <text class="status-badge badge-{{item.status === 'PENDING' ? 'pending' : (item.status === 'CONFIRMED' ? 'confirmed' : (item.status === 'CANCELLED' ? 'cancelled' : 'completed'))}}">
+          {{item.status === 'PENDING' ? '待确认' : (item.status === 'CONFIRMED' ? '已确认' : (item.status === 'CANCELLED' ? '已取消' : '已完成'))}}
+        </text>
+      </view>
+      <view class="card-body">
+        <view wx:if="{{item.reservationTime}}" class="info-row">
+          <text>📅 预约时间：{{item.reservationTime}}</text>
+        </view>
+        <view class="info-row">
+          <text>📝 提交时间：{{item.createTime}}</text>
+        </view>
+        <view class="info-row">
+          <text>📊 满分{{item.totalScore}}分 / 及格{{item.passScore}}分</text>
+        </view>
+        <view wx:if="{{item.remark}}" class="info-row">
+          <text>💬 备注：{{item.remark}}</text>
+        </view>
+      </view>
+      <view wx:if="{{item.status === 'PENDING'}}" class="card-footer">
+        <button class="cancel-btn" bindtap="handleCancel" data-item="{{item}}">取消预约</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{!loading}}" class="empty-wrap">
+    <text class="empty-text">暂无预约记录</text>
+  </view>
+</view>

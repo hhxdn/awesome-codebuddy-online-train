@@ -1,0 +1,40 @@
+<!--pages/my-course-reservations/my-course-reservations.wxml-->
+<view class="my-reservations-page page-fade-in">
+  <view wx:if="{{list.length > 0}}">
+    <view wx:for="{{list}}" wx:key="id" class="reservation-card">
+      <view class="card-header">
+        <view class="course-cover-mini">
+          <image wx:if="{{item.courseCover}}" src="{{item.courseCover}}" mode="aspectFill" class="cover-img" />
+          <text wx:else class="cover-icon">📖</text>
+        </view>
+        <view class="header-info">
+          <text class="course-title text-ellipsis">{{item.courseTitle}}</text>
+          <text class="status-badge badge-{{item.status === 'PENDING' ? 'pending' : (item.status === 'CONFIRMED' ? 'confirmed' : (item.status === 'CANCELLED' ? 'cancelled' : 'completed'))}}">
+            {{item.status === 'PENDING' ? '待确认' : (item.status === 'CONFIRMED' ? '已确认' : (item.status === 'CANCELLED' ? '已取消' : '已完成'))}}
+          </text>
+        </view>
+      </view>
+      <view class="card-body">
+        <view wx:if="{{item.reservationTime}}" class="info-row">
+          <text>📅 预约时间：{{item.reservationTime}}</text>
+        </view>
+        <view class="info-row">
+          <text>📝 提交时间：{{item.createTime}}</text>
+        </view>
+        <view wx:if="{{item.remark}}" class="info-row">
+          <text>💬 备注：{{item.remark}}</text>
+        </view>
+      </view>
+      <view wx:if="{{item.status === 'PENDING'}}" class="card-footer">
+        <button class="action-btn cancel" bindtap="handleCancel" data-item="{{item}}">取消预约</button>
+      </view>
+      <view wx:if="{{item.status === 'CONFIRMED'}}" class="card-footer">
+        <button class="action-btn checkin" bindtap="goCheckin" data-item="{{item}}">去打卡</button>
+      </view>
+    </view>
+  </view>
+
+  <view wx:elif="{{!loading}}" class="empty-wrap">
+    <text class="empty-text">暂无课程预约记录</text>
+  </view>
+</view>

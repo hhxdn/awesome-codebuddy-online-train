@@ -112,6 +112,12 @@ Page({
   },
 
   goExamStart(e) {
-    wx.navigateTo({ url: '/pages/exam-start/exam-start?paperId=' + e.currentTarget.dataset.id })
+    const item = e.currentTarget.dataset.item
+    // 线下考试跳转预约页
+    if (item.type === 'OFFLINE') {
+      wx.navigateTo({ url: '/pages/exam-reservation/exam-reservation?id=' + item.id })
+      return
+    }
+    wx.navigateTo({ url: '/pages/exam-start/exam-start?paperId=' + item.id })
   }
 })

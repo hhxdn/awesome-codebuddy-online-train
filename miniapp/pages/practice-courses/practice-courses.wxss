@@ -1,0 +1,158 @@
+/* pages/practice-courses/practice-courses.wxss */
+.practice-courses-page {
+  background: var(--bg-color);
+  min-height: 100vh;
+  padding-bottom: 60rpx;
+}
+
+.page-header {
+  background: linear-gradient(160deg, #0052D9, #366EF4);
+  padding: 40rpx 40rpx 48rpx;
+}
+
+.header-title {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #fff;
+  display: block;
+  margin-bottom: 8rpx;
+}
+
+.header-desc {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.75);
+  display: block;
+}
+
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 240rpx;
+  gap: 20rpx;
+}
+
+.loading-dot {
+  width: 40rpx;
+  height: 40rpx;
+  border: 4rpx solid var(--primary-bg);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading-text {
+  font-size: 26rpx;
+  color: var(--text-muted);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 200rpx 60rpx 120rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 128rpx;
+}
+
+.empty-title {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: #1D2129;
+  margin: 36rpx 0 16rpx;
+}
+
+.empty-desc {
+  font-size: 28rpx;
+  color: #86909C;
+  line-height: 1.6;
+  margin-bottom: 56rpx;
+  max-width: 560rpx;
+}
+
+.browse-btn {
+  padding: 20rpx 56rpx;
+  font-size: 28rpx;
+  color: var(--primary);
+  border: 2rpx solid var(--primary);
+  border-radius: 48rpx;
+  background: #fff;
+}
+
+.course-list {
+  padding: 24rpx 28rpx;
+}
+
+.course-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  background: #fff;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  margin-bottom: 20rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.04);
+}
+
+.card-cover {
+  width: 180rpx;
+  height: 120rpx;
+  border-radius: 20rpx;
+  overflow: hidden;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.cover-img {
+  width: 100%;
+  height: 100%;
+}
+
+.cover-badge {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 20rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+.card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1D2129;
+  display: block;
+  margin-bottom: 12rpx;
+}
+
+.card-stats {
+  display: flex;
+  gap: 32rpx;
+}
+
+.stat-item {
+  font-size: 24rpx;
+  color: var(--text-secondary);
+}
+
+.card-arrow {
+  font-size: 40rpx;
+  color: var(--text-placeholder);
+  flex-shrink: 0;
+}
