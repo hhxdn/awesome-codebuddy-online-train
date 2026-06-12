@@ -62,6 +62,12 @@
         "text": "课程"
       },
       {
+        "pagePath": "pages/practice-courses/practice-courses",
+        "iconPath": "static/tabbar/practice.png",
+        "selectedIconPath": "static/tabbar/practice-active.png",
+        "text": "练习"
+      },
+      {
         "pagePath": "pages/exam-list/exam-list",
         "iconPath": "static/tabbar/exam.png",
         "selectedIconPath": "static/tabbar/exam-active.png",
