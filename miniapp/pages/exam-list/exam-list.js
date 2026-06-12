@@ -114,7 +114,7 @@ Page({
   goExamStart(e) {
     const item = e.currentTarget.dataset.item
     // 线下考试跳转预约页
-    if (item.type === 'OFFLINE') {
+    if (item.examType === 'OFFLINE') {
       wx.navigateTo({ url: '/pages/exam-reservation/exam-reservation?id=' + item.id })
       return
     }

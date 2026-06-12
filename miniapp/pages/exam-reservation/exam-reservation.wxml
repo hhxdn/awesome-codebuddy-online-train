@@ -42,7 +42,7 @@
       <view class="form-group">
         <view class="form-item">
           <text class="form-label">预约时间（选填）</text>
-          <picker mode="multiSelector" bindchange="onTimeChange">
+          <picker mode="date" bindchange="onTimeChange">
             <view class="form-picker {{reservationTime ? '' : 'placeholder'}}">
               {{reservationTime || '选择考试时间'}}
               <text class="picker-arrow">›</text>

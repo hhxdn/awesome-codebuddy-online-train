@@ -30,7 +30,7 @@
             </view>
           </view>
           <view class="exam-card-right">
-            <text wx:if="{{item.type === 'OFFLINE'}}" class="exam-status status-offline">线下考试</text>
+            <text wx:if="{{item.examType === 'OFFLINE'}}" class="exam-status status-offline">线下考试</text>
             <text wx:elif="{{item.myStatus === 'PASSED'}}" class="exam-status status-passed">已通过</text>
             <text wx:elif="{{item.myStatus === 'FAILED'}}" class="exam-status status-failed">未通过</text>
             <text wx:elif="{{item.myStatus === 'ATTENDED'}}" class="exam-status status-attended">已参加</text>

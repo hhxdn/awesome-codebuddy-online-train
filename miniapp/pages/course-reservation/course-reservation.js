@@ -58,7 +58,7 @@ Page({
     try {
       const params = { courseId: Number(this.data.courseId) }
       if (this.data.reservationTime) {
-        params.reservationTime = this.data.reservationTime + ':00'
+        params.reservationTime = this.data.reservationTime + 'T00:00:00'
       }
       if (this.data.remark) {
         params.remark = this.data.remark

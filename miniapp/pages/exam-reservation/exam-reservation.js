@@ -28,7 +28,18 @@ Page({
   async fetchExam() {
     try {
       const res = await app.get('/exams/' + this.data.paperId)
-      this.setData({ exam: res.data })
+      // 后端返回字段 { id, name, duration, totalScore, passScore, questionCount }
+      const data = res.data || {}
+      this.setData({
+        exam: {
+          id: data.id,
+          title: data.name || data.title,
+          durationMinutes: data.duration || 60,
+          totalScore: data.totalScore || 100,
+          passScore: data.passScore || 60,
+          questionCount: data.questionCount || 0
+        }
+      })
     } catch (e) {
       this.setData({ exam: null })
     }
@@ -58,7 +69,7 @@ Page({
     try {
       const params = { examPaperId: Number(this.data.paperId) }
       if (this.data.reservationTime) {
-        params.reservationTime = this.data.reservationTime + ':00'
+        params.reservationTime = this.data.reservationTime + 'T00:00:00'
       }
       if (this.data.remark) {
         params.remark = this.data.remark
