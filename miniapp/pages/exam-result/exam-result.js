@@ -4,7 +4,8 @@ const app = getApp()
 Page({
   data: {
     recordId: '',
-    result: {}
+    result: {},
+    paperName: ''  // 考试名称
   },
 
   onLoad(options) {
@@ -15,7 +16,10 @@ Page({
   async fetchResult() {
     try {
       const res = await app.get('/exam/records/' + this.data.recordId)
-      this.setData({ result: res.data || {} })
+      const data = res.data || {}
+      // 从paper.title提取考试名称
+      const paperName = data.paper?.title || data.paperName || ''
+      this.setData({ result: data, paperName })
     } catch (e) {
       wx.showToast({ title: '加载结果失败', icon: 'none' })
     }

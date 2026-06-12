@@ -112,6 +112,7 @@ async function doSubmit() {
   } catch (e) {
     const resultData = {
       recordId,
+      paperName: '',
       score: 0,
       totalScore: 100,
       passScore: 60,

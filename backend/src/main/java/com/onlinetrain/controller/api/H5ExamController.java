@@ -263,8 +263,10 @@ public class H5ExamController {
         examRecordService.updateById(record);
 
         Map<String, Object> result = new HashMap<>();
+        result.put("paperName", paper.getTitle());
         result.put("score", totalScore);
         result.put("totalScore", paper.getTotalScore());
+        result.put("passScore", paper.getPassScore());
         result.put("isPass", record.getIsPass() == 1);
         result.put("rightCount", rightCount);
         result.put("totalCount", answers.size());

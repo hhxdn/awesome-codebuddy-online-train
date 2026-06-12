@@ -12,6 +12,15 @@
   padding: 60rpx 0 40rpx;
 }
 
+.result-paper-name {
+  font-size: 28rpx;
+  color: var(--text-muted);
+  margin-bottom: 20rpx;
+  padding: 8rpx 32rpx;
+  background: #f0f0f0;
+  border-radius: 20rpx;
+}
+
 .score-circle {
   width: 240rpx;
   height: 240rpx;

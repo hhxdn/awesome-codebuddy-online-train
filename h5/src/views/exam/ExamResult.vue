@@ -4,6 +4,7 @@
 
     <!-- Score Display -->
     <div class="result-hero">
+      <div class="result-exam-name" v-if="result.paperName">{{ result.paperName }}</div>
       <div class="score-circle" :class="result.passed ? 'pass' : 'fail'">
         <span class="score-num">{{ result.score }}</span>
         <span class="score-label">/ {{ result.totalScore }}分</span>
@@ -91,6 +92,7 @@ const router = useRouter()
 const recordId = route.params.recordId
 
 const result = ref({
+  paperName: '',
   score: 0,
   totalScore: 100,
   passScore: 60,
@@ -158,6 +160,18 @@ onMounted(() => {
 
 .result-hero {
   padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.result-exam-name {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  padding: 4px 16px;
+  background: #f0f0f0;
+  border-radius: 12px;
 }
 
 .result-verdict {

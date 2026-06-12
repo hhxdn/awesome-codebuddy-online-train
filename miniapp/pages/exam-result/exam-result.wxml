@@ -2,6 +2,7 @@
 <view class="result-page page-fade-in">
   <!-- Score Circle -->
   <view class="result-header">
+    <view class="result-paper-name" wx:if="{{paperName}}">{{paperName}}</view>
     <view class="score-circle {{result.passed ? 'passed' : 'failed'}}">
       <view class="score-value">{{result.score || 0}}</view>
       <view class="score-label">分</view>
