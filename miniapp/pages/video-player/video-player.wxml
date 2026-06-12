@@ -50,14 +50,18 @@
       <view
         wx:for="{{chapters}}"
         wx:key="id"
-        class="nav-chapter-item {{item.id === chapterId ? 'current' : ''}}"
+        class="nav-chapter-item {{item.id == chapterId ? 'current' : ''}}"
         bindtap="switchChapter"
         data-id="{{item.id}}"
       >
-        <view class="nav-chapter-num">{{index < 9 ? '0' + (index+1) : index+1}}</view>
+        <view class="nav-chapter-num">
+          <text wx:if="{{item.id == chapterId}}" class="playing-dot">▶</text>
+          <text wx:else>{{index < 9 ? '0' + (index+1) : index+1}}</text>
+        </view>
         <view class="nav-chapter-text">
           <view class="nav-chapter-name text-ellipsis">{{item.title}}</view>
-          <view class="nav-chapter-dur">{{item.duration || '视频'}}</view>
+          <view wx:if="{{item.id == chapterId}}" class="nav-chapter-tag">正在播放</view>
+          <view wx:else class="nav-chapter-dur">{{item.duration || '视频'}}</view>
         </view>
         <view wx:if="{{item.completed}}" class="nav-chapter-done">✅</view>
       </view>

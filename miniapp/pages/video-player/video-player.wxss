@@ -120,6 +120,18 @@
 
 .nav-chapter-item.current {
   background: rgba(0, 82, 217, 0.15);
+  border-left: 6rpx solid var(--primary);
+}
+
+.playing-dot {
+  font-size: 20rpx;
+  color: var(--primary);
+}
+
+.nav-chapter-tag {
+  font-size: 20rpx;
+  color: var(--primary);
+  font-weight: 500;
 }
 
 .nav-chapter-num {
