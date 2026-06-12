@@ -12,12 +12,7 @@ Page({
     currentQuestion: null,     // 当前题目（同步到 data 确保 WXML 可访问）
     typeLabel: '',             // 当前题型标签
     submitting: false,
-    optionLabels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
-    utils: {
-      isMultiSelected(arr, idx) {
-        return arr && arr.includes(idx)
-      }
-    }
+    optionLabels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
   },
 
   onLoad(options) {
@@ -27,8 +22,21 @@ Page({
 
   // 同步 currentQuestion 和 typeLabel 到 data 中，确保 WXML 能访问
   syncCurrentQuestion() {
-    const q = this.data.questions[this.data.currentIndex] || null
-    const typeLabel = q ? (TYPE_MAP[q.type] || '') : ''
+    const original = this.data.questions[this.data.currentIndex] || null
+    if (!original) {
+      this.setData({ currentQuestion: null, typeLabel: '' })
+      return
+    }
+    const typeLabel = TYPE_MAP[original.type] || ''
+    // 克隆并附加上下文数据
+    const q = { ...original }
+    if (q.type === 'MULTIPLE' && q.options) {
+      const sel = this.data.answers[q.id] || []
+      q._options = q.options.map((opt, idx) => ({
+        text: opt,
+        _sel: sel.includes(idx)
+      }))
+    }
     this.setData({ currentQuestion: q, typeLabel })
   },
 
@@ -82,7 +90,11 @@ Page({
     const pos = arr.indexOf(idx)
     if (pos >= 0) arr.splice(pos, 1)
     else arr.push(idx)
-    this.setData({ ['answers.' + q.id]: arr })
+    // 同步更新 _options 中的 _sel 标志
+    if (q._options) {
+      q._options[idx]._sel = pos < 0  // pos>=0 表示移除→未选中，pos<0 表示新增→选中
+    }
+    this.setData({ ['answers.' + q.id]: arr, currentQuestion: q })
   },
 
   selectJudge(e) {

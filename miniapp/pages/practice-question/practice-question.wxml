@@ -37,14 +37,14 @@
     <!-- Multiple Choice -->
     <view wx:if="{{currentQuestion.type === 'MULTIPLE'}}" class="options-list">
       <view
-        wx:for="{{currentQuestion.options}}"
-        wx:key="*this"
-        class="option-item {{utils.isMultiSelected(answers[currentQuestion.id], index) ? 'option-selected' : ''}}"
+        wx:for="{{currentQuestion._options}}"
+        wx:key="text"
+        class="option-item {{item._sel ? 'option-selected' : ''}}"
         bindtap="toggleMultiple"
         data-idx="{{index}}"
       >
         <text class="option-label">{{optionLabels[index]}}</text>
-        <text class="option-text">{{item}}</text>
+        <text class="option-text">{{item.text}}</text>
       </view>
     </view>
 

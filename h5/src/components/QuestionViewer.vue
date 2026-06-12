@@ -58,7 +58,7 @@
         >
           <span class="option-label">{{ optionLabels[idx] }}</span>
           <span class="option-text">{{ opt }}</span>
-          <van-checkbox :name="idx" class="option-radio" />
+          <van-checkbox :name="idx" class="option-radio" @click.stop />
         </div>
       </van-checkbox-group>
 
