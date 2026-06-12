@@ -1,12 +1,16 @@
 // pages/practice-question/practice-question.js
 const app = getApp()
 
+const TYPE_MAP = { SINGLE: '单选题', MULTIPLE: '多选题', JUDGE: '判断题', ESSAY: '简答题' }
+
 Page({
   data: {
     chapterId: '',
     questions: [],
     answers: {},
     currentIndex: 0,
+    currentQuestion: null,     // 当前题目（同步到 data 确保 WXML 可访问）
+    typeLabel: '',             // 当前题型标签
     submitting: false,
     optionLabels: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
     utils: {
@@ -21,10 +25,22 @@ Page({
     this.fetchQuestions()
   },
 
+  // 同步 currentQuestion 和 typeLabel 到 data 中，确保 WXML 能访问
+  syncCurrentQuestion() {
+    const q = this.data.questions[this.data.currentIndex] || null
+    const typeLabel = q ? (TYPE_MAP[q.type] || '') : ''
+    this.setData({ currentQuestion: q, typeLabel })
+  },
+
   async fetchQuestions() {
     try {
       const res = await app.get('/chapters/' + this.data.chapterId + '/questions')
-      const questions = res.data || []
+      let questions = []
+      if (res) {
+        questions = Array.isArray(res.data) ? res.data
+          : Array.isArray(res) ? res
+          : []
+      }
       // 初始化答案
       const answers = {}
       questions.forEach(q => {
@@ -33,6 +49,7 @@ Page({
         else answers[q.id] = null
       })
       this.setData({ questions, answers })
+      this.syncCurrentQuestion()
     } catch (e) {
       // app.js 已显示具体错误信息，这里用模态框确保用户看清
       const msg = (e && e.message) || '加载题目失败'
@@ -49,26 +66,16 @@ Page({
     }
   },
 
-  get currentQuestion() {
-    return this.data.questions[this.data.currentIndex] || null
-  },
-
-  get typeLabel() {
-    const map = { SINGLE: '单选题', MULTIPLE: '多选题', JUDGE: '判断题', ESSAY: '简答题' }
-    const q = this.currentQuestion
-    return q ? (map[q.type] || '') : ''
-  },
-
   selectSingle(e) {
     const idx = e.currentTarget.dataset.idx
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: idx })
   },
 
   toggleMultiple(e) {
     const idx = e.currentTarget.dataset.idx
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     const answers = this.data.answers
     let arr = answers[q.id] || []
@@ -80,26 +87,30 @@ Page({
 
   selectJudge(e) {
     const val = e.currentTarget.dataset.val
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: val })
   },
 
   onEssayInput(e) {
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: e.detail.value })
   },
 
   prevQuestion() {
     if (this.data.currentIndex > 0) {
-      this.setData({ currentIndex: this.data.currentIndex - 1 })
+      const newIndex = this.data.currentIndex - 1
+      this.setData({ currentIndex: newIndex })
+      this.syncCurrentQuestion()
     }
   },
 
   nextQuestion() {
     if (this.data.currentIndex < this.data.questions.length - 1) {
-      this.setData({ currentIndex: this.data.currentIndex + 1 })
+      const newIndex = this.data.currentIndex + 1
+      this.setData({ currentIndex: newIndex })
+      this.syncCurrentQuestion()
     }
   },
 

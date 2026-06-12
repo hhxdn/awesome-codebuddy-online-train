@@ -1,12 +1,16 @@
 // pages/exam-question/exam-question.js
 const app = getApp()
 
+const TYPE_MAP = { SINGLE: '单选题', MULTIPLE: '多选题', JUDGE: '判断题', ESSAY: '简答题' }
+
 Page({
   data: {
     recordId: '',
     questions: [],
     answers: {},
     currentIndex: 0,
+    currentQuestion: null,     // 当前题目（同步到 data 确保 WXML 可访问）
+    typeLabel: '',             // 当前题型标签
     submitting: false,
     countdownText: '',
     urgent: false,
@@ -23,9 +27,7 @@ Page({
 
   onLoad(options) {
     this.setData({ recordId: options.recordId })
-    this.fetchQuestions()
-    this.startCountdown()
-    // 监听切出
+    this.fetchQuestions()     // 加载完题目后再启动倒计时（见 fetchQuestions）
     this.startCheatDetection()
   },
 
@@ -38,34 +40,54 @@ Page({
     this.setData({ cheatCount: this.data.cheatCount + 1 })
   },
 
+  // 同步 currentQuestion 和 typeLabel 到 data 中，确保 WXML 能访问
+  syncCurrentQuestion() {
+    const q = this.data.questions[this.data.currentIndex] || null
+    const typeLabel = q ? (TYPE_MAP[q.type] || '') : ''
+    this.setData({ currentQuestion: q, typeLabel })
+  },
+
   async fetchQuestions() {
     try {
       const res = await app.get('/exam/records/' + this.data.recordId + '/questions')
-      const result = res.data || {}
-      const questions = result.questions || result || []
-      // 从 record 中获取考试时长（单位：分钟）
-      const duration = (result.duration || result.examDuration || result.totalDuration) || 60
+      // 兼容后端多种返回格式：{ data: { questions: [...] } } 或 { data: [...] } 或直接数组
+      let questions = []
+      let duration = 3600  // 默认60分钟（后端返回秒数）
+      if (res) {
+        const result = res.data || {}
+        // 兼容多种响应格式
+        if (Array.isArray(result.questions)) {
+          questions = result.questions
+        } else if (Array.isArray(result)) {
+          questions = result
+        } else if (Array.isArray(res)) {
+          questions = res
+        }
+        // duration：后端返回秒数（已由 paper.getDurationMinutes() * 60 计算），直接使用
+        const rawDuration = result.duration || result.examDuration || result.totalDuration
+        if (rawDuration) {
+          duration = parseInt(rawDuration)
+        }
+      }
       const answers = {}
       questions.forEach(q => {
         if (q.type === 'MULTIPLE') answers[q.id] = []
         else if (q.type === 'ESSAY') answers[q.id] = ''
         else answers[q.id] = null
       })
-      this.setData({ questions, answers, totalSeconds: parseInt(duration) * 60 })
+      this.setData({ questions, answers, totalSeconds: duration })
+      this.syncCurrentQuestion()
       this.updateCountdown()
+      this.startCountdown()   // 加载完题目后再开始倒计时
     } catch (e) {
-      wx.showToast({ title: '加载题目失败', icon: 'none' })
+      wx.showModal({
+        title: '提示',
+        content: '加载题目失败，请返回重试',
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#0052D9'
+      })
     }
-  },
-
-  get currentQuestion() {
-    return this.data.questions[this.data.currentIndex] || null
-  },
-
-  get typeLabel() {
-    const map = { SINGLE: '单选题', MULTIPLE: '多选题', JUDGE: '判断题', ESSAY: '简答题' }
-    const q = this.currentQuestion
-    return q ? (map[q.type] || '') : ''
   },
 
   isAnswered(qId) {
@@ -105,14 +127,14 @@ Page({
 
   selectSingle(e) {
     const idx = e.currentTarget.dataset.idx
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: idx })
   },
 
   toggleMultiple(e) {
     const idx = e.currentTarget.dataset.idx
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     const answers = this.data.answers
     let arr = answers[q.id] || []
@@ -124,30 +146,36 @@ Page({
 
   selectJudge(e) {
     const val = e.currentTarget.dataset.val
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: val })
   },
 
   onEssayInput(e) {
-    const q = this.currentQuestion
+    const q = this.data.currentQuestion
     if (!q) return
     this.setData({ ['answers.' + q.id]: e.detail.value })
   },
 
   jumpTo(e) {
-    this.setData({ currentIndex: e.currentTarget.dataset.idx })
+    const newIndex = e.currentTarget.dataset.idx
+    this.setData({ currentIndex: newIndex })
+    this.syncCurrentQuestion()
   },
 
   prevQuestion() {
     if (this.data.currentIndex > 0) {
-      this.setData({ currentIndex: this.data.currentIndex - 1 })
+      const newIndex = this.data.currentIndex - 1
+      this.setData({ currentIndex: newIndex })
+      this.syncCurrentQuestion()
     }
   },
 
   nextQuestion() {
     if (this.data.currentIndex < this.data.questions.length - 1) {
-      this.setData({ currentIndex: this.data.currentIndex + 1 })
+      const newIndex = this.data.currentIndex + 1
+      this.setData({ currentIndex: newIndex })
+      this.syncCurrentQuestion()
     }
   },
 
