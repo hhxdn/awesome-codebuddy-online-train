@@ -3,6 +3,7 @@
   <!-- Video Area -->
   <view class="video-area">
     <video
+      id="videoPlayer"
       wx:if="{{chapter.videoUrl}}"
       src="{{chapter.videoUrl}}"
       controls

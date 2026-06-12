@@ -62,8 +62,22 @@ Page({
 
   switchChapter(e) {
     const id = e.currentTarget.dataset.id
+    if (!id || id == this.data.chapterId) return
+    // 保存当前进度
     this.saveProgress()
-    wx.redirectTo({ url: '/pages/video-player/video-player?chapterId=' + id })
+    // 直接切换数据，不使用 redirectTo（同页面跳转会失败）
+    this.setData({
+      chapterId: String(id),
+      chapter: {},
+      prevChapter: null,
+      nextChapter: null,
+      currentPosition: 0,
+      duration: 0,
+      playbackRate: 1.0
+    })
+    this.fetchChapter()
+    // 滚动到顶部
+    wx.pageScrollTo({ scrollTop: 0, duration: 200 })
   },
 
   setSpeed(e) {
