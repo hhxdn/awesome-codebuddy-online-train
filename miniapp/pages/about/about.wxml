@@ -5,4 +5,5 @@
     <rich-text nodes="{{content}}" />
   </view>
   <view wx:else class="empty-hint">暂无内容</view>
+<qa-float-btn />
 </view>

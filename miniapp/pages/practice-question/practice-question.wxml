@@ -89,4 +89,5 @@
       bindtap="submitAnswer"
     >提交</button>
   </view>
+<qa-float-btn />
 </view>

@@ -30,4 +30,5 @@
       <text class="empty-text">暂无订单</text>
     </view>
   </scroll-view>
+<qa-float-btn />
 </view>

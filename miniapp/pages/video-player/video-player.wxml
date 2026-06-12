@@ -84,4 +84,5 @@
       data-id="{{nextChapter.id}}"
     >下一节 →</button>
   </view>
+<qa-float-btn />
 </view>

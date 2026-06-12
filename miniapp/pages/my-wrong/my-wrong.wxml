@@ -21,4 +21,5 @@
   <view wx:if="{{wrongList.length > 0}}" class="clear-section">
     <button class="clear-btn" bindtap="clearAll">清空错题本</button>
   </view>
+<qa-float-btn />
 </view>

@@ -29,4 +29,5 @@
       确认支付 ¥{{productInfo.price || 0}}
     </button>
   </view>
+<qa-float-btn />
 </view>

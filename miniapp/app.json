@@ -89,5 +89,8 @@
   "requiredPrivateInfos": [
     "getLocation"
   ],
+  "usingComponents": {
+    "qa-float-btn": "/components/qa-float-btn/qa-float-btn"
+  },
   "sitemapLocation": "sitemap.json"
 }

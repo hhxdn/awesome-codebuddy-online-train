@@ -68,4 +68,5 @@
       </view>
     </view>
   </view>
+<qa-float-btn />
 </view>

@@ -35,4 +35,5 @@
       开始考试
     </button>
   </view>
+<qa-float-btn />
 </view>

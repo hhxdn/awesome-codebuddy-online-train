@@ -37,4 +37,5 @@
   <view wx:elif="{{!loading}}" class="empty-wrap">
     <text class="empty-text">暂无课程预约记录</text>
   </view>
+<qa-float-btn />
 </view>

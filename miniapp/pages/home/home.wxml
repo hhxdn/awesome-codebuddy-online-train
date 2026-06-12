@@ -127,4 +127,5 @@
     <text class="empty-text">暂无课程</text>
     <text class="empty-sub-text">换个分类试试</text>
   </view>
+<qa-float-btn />
 </view>

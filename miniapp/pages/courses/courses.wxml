@@ -77,4 +77,5 @@
       <text class="empty-sub-text">换个分类试试</text>
     </view>
   </scroll-view>
+<qa-float-btn />
 </view>

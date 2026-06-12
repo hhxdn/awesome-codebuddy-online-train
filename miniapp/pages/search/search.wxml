@@ -28,4 +28,5 @@
       <text class="hot-tag" wx:for="{{hotTags}}" wx:key="*this" bindtap="searchTag" data-tag="{{item}}">{{item}}</text>
     </view>
   </view>
+<qa-float-btn />
 </view>

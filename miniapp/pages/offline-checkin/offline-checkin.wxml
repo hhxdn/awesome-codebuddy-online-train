@@ -26,4 +26,5 @@
       {{checkedIn ? '已打卡' : '立即打卡'}}
     </button>
   </view>
+<qa-float-btn />
 </view>

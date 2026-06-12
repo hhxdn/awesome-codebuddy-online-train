@@ -22,4 +22,5 @@
     <text class="empty-text">资讯不存在</text>
     <text class="empty-sub-text">该资讯可能已被删除或下架</text>
   </view>
+<qa-float-btn />
 </view>

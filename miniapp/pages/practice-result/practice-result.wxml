@@ -42,4 +42,5 @@
     <button class="action-btn-secondary" bindtap="backToHome">返回练习首页</button>
     <button class="action-btn-primary" bindtap="retry">再次练习</button>
   </view>
+<qa-float-btn />
 </view>

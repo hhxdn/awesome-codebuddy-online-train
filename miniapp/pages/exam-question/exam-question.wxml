@@ -103,4 +103,5 @@
       bindtap="submitExam"
     >交卷</button>
   </view>
+<qa-float-btn />
 </view>

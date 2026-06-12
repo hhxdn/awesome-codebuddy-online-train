@@ -1,0 +1,4 @@
+<view class="qa-float-btn" bindtap="goQaSubmit" wx:if="{{show}}">
+  <text class="qa-float-icon">💬</text>
+  <text class="qa-float-text">答疑解惑</text>
+</view>

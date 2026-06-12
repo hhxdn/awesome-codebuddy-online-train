@@ -36,4 +36,5 @@
       <text class="card-arrow">›</text>
     </view>
   </view>
+<qa-float-btn />
 </view>

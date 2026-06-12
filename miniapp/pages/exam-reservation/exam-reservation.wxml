@@ -64,4 +64,5 @@
   <view wx:else class="empty-wrap">
     <text class="empty-text">考试信息不存在</text>
   </view>
+<qa-float-btn />
 </view>

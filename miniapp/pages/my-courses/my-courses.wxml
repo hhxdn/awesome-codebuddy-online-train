@@ -16,4 +16,5 @@
     </view>
   </view>
   <view wx:else class="empty-wrap"><text class="empty-text">暂无课程</text></view>
+<qa-float-btn />
 </view>

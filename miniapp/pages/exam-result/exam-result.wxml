@@ -42,4 +42,5 @@
   <view class="result-actions safe-bottom">
     <button class="action-btn-secondary" bindtap="goBack">返回考试列表</button>
   </view>
+<qa-float-btn />
 </view>

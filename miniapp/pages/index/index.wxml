@@ -4,4 +4,5 @@
     <image src="/static/logo.png" mode="aspectFit" style="width:120rpx;height:120rpx;" />
   </view>
   <view class="splash-name">在线学习</view>
+<qa-float-btn />
 </view>
