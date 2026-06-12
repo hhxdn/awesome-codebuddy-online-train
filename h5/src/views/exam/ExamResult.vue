@@ -86,6 +86,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { get } from '../../api'
 
 const route = useRoute()
 const router = useRouter()
@@ -141,13 +142,53 @@ function goBack() {
   router.push('/')
 }
 
-onMounted(() => {
+onMounted(async () => {
+  let foundInStorage = false
   try {
     const saved = localStorage.getItem('exam_result_' + recordId)
     if (saved) {
-      result.value = JSON.parse(saved)
+      const parsed = JSON.parse(saved)
+      // 兼容旧数据：后端返回 isPass，统一转为 passed
+      if (parsed.passed == null && parsed.isPass != null) {
+        parsed.passed = parsed.isPass
+      }
+      if (parsed.correctCount == null && parsed.rightCount != null) {
+        parsed.correctCount = parsed.rightCount
+      }
+      result.value = parsed
+      foundInStorage = true
     }
   } catch { /* ignore */ }
+
+  // 如果 localStorage 没有数据，从后端 API 获取
+  if (!foundInStorage || !result.value.score) {
+    try {
+      const res = await get('/exam/records/' + recordId)
+      if (res.data) {
+        const record = res.data.record || {}
+        const paper = res.data.paper || {}
+        const answers = res.data.answers || []
+        result.value = {
+          ...result.value,
+          paperName: paper.title || result.value.paperName || '',
+          score: record.score != null ? Number(record.score) : result.value.score,
+          totalScore: paper.totalScore != null ? Number(paper.totalScore) : result.value.totalScore,
+          passScore: paper.passScore != null ? Number(paper.passScore) : result.value.passScore,
+          passed: record.isPass === 1 || record.passed === true || result.value.passed,
+          correctCount: answers.filter(a => a.isCorrect === 1 || a.isCorrect === true).length,
+          totalCount: answers.length || result.value.totalCount,
+          questions: (answers.map(a => a.question).filter(Boolean)) || result.value.questions,
+          userAnswers: {},
+          correctAnswers: answers.map(a => a.question?.answer),
+          explanations: answers.map(() => ''),
+          cheatCount: record.cheatCount || 0,
+          duration: record.submitTime && record.startTime
+            ? Math.round((new Date(record.submitTime) - new Date(record.startTime)) / 60000)
+            : 0
+        }
+      }
+    } catch { /* ignore */ }
+  }
 })
 </script>
 

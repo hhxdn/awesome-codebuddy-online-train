@@ -3,21 +3,21 @@
   <!-- Score Circle -->
   <view class="result-header">
     <view class="result-paper-name" wx:if="{{paperName}}">{{paperName}}</view>
-    <view class="score-circle {{result.passed ? 'passed' : 'failed'}}">
-      <view class="score-value">{{result.score || 0}}</view>
+    <view class="score-circle {{passed ? 'passed' : 'failed'}}">
+      <view class="score-value">{{score || 0}}</view>
       <view class="score-label">分</view>
     </view>
-    <view class="result-msg">{{result.passed ? '恭喜！考试通过' : '很遗憾，未通过'}}</view>
+    <view class="result-msg">{{passed ? '恭喜！考试通过' : '很遗憾，未通过'}}</view>
     <view class="result-stats">
-      <text class="stat-text">正确 {{result.correctCount || 0}} / {{result.totalCount || 0}} 题</text>
-      <text class="stat-text" wx:if="{{result.timeUsed}}">用时 {{result.timeUsed}}</text>
+      <text class="stat-text">正确 {{correctCount}} / {{totalCount}} 题</text>
+      <text class="stat-text" wx:if="{{timeUsed}}">用时 {{timeUsed}}</text>
     </view>
   </view>
 
   <!-- Answer Review -->
-  <view class="review-card" wx:if="{{result.details && result.details.length > 0}}">
+  <view class="review-card" wx:if="{{details.length > 0}}">
     <view class="review-title">答题回顾</view>
-    <view wx:for="{{result.details}}" wx:key="questionId" class="review-item">
+    <view wx:for="{{details}}" wx:key="questionId" class="review-item">
       <view class="review-header">
         <text class="review-num">{{index + 1}}.</text>
         <text class="review-type-tag">{{item.type || '单选题'}}</text>

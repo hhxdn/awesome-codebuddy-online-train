@@ -102,6 +102,10 @@ async function doSubmit() {
     if (res.data) {
       const resultData = {
         ...res.data,
+        passed: res.data.isPass != null ? res.data.isPass : (res.data.passed || false),  // 统一使用 passed
+        duration: res.data.duration || Math.round((duration.value * 1000 - remainingTime.value) / 1000 / 60),
+        correctCount: res.data.rightCount != null ? res.data.rightCount : (res.data.correctCount || 0),
+        totalCount: res.data.totalCount != null ? res.data.totalCount : questions.value.length,
         questions: questions.value,
         userAnswers: { ...adata },
         cheatCount: cheatCount.value
