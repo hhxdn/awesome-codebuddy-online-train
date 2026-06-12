@@ -23,7 +23,7 @@
     <view class="desc-text {{descExpanded ? 'expanded' : ''}}">
       {{course.description || '暂无介绍'}}
     </view>
-    <view wx:if="{{(course.description || '').length > 120}}" class="desc-toggle" bindtap="toggleDesc">
+    <view wx:if="{{hasLongDesc}}" class="desc-toggle" bindtap="toggleDesc">
       {{descExpanded ? '收起' : '展开全部'}}
       <text class="toggle-arrow">{{descExpanded ? '▲' : '▼'}}</text>
     </view>

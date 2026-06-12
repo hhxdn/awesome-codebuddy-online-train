@@ -9,6 +9,7 @@ Page({
     purchased: false,
     isPaid: false,
     descExpanded: false,
+    hasLongDesc: false,
     checkedIn: false,
     belongCategory: null
   },
@@ -25,7 +26,7 @@ Page({
       const res = await app.get('/courses/' + courseId)
       if (res.data) {
         const course = res.data
-        this.setData({ course, isPaid: (course.price || 0) > 0 })
+        this.setData({ course, isPaid: (course.price || 0) > 0, hasLongDesc: (course.description || '').length > 120 })
 
         if (course.categoryId) {
           try {
