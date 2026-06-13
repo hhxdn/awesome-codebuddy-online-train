@@ -68,7 +68,7 @@ Page({
   },
 
   goPracticeCourses() {
-    wx.navigateTo({ url: '/pages/practice-courses/practice-courses' })
+    wx.switchTab({ url: '/pages/practice-courses/practice-courses' })
   },
 
   goNewsList() {
