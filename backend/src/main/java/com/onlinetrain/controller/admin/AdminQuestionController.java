@@ -324,7 +324,7 @@ public class AdminQuestionController {
                             List<String> strOpts = (List<String>) options;
                             String[] labels = {"A", "B", "C", "D", "E", "F"};
                             for (int i = 0; i < strOpts.size() && i < labels.length; i++) {
-                                saveOption(q.getId(), labels[i], strOpts.get(i), labels[i].equals(q.get("answer")));
+                                saveOption(q.getId(), labels[i], strOpts.get(i), labels[i].equals(q.getAnswer()));
                             }
                         }
                     }
