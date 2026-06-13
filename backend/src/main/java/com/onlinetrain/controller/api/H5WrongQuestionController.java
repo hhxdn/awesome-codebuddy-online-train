@@ -3,8 +3,10 @@ package com.onlinetrain.controller.api;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.onlinetrain.common.PageResult;
 import com.onlinetrain.common.Result;
+import com.onlinetrain.entity.Course;
 import com.onlinetrain.entity.Question;
 import com.onlinetrain.entity.WrongQuestion;
+import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.QuestionService;
 import com.onlinetrain.service.WrongQuestionService;
 import io.swagger.annotations.Api;
@@ -32,6 +34,9 @@ public class H5WrongQuestionController {
     @Autowired
     private QuestionService questionService;
 
+    @Autowired
+    private CourseService courseService;
+
     /**
      * 我的错题列表（支持 /wrong-questions 和 /user/wrong-questions）
      */
@@ -54,16 +59,29 @@ public class H5WrongQuestionController {
         List<Map<String, Object>> records = new ArrayList<>();
         for (WrongQuestion wq : wqPage.getRecords()) {
             Question question = questionService.getById(wq.getQuestionId());
+            if (question == null) continue; // 跳过已删除的题目
+            
             Map<String, Object> item = new HashMap<>();
             item.put("id", wq.getId());
             item.put("questionId", wq.getQuestionId());
             item.put("wrongCount", wq.getWrongCount());
             item.put("lastWrongTime", wq.getLastWrongTime());
-            item.put("question", question);
-            if (question != null) {
-                question.setAnswer(null);
-                question.setAnalysis(null);
+            // 前端需要的扁平字段
+            item.put("content", question.getContent());
+            item.put("chapterId", question.getChapterId());
+            item.put("courseId", question.getCourseId());
+            item.put("type", question.getType());
+            
+            // 查询课程名称
+            String courseName = "未知课程";
+            if (question.getCourseId() != null) {
+                Course course = courseService.getById(question.getCourseId());
+                if (course != null) {
+                    courseName = course.getTitle();
+                }
             }
+            item.put("courseName", courseName);
+            
             records.add(item);
         }
 
