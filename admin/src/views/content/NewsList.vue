@@ -142,15 +142,34 @@ function resetForm() {
   form.cover = ''
   form.content = ''
   form.source = ''
+  form.moduleId = null
   form.sortOrder = 0
   isEdit.value = false
   editId.value = null
 }
 
+async function fetchModules() {
+  try {
+    const res = await get('/admin/news-modules')
+    modules.value = res.data || []
+  } catch {
+    modules.value = []
+  }
+}
+
+function getModuleName(moduleId) {
+  const m = modules.value.find(mod => mod.id === moduleId)
+  return m ? m.name : '未知模块'
+}
+
 async function fetchData() {
   loading.value = true
   try {
-    const res = await get('/admin/news')
+    const params = {}
+    if (filterModuleId.value) {
+      params.moduleId = filterModuleId.value
+    }
+    const res = await get('/admin/news', params)
     tableData.value = res.data || []
   } catch {
     tableData.value = []
@@ -174,6 +193,7 @@ function handleEdit(row) {
   form.cover = row.cover || ''
   form.content = row.content || ''
   form.source = row.source || ''
+  form.moduleId = row.moduleId || null
   form.sortOrder = row.sortOrder || 0
   dialogVisible.value = true
 }
@@ -214,6 +234,7 @@ async function handleSubmit() {
       cover: form.cover,
       content: form.content,
       source: form.source,
+      moduleId: form.moduleId,
       sortOrder: form.sortOrder
     }
     if (isEdit.value) {
