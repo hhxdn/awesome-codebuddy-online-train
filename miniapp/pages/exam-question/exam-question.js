@@ -232,19 +232,51 @@ Page({
           : String(answers[questionId] ?? '')
       }))
 
-      await app.post('/exam/submit', {
+      const submitRes = await app.post('/exam/submit', {
         recordId: parseInt(this.data.recordId),
         answers: answerList,
         cheatCount: this.data.cheatCount
       })
 
+      // 验证提交结果
+      if (submitRes.code !== undefined && submitRes.code !== 200 && submitRes.code !== 0) {
+        wx.showModal({
+          title: '提交失败',
+          content: submitRes.message || '服务器处理失败，请重试',
+          showCancel: true,
+          cancelText: '返回重试',
+          confirmText: '继续作答',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              if (this.data.totalSeconds > 0) this.startCountdown()
+            } else {
+              wx.navigateBack()
+            }
+          }
+        })
+        this.setData({ submitting: false })
+        return
+      }
+
       wx.redirectTo({ url: '/pages/exam-result/exam-result?recordId=' + this.data.recordId })
     } catch (e) {
-      wx.showToast({ title: '提交失败', icon: 'none' })
-      // 重新开始倒计时
-      if (this.data.totalSeconds > 0) {
-        this.startCountdown()
-      }
+      wx.showModal({
+        title: '提交失败',
+        content: (e && e.message) || '网络异常，请检查网络后重试',
+        showCancel: true,
+        cancelText: '返回',
+        confirmText: '重新提交',
+        success: (res) => {
+          if (res.confirm) {
+            // 重新开始倒计时，用户可以再次尝试提交
+            if (this.data.totalSeconds > 0) {
+              this.startCountdown()
+            }
+          } else {
+            wx.navigateBack()
+          }
+        }
+      })
     }
     this.setData({ submitting: false })
   }

@@ -79,10 +79,12 @@ async function startExam() {
     const res = await post('/exam/start', { paperId: parseInt(paperId) })
     if (res.data?.recordId) {
       router.push('/exam/do/' + res.data.recordId)
+    } else {
+      showToast('开始考试失败，请重试')
     }
   } catch (e) {
-    showToast('考试开始')
-    router.push('/exam/do/' + Date.now())
+    const msg = e?.response?.data?.message || e.message || '开始考试失败'
+    showToast(msg)
   }
 }
 

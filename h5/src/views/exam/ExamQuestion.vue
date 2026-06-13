@@ -114,24 +114,9 @@ async function doSubmit() {
       router.replace('/exam/result/' + recordId)
     }
   } catch (e) {
-    const resultData = {
-      recordId,
-      paperName: '',
-      score: 0,
-      totalScore: 100,
-      passScore: 60,
-      passed: false,
-      duration: Math.round((duration.value * 1000 - remainingTime.value) / 1000 / 60),
-      correctCount: 0,
-      totalCount: questions.value.length,
-      cheatCount: cheatCount.value,
-      questions: questions.value,
-      userAnswers: { ...adata },
-      correctAnswers: questions.value.map(q => q.answer),
-      explanations: questions.value.map(() => '暂无解析')
-    }
-    localStorage.setItem('exam_result_' + recordId, JSON.stringify(resultData))
-    router.replace('/exam/result/' + recordId)
+    const msg = e?.response?.data?.message || e.message || '提交失败，请稍后重试'
+    showToast(msg)
+    // 倒计时仍在进行中（van-count-down 组件未销毁），时间到会自动提交
   }
   submitting.value = false
 }
