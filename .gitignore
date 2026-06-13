@@ -31,5 +31,5 @@ uploads/
 logs/
 
 # CodeBuddy
-.codebuddy/
+.codebuddy/*
 !.codebuddy/skills/
