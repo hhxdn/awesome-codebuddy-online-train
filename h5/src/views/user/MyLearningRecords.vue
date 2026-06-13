@@ -3,7 +3,7 @@
     <van-nav-bar title="学习记录" />
 
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-      <div v-for="course in courseList" :key="course.id" class="learning-card" @click="goDetail(course)">
+      <div v-for="course in courseList" :key="course.courseId" class="learning-card" @click="goDetail(course)">
         <div class="learning-header">
           <h4>{{ course.courseTitle }}</h4>
           <span class="progress-badge">{{ course.progress || 0 }}%</span>
@@ -33,17 +33,27 @@ const refreshing = ref(false)
 async function fetchLearningRecords() {
   try {
     const res = await get('/user/learning-records')
-    if (res.data) courseList.value = res.data.records || res.data || []
+    // 后端返回课程聚合数据：数组，每项包含 courseId/courseTitle/progress/等
+    let raw = []
+    if (Array.isArray(res.data)) {
+      raw = res.data
+    } else if (res.data?.records) {
+      raw = res.data.records
+    } else if (res.data) {
+      raw = [res.data]
+    }
+    // 将 duration（秒）转为 minutes 显示
+    courseList.value = raw.map(item => ({
+      ...item,
+      totalDuration: item.totalDuration ? Math.round(item.totalDuration / 60) : (item.duration ? Math.round(item.duration / 60) : 0)
+    }))
   } catch (e) {
-    courseList.value = [
-      { id: 1, courseTitle: 'Spring Boot实战教程', progress: 60, studiedChapters: 3, totalChapters: 5, totalDuration: 120 },
-      { id: 2, courseTitle: 'Vue3从入门到精通', progress: 20, studiedChapters: 1, totalChapters: 5, totalDuration: 30 }
-    ]
+    courseList.value = []
   }
 }
 
 function goDetail(course) {
-  router.push('/course/' + course.id)
+  router.push('/course/' + course.courseId)
 }
 
 function onRefresh() {
