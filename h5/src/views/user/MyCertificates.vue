@@ -89,7 +89,6 @@ function formatTime(time) {
   return `${y}-${m}-${day}`
 }
 
-// 从URL提取文件名
 function getFileNameFromUrl(url) {
   try {
     const pathname = new URL(url).pathname
@@ -98,22 +97,6 @@ function getFileNameFromUrl(url) {
   } catch {
     return '证书附件'
   }
-}
-
-// 根据扩展名获取MIME类型
-function getMimeType(fileName) {
-  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase()
-  const map = {
-    '.pdf': 'application/pdf',
-    '.doc': 'application/msword',
-    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp'
-  }
-  return map[ext] || 'application/octet-stream'
 }
 
 async function downloadAttachment(url) {
@@ -134,10 +117,8 @@ async function downloadAttachment(url) {
     document.body.removeChild(a)
     URL.revokeObjectURL(blobUrl)
   } catch (e) {
-    // fetch 失败时回退到 window.open
     const newWin = window.open(url, '_blank')
     if (!newWin) {
-      // 如果被拦截，用 a 标签直接打开
       const a = document.createElement('a')
       a.href = url
       a.target = '_blank'
