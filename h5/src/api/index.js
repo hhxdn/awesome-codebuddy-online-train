@@ -65,7 +65,7 @@ request.interceptors.response.use(
         showToast(error.response.data?.message || '网络异常')
       }
     } else if (error.code === 'ECONNABORTED') {
-      showToast('请求超时，请检查网络')
+      // 超时不提示
     } else {
       showToast('网络连接失败')
     }

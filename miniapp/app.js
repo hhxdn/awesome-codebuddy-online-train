@@ -100,7 +100,7 @@ App({
         },
         fail(err) {
           if (err.errMsg && err.errMsg.includes('timeout')) {
-            wx.showToast({ title: '请求超时', icon: 'none' })
+            // 超时不提示
           } else {
             wx.showToast({ title: '网络连接失败', icon: 'none' })
           }

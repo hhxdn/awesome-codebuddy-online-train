@@ -52,6 +52,8 @@ service.interceptors.response.use(
   error => {
     if (error.response && error.response.status === 401) {
       handleAuthExpired()
+    } else if (error.code === 'ECONNABORTED') {
+      // 超时不提示
     } else {
       ElMessage.error(error.message || '网络错误')
     }
