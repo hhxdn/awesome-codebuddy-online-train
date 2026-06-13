@@ -42,7 +42,7 @@
           </div>
           <div class="detail-seal">线下考试通过</div>
         </div>
-        <van-button v-if="currentCert.attachmentUrl" block round type="primary" class="download-btn" @click="downloadAttachment(currentCert.attachmentUrl)">
+        <van-button v-if="currentCert.attachmentUrl" block round type="primary" class="download-btn" :loading="downloading" loading-text="下载中..." @click="downloadAttachment(currentCert.attachmentUrl)">
           下载证书附件
         </van-button>
         <van-button block round type="primary" class="close-btn" @click="showDetail = false">
@@ -61,6 +61,7 @@ const loading = ref(true)
 const certificates = ref([])
 const showDetail = ref(false)
 const currentCert = ref(null)
+const downloading = ref(false)
 
 async function fetchCertificates() {
   loading.value = true
@@ -88,8 +89,66 @@ function formatTime(time) {
   return `${y}-${m}-${day}`
 }
 
-function downloadAttachment(url) {
-  window.open(url, '_blank')
+// 从URL提取文件名
+function getFileNameFromUrl(url) {
+  try {
+    const pathname = new URL(url).pathname
+    const name = pathname.substring(pathname.lastIndexOf('/') + 1)
+    return decodeURIComponent(name) || '证书附件'
+  } catch {
+    return '证书附件'
+  }
+}
+
+// 根据扩展名获取MIME类型
+function getMimeType(fileName) {
+  const ext = fileName.substring(fileName.lastIndexOf('.')).toLowerCase()
+  const map = {
+    '.pdf': 'application/pdf',
+    '.doc': 'application/msword',
+    '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.jpeg': 'image/jpeg',
+    '.gif': 'image/gif',
+    '.webp': 'image/webp'
+  }
+  return map[ext] || 'application/octet-stream'
+}
+
+async function downloadAttachment(url) {
+  if (!url) return
+  downloading.value = true
+  try {
+    const response = await fetch(url)
+    if (!response.ok) throw new Error('下载失败')
+    const blob = await response.blob()
+    const fileName = getFileNameFromUrl(url)
+    const blobUrl = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = blobUrl
+    a.download = fileName
+    a.style.display = 'none'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(blobUrl)
+  } catch (e) {
+    // fetch 失败时回退到 window.open
+    const newWin = window.open(url, '_blank')
+    if (!newWin) {
+      // 如果被拦截，用 a 标签直接打开
+      const a = document.createElement('a')
+      a.href = url
+      a.target = '_blank'
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    }
+  } finally {
+    downloading.value = false
+  }
 }
 
 onMounted(() => fetchCertificates())
