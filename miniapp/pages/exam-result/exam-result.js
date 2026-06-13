@@ -27,6 +27,8 @@ Page({
       const record = raw.record || {}
       const paper = raw.paper || {}
       const answers = raw.answers || []
+      // 试卷总题数：优先用后端返回的 questionCount，其次用答题记录数量，回退到 paper 关联题目数
+      const totalCount = raw.questionCount || answers.length || 0
 
       // 提取平铺字段
       const paperName = paper.title || raw.paperName || ''
@@ -65,7 +67,7 @@ Page({
         totalScore,
         passed,
         correctCount,
-        totalCount: answers.length,
+        totalCount,
         timeUsed,
         details
       })

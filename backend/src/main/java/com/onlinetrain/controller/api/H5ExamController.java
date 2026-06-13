@@ -382,10 +382,16 @@ public class H5ExamController {
         }
         questionService.enrichForDisplay(reviewQuestions);
 
+        // 试卷总题数（从 exam_paper_question 表统计，即使无答题记录也能获取）
+        long questionCount = examPaperQuestionService.lambdaQuery()
+                .eq(ExamPaperQuestion::getExamPaperId, paper != null ? paper.getId() : null)
+                .count();
+
         Map<String, Object> result = new HashMap<>();
         result.put("record", record);
         result.put("paper", paper);
         result.put("answers", answerDetails);
+        result.put("questionCount", (int) questionCount);
 
         return Result.ok(result);
     }

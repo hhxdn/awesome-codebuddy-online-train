@@ -168,6 +168,7 @@ onMounted(async () => {
         const record = res.data.record || {}
         const paper = res.data.paper || {}
         const answers = res.data.answers || []
+        const questionCount = res.data.questionCount || answers.length || 0
         result.value = {
           ...result.value,
           paperName: paper.title || result.value.paperName || '',
@@ -176,7 +177,7 @@ onMounted(async () => {
           passScore: paper.passScore != null ? Number(paper.passScore) : result.value.passScore,
           passed: record.isPass === 1 || record.passed === true || result.value.passed,
           correctCount: answers.filter(a => a.isCorrect === 1 || a.isCorrect === true).length,
-          totalCount: answers.length || result.value.totalCount,
+          totalCount: questionCount || result.value.totalCount,
           questions: (answers.map(a => a.question).filter(Boolean)) || result.value.questions,
           userAnswers: {},
           correctAnswers: answers.map(a => a.question?.answer),
