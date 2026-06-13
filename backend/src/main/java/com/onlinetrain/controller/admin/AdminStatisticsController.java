@@ -262,22 +262,32 @@ public class AdminStatisticsController {
 
     @GetMapping("/statistics/exam")
     @ApiOperation("考试统计")
-    public Result<Map<String, Object>> exam() {
+    public Result<Map<String, Object>> exam(@RequestParam(required = false) Long examPaperId) {
         Map<String, Object> result = new HashMap<>();
-        List<ExamRecord> records = examRecordService.lambdaQuery()
+        
+        // 所有已提交的考试记录
+        List<ExamRecord> allRecords = examRecordService.lambdaQuery()
                 .eq(ExamRecord::getStatus, "SUBMITTED").list();
-
-        result.put("totalExams", records.size());
+        
+        // 选择的考试记录
+        List<ExamRecord> records = examPaperId != null 
+                ? allRecords.stream().filter(r -> r.getExamPaperId().equals(examPaperId)).collect(Collectors.toList())
+                : allRecords;
+        
+        // 统计指标 - 针对选择的考试或全部
         double avgScore = records.stream().filter(r -> r.getScore() != null)
                 .mapToDouble(r -> r.getScore().doubleValue()).average().orElse(0);
         result.put("avgScore", Math.round(avgScore * 10.0) / 10.0);
-
+        
         long passCount = records.stream().filter(r -> r.getIsPass() == 1).count();
         double passRate = records.size() > 0 ? (double) passCount / records.size() * 100 : 0;
         result.put("passCount", passCount);
         result.put("passRate", Math.round(passRate * 10.0) / 10.0);
+        
+        // 参与人数
+        result.put("totalParticipants", records.size());
 
-        // 成绩分布 - 返回数组格式供图表使用
+        // 成绩分布 - 针对选择的考试
         long[] scoreDist = new long[5];
         scoreDist[0] = records.stream().filter(r -> r.getScore() != null && r.getScore().doubleValue() < 60).count();
         scoreDist[1] = records.stream().filter(r -> r.getScore() != null && r.getScore().doubleValue() >= 60 && r.getScore().doubleValue() < 70).count();
@@ -285,12 +295,22 @@ public class AdminStatisticsController {
         scoreDist[3] = records.stream().filter(r -> r.getScore() != null && r.getScore().doubleValue() >= 80 && r.getScore().doubleValue() < 90).count();
         scoreDist[4] = records.stream().filter(r -> r.getScore() != null && r.getScore().doubleValue() >= 90).count();
         result.put("scoreDistribution", scoreDist);
+        
+        // 选择的考试信息
+        if (examPaperId != null) {
+            ExamPaper selectedPaper = examPaperService.getById(examPaperId);
+            if (selectedPaper != null) {
+                result.put("selectedExamTitle", selectedPaper.getTitle());
+                result.put("selectedExamTotalScore", selectedPaper.getTotalScore());
+                result.put("selectedExamPassScore", selectedPaper.getPassScore());
+            }
+        }
 
-        // 试卷统计
+        // 全部试卷统计概览
         List<ExamPaper> papers = examPaperService.list();
         List<Map<String, Object>> examPaperStats = new ArrayList<>();
         for (ExamPaper paper : papers) {
-            List<ExamRecord> paperRecords = records.stream()
+            List<ExamRecord> paperRecords = allRecords.stream()
                     .filter(r -> r.getExamPaperId().equals(paper.getId())).collect(Collectors.toList());
             double paperAvgScore = paperRecords.stream().filter(r -> r.getScore() != null)
                     .mapToDouble(r -> r.getScore().doubleValue()).average().orElse(0);
@@ -300,12 +320,22 @@ public class AdminStatisticsController {
             item.put("paperId", paper.getId());
             item.put("examTitle", paper.getTitle());
             item.put("totalParticipants", paperRecords.size());
-            item.put("absentCount", 0);
+            item.put("passCount", paperPassCount);
             item.put("avgScore", Math.round(paperAvgScore * 10.0) / 10.0);
             item.put("passRate", Math.round(paperPassRate * 10.0) / 10.0);
             examPaperStats.add(item);
         }
         result.put("examPaperStats", examPaperStats);
+        
+        // 所有试卷列表（供前端下拉选择）
+        List<Map<String, Object>> examList = papers.stream().map(p -> {
+            Map<String, Object> item = new HashMap<>();
+            item.put("id", p.getId());
+            item.put("title", p.getTitle());
+            item.put("examType", p.getExamType() != null ? p.getExamType() : "ONLINE");
+            return item;
+        }).collect(Collectors.toList());
+        result.put("examPapers", examList);
 
         return Result.ok(result);
     }
