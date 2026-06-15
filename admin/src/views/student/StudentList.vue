@@ -3,7 +3,7 @@
     <div class="search-bar">
       <el-form :inline="true" :model="query">
         <el-form-item label="审核状态">
-          <el-select v-model="query.approvalStatus" placeholder="全部" clearable style="width: 130px;" @change="fetchData">
+          <el-select v-model="query.approvalStatus" placeholder="全部" clearable filterable style="width: 130px;" @change="fetchData">
             <el-option label="全部" value="" />
             <el-option label="待审核" value="PENDING" />
             <el-option label="已通过" value="APPROVED" />

@@ -9,6 +9,7 @@
             v-model="selectedExamId"
             placeholder="请选择考试"
             clearable
+            filterable
             style="width: 280px;"
             @change="onExamChange"
           >

@@ -84,7 +84,6 @@ public class AdminExamPaperController {
     /**
      * 创建试卷
      */
-    @SuppressWarnings("unchecked")
     @PostMapping("/exams")
     @ApiOperation("创建试卷")
     public Result<ExamPaper> create(@RequestBody Map<String, Object> params) {
@@ -99,8 +98,12 @@ public class AdminExamPaperController {
         paper.setExamType(params.get("examType") != null ? params.get("examType").toString() : "ONLINE");
         examPaperService.save(paper);
 
-        List<Long> questionIds = (List<Long>) params.get("questionIds");
-        if (questionIds != null && !questionIds.isEmpty()) {
+        // 安全转换 questionIds（Jackson 可能反序列化为 List<Integer>）
+        List<?> rawIds = (List<?>) params.get("questionIds");
+        if (rawIds != null && !rawIds.isEmpty()) {
+            List<Long> questionIds = rawIds.stream()
+                    .map(qid -> Long.valueOf(qid.toString()))
+                    .collect(Collectors.toList());
             examPaperService.savePaperQuestions(paper.getId(), questionIds);
         }
         return Result.ok(paper);
@@ -123,9 +126,12 @@ public class AdminExamPaperController {
         if (params.get("maxAttempts") != null) paper.setMaxAttempts(Integer.parseInt(params.get("maxAttempts").toString()));
         examPaperService.updateById(paper);
 
-        @SuppressWarnings("unchecked")
-        List<Long> questionIds = (List<Long>) params.get("questionIds");
-        if (questionIds != null) {
+        // 安全转换 questionIds（Jackson 可能反序列化为 List<Integer>）
+        List<?> rawIds2 = (List<?>) params.get("questionIds");
+        if (rawIds2 != null) {
+            List<Long> questionIds = rawIds2.stream()
+                    .map(qid -> Long.valueOf(qid.toString()))
+                    .collect(Collectors.toList());
             examPaperService.savePaperQuestions(id, questionIds);
         }
         return Result.ok(paper);

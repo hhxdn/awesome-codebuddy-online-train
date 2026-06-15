@@ -6,7 +6,7 @@
           <el-input v-model="query.keyword" placeholder="课程名称" clearable @keyup.enter="fetchData" />
         </el-form-item>
         <el-form-item label="分类">
-          <el-select v-model="query.categoryId" placeholder="全部分类" clearable style="width: 180px;">
+          <el-select v-model="query.categoryId" placeholder="全部分类" clearable filterable style="width: 180px;">
             <el-option
               v-for="item in categories"
               :key="item.id"
@@ -22,7 +22,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="类型">
-          <el-select v-model="query.courseType" placeholder="全部类型" clearable style="width: 140px;" @change="fetchData">
+          <el-select v-model="query.courseType" placeholder="全部类型" clearable filterable style="width: 140px;" @change="fetchData">
             <el-option label="线上课程" value="ONLINE" />
             <el-option label="线下课程" value="OFFLINE" />
           </el-select>

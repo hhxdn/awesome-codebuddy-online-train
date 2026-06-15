@@ -53,6 +53,7 @@ public class AdminQuestionController {
             @RequestParam(required = false) Long courseId,
             @RequestParam(required = false) Long chapterId,
             @RequestParam(required = false) String type,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {
 
@@ -63,6 +64,7 @@ public class AdminQuestionController {
         if (courseId != null) wrapper.eq(Question::getCourseId, courseId);
         if (chapterId != null) wrapper.eq(Question::getChapterId, chapterId);
         if (type != null && !type.isEmpty()) wrapper.eq(Question::getType, type);
+        if (keyword != null && !keyword.isEmpty()) wrapper.like(Question::getContent, keyword);
         wrapper.orderByDesc(Question::getCreateTime);
 
         Page<Question> questionPage = questionService.page(pageParam, wrapper);

@@ -15,7 +15,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="选择章节">
-          <el-select v-model="chapterId" placeholder="请选择章节" style="width: 300px;" :disabled="!courseId">
+          <el-select v-model="chapterId" placeholder="请选择章节" filterable style="width: 300px;" :disabled="!courseId">
             <el-option v-for="ch in chapters" :key="ch.id" :label="ch.title" :value="ch.id" />
           </el-select>
         </el-form-item>

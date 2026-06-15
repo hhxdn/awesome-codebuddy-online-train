@@ -4,10 +4,10 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3>线下考试预约管理</h3>
         <div style="display: flex; gap: 10px;">
-          <el-select v-model="filterExamId" placeholder="选择线下考试" clearable @change="fetchData" style="width: 220px;">
+          <el-select v-model="filterExamId" placeholder="选择线下考试" clearable filterable @change="fetchData" style="width: 220px;">
             <el-option v-for="e in offlineExams" :key="e.id" :label="e.title" :value="e.id" />
           </el-select>
-          <el-select v-model="filterStatus" placeholder="预约状态" clearable @change="fetchData" style="width: 140px;">
+          <el-select v-model="filterStatus" placeholder="预约状态" clearable filterable @change="fetchData" style="width: 140px;">
             <el-option label="待确认" value="PENDING" />
             <el-option label="已确认" value="CONFIRMED" />
             <el-option label="已取消" value="CANCELLED" />

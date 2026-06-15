@@ -8,7 +8,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="章节">
-          <el-select v-model="query.chapterId" placeholder="全部章节" clearable :disabled="!query.courseId" style="width: 180px;">
+          <el-select v-model="query.chapterId" placeholder="全部章节" clearable filterable :disabled="!query.courseId" style="width: 180px;">
             <el-option v-for="ch in chapters" :key="ch.id" :label="ch.title" :value="ch.id" />
           </el-select>
         </el-form-item>
@@ -91,7 +91,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="章节" prop="chapterId">
-              <el-select v-model="form.chapterId" placeholder="请选择章节" style="width: 100%;" :disabled="!form.courseId">
+              <el-select v-model="form.chapterId" placeholder="请选择章节" filterable style="width: 100%;" :disabled="!form.courseId">
                 <el-option v-for="ch in formChapters" :key="ch.id" :label="ch.title" :value="ch.id" />
               </el-select>
             </el-form-item>

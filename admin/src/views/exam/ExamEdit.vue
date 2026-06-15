@@ -17,7 +17,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="所属课程" prop="courseId">
-              <el-select v-model="form.courseId" placeholder="请选择课程" style="width: 100%;" @change="onCourseChange">
+              <el-select v-model="form.courseId" placeholder="请选择课程" filterable style="width: 100%;" @change="onCourseChange">
                 <el-option v-for="c in courses" :key="c.id" :label="c.title" :value="c.id" />
               </el-select>
             </el-form-item>
@@ -66,7 +66,7 @@
               已选择 {{ form.questionIds.length }} 道题目
             </span>
           </div>
-          <el-select v-model="filterChapterId" placeholder="按章节筛选" clearable style="width: 200px; margin-bottom: 12px;" @change="loadQuestions">
+          <el-select v-model="filterChapterId" placeholder="按章节筛选" clearable filterable style="width: 200px; margin-bottom: 12px;" @change="loadQuestions">
             <el-option v-for="ch in chapters" :key="ch.id" :label="ch.title" :value="ch.id" />
           </el-select>
           <el-table v-loading="questionLoading" :data="availableQuestions" border stripe max-height="500" @selection-change="onSelectionChange" ref="questionTableRef">

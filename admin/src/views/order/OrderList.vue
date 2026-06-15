@@ -21,7 +21,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="课程">
-          <el-select v-model="query.courseId" placeholder="全部课程" clearable style="width: 200px;">
+          <el-select v-model="query.courseId" placeholder="全部课程" clearable filterable style="width: 200px;">
             <el-option v-for="c in courses" :key="c.id" :label="c.title" :value="c.id" />
           </el-select>
         </el-form-item>

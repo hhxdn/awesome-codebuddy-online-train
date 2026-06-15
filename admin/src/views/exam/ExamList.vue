@@ -4,7 +4,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <h3>试卷管理</h3>
         <div style="display: flex; gap: 10px;">
-          <el-select v-model="filterExamType" placeholder="考试类型" clearable style="width: 140px;" @change="fetchData">
+          <el-select v-model="filterExamType" placeholder="考试类型" clearable filterable style="width: 140px;" @change="fetchData">
             <el-option label="线上考试" value="ONLINE" />
             <el-option label="线下考试" value="OFFLINE" />
           </el-select>
@@ -73,7 +73,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="所属课程" prop="courseId">
-              <el-select v-model="form.courseId" placeholder="请选择课程" style="width: 100%;" @change="onCourseChange">
+              <el-select v-model="form.courseId" placeholder="请选择课程" filterable style="width: 100%;" @change="onCourseChange">
                 <el-option v-for="c in courses" :key="c.id" :label="c.title" :value="c.id" />
               </el-select>
             </el-form-item>
@@ -111,7 +111,7 @@
 
         <div v-if="form.courseId && form.examType !== 'OFFLINE'" style="margin-top: 16px;">
           <div class="card-title">选择题目（按章节筛选）</div>
-          <el-select v-model="filterChapterId" placeholder="全部章节" clearable style="width: 200px; margin-bottom: 12px;" @change="loadQuestions">
+          <el-select v-model="filterChapterId" placeholder="全部章节" clearable filterable style="width: 200px; margin-bottom: 12px;" @change="loadQuestions">
             <el-option v-for="ch in examChapters" :key="ch.id" :label="ch.title" :value="ch.id" />
           </el-select>
           <el-table v-loading="questionLoading" :data="availableQuestions" border stripe max-height="300" @selection-change="onSelectionChange" ref="questionTableRef">

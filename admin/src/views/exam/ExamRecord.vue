@@ -3,7 +3,7 @@
     <div class="search-bar">
       <el-form :inline="true">
         <el-form-item label="试卷">
-          <el-select v-model="query.examId" placeholder="全部试卷" clearable @change="fetchData" style="width: 250px;">
+          <el-select v-model="query.examId" placeholder="全部试卷" clearable filterable @change="fetchData" style="width: 250px;">
             <el-option v-for="e in exams" :key="e.id" :label="e.title + (e.examType === 'OFFLINE' ? ' [线下]' : ' [线上]')" :value="e.id" />
           </el-select>
         </el-form-item>

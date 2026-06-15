@@ -4,7 +4,7 @@
     <el-card shadow="never" class="search-card">
       <el-form :inline="true" :model="query">
         <el-form-item label="状态">
-          <el-select v-model="query.status" placeholder="全部" clearable style="width: 130px">
+          <el-select v-model="query.status" placeholder="全部" clearable filterable style="width: 130px">
             <el-option label="待处理" value="PENDING" />
             <el-option label="已处理" value="PROCESSED" />
           </el-select>

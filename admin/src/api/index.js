@@ -62,6 +62,11 @@ service.interceptors.response.use(
 )
 
 export function get(url, params) {
+  // 统一转换前端 pageSize -> 后端 size
+  if (params && params.pageSize !== undefined) {
+    params = { ...params, size: params.pageSize }
+    delete params.pageSize
+  }
   return service.get(url, { params })
 }
 

@@ -3,7 +3,7 @@
     <div class="search-bar">
       <el-form :inline="true" :model="query">
         <el-form-item label="证书类型">
-          <el-select v-model="query.certType" placeholder="全部" clearable style="width: 130px;" @change="fetchData">
+          <el-select v-model="query.certType" placeholder="全部" clearable filterable style="width: 130px;" @change="fetchData">
             <el-option label="全部" value="" />
             <el-option label="单课程" value="COURSE" />
             <el-option label="全课程" value="ALL" />

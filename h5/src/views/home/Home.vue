@@ -428,7 +428,7 @@ onMounted(() => {
 }
 
 .news-header-title {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: 600;
   color: #1D2129;
   position: relative;
@@ -470,8 +470,8 @@ onMounted(() => {
 }
 
 .news-cover {
-  width: 100px;
-  height: 66px;
+  width: 120px;
+  height: 80px;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
@@ -483,15 +483,15 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 56px;
+  min-height: 60px;
 }
 
 .news-info.has-cover {
-  min-height: 66px;
+  min-height: 80px;
 }
 
 .news-title {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 500;
   color: #1D2129;
   line-height: 1.4;
@@ -504,7 +504,7 @@ onMounted(() => {
 .news-meta {
   display: flex;
   gap: 10px;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
 }

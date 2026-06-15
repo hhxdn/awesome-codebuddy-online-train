@@ -4,7 +4,7 @@
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
         <div style="display: flex; align-items: center; gap: 12px;">
           <h3>新闻资讯管理</h3>
-          <el-select v-model="filterModuleId" placeholder="全部模块" clearable style="width: 150px;" @change="fetchData">
+          <el-select v-model="filterModuleId" placeholder="全部模块" clearable filterable style="width: 150px;" @change="fetchData">
             <el-option v-for="m in modules" :key="m.id" :label="m.name" :value="m.id" />
           </el-select>
         </div>

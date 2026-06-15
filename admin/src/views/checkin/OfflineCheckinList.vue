@@ -3,7 +3,7 @@
     <div class="search-bar">
       <el-form :inline="true" :model="query">
         <el-form-item label="打卡方式">
-          <el-select v-model="query.checkinType" placeholder="全部" clearable style="width: 130px;" @change="fetchData">
+          <el-select v-model="query.checkinType" placeholder="全部" clearable filterable style="width: 130px;" @change="fetchData">
             <el-option label="全部" value="" />
             <el-option label="自主打卡" value="SELF" />
             <el-option label="后台代打卡" value="ADMIN" />
