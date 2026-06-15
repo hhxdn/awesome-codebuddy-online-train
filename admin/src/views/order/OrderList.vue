@@ -114,7 +114,7 @@ function statusText(status) {
 
 async function fetchCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999 })
+    const res = await get('/admin/courses', { size: 999 })
     courses.value = res.data?.records || res.data?.list || []
   } catch { courses.value = [] }
 }

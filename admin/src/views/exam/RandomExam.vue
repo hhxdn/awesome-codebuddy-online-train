@@ -135,7 +135,7 @@ const rules = {
 
 async function fetchCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999 })
+    const res = await get('/admin/courses', { size: 999 })
     courses.value = res.data?.records || res.data?.list || []
   } catch { courses.value = [] }
 }
@@ -143,7 +143,7 @@ async function fetchCourses() {
 watch(() => form.courseId, async (newVal) => {
   if (!newVal) { questionCounts.value = {}; return }
   try {
-    const res = await get('/admin/questions', { courseId: newVal, pageSize: 9999 })
+    const res = await get('/admin/questions', { courseId: newVal, size: 9999 })
     const questions = res.data?.records || res.data?.list || []
     questionCounts.value = {}
     questions.forEach(q => {

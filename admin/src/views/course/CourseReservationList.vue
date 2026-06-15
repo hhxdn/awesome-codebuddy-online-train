@@ -90,7 +90,7 @@ function statusLabel(status) {
 
 async function fetchOfflineCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999, courseType: 'OFFLINE' })
+    const res = await get('/admin/courses', { size: 999, courseType: 'OFFLINE' })
     offlineCourses.value = res.data?.records || res.data?.list || []
   } catch { offlineCourses.value = [] }
 }

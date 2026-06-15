@@ -113,7 +113,7 @@ function resetForm() {
 async function fetchData() {
   loading.value = true
   try {
-    const res = await get('/admin/roles', { pageSize: 999 })
+    const res = await get('/admin/roles', { size: 999 })
     tableData.value = res.data?.records || []
   } catch { tableData.value = [] } finally { loading.value = false }
 }

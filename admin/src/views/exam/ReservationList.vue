@@ -90,7 +90,7 @@ function statusLabel(status) {
 
 async function fetchOfflineExams() {
   try {
-    const res = await get('/admin/exams', { pageSize: 999, examType: 'OFFLINE' })
+    const res = await get('/admin/exams', { size: 999, examType: 'OFFLINE' })
     offlineExams.value = res.data?.records || res.data?.list || []
   } catch { offlineExams.value = [] }
 }

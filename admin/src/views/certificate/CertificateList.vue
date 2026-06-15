@@ -143,14 +143,14 @@ const issueForm = reactive({ certType: 'COURSE', userId: null, courseId: null, f
 
 async function fetchCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999 })
+    const res = await get('/admin/courses', { size: 999 })
     courses.value = res.data?.records || res.data?.list || []
   } catch { courses.value = [] }
 }
 
 async function fetchStudents() {
   try {
-    const res = await get('/admin/students', { pageSize: 999 })
+    const res = await get('/admin/students', { size: 999 })
     students.value = res.data?.records || res.data?.list || []
   } catch { students.value = [] }
 }

@@ -143,7 +143,7 @@ function onSelectionChange(selection) {
 
 async function fetchCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999 })
+    const res = await get('/admin/courses', { size: 999 })
     courses.value = res.data?.records || res.data?.list || []
   } catch { courses.value = [] }
 }
@@ -165,7 +165,7 @@ async function loadQuestions() {
   if (!form.courseId) return
   questionLoading.value = true
   try {
-    const params = { courseId: form.courseId, pageSize: 999 }
+    const params = { courseId: form.courseId, size: 999 }
     if (filterChapterId.value) params.chapterId = filterChapterId.value
     const res = await get('/admin/questions', params)
     availableQuestions.value = res.data?.records || res.data?.list || []

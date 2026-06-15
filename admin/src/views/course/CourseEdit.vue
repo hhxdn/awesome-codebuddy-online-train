@@ -237,7 +237,7 @@ async function fetchCategories() {
 
 async function fetchOnlineCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999, status: 'UP' })
+    const res = await get('/admin/courses', { size: 999, status: 'UP' })
     const all = res.data?.records || res.data?.list || []
     onlineCourses.value = all.filter(c => c.courseType === 'ONLINE' || !c.courseType)
   } catch {

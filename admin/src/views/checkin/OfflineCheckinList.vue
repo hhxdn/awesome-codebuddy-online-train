@@ -102,7 +102,7 @@ const checkinForm = reactive({ userId: null, courseId: null })
 
 async function fetchCourses() {
   try {
-    const res = await get('/admin/courses', { pageSize: 999 })
+    const res = await get('/admin/courses', { size: 999 })
     const all = res.data?.records || res.data?.list || []
     courses.value = all
     offlineCourses.value = all.filter(c => c.courseType === 'OFFLINE')
@@ -111,7 +111,7 @@ async function fetchCourses() {
 
 async function fetchStudents() {
   try {
-    const res = await get('/admin/students', { pageSize: 999 })
+    const res = await get('/admin/students', { size: 999 })
     students.value = res.data?.records || res.data?.list || []
   } catch { students.value = [] }
 }

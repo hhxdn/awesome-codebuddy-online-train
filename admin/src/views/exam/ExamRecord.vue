@@ -211,14 +211,14 @@ const offlineExams = computed(() => {
 
 async function fetchExams() {
   try {
-    const res = await get('/admin/exams', { pageSize: 999 })
+    const res = await get('/admin/exams', { size: 999 })
     exams.value = res.data?.records || res.data?.list || []
   } catch { exams.value = [] }
 }
 
 async function fetchStudents() {
   try {
-    const res = await get('/admin/students', { pageSize: 999 })
+    const res = await get('/admin/students', { size: 999 })
     students.value = res.data?.records || res.data?.list || []
   } catch { students.value = [] }
 }
