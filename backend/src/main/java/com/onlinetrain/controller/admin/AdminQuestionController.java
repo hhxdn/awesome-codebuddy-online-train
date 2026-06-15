@@ -207,6 +207,23 @@ public class AdminQuestionController {
         return Result.ok();
     }
 
+    @SuppressWarnings("unchecked")
+    @DeleteMapping("/questions/batch")
+    @ApiOperation("批量删除题目")
+    public Result<Integer> batchDelete(@RequestBody Map<String, Object> params) {
+        List<Integer> idsRaw = (List<Integer>) params.get("ids");
+        if (idsRaw == null || idsRaw.isEmpty()) {
+            return Result.error("请选择要删除的题目");
+        }
+        List<Long> ids = idsRaw.stream().map(Integer::longValue).collect(Collectors.toList());
+        // 先删除选项
+        for (Long id : ids) {
+            questionOptionService.lambdaUpdate().eq(QuestionOption::getQuestionId, id).remove();
+        }
+        questionService.removeByIds(ids);
+        return Result.ok("成功删除" + ids.size() + "道题目", ids.size());
+    }
+
     @PutMapping("/questions/{id}/status")
     @ApiOperation("切换状态 - body: {status: 0|1}")
     public Result<Void> toggleStatus(@PathVariable Long id, @RequestBody Map<String, Object> params) {

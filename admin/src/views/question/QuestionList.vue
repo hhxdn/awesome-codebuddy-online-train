@@ -29,14 +29,15 @@
         </el-form-item>
       </el-form>
       <div style="text-align: right;">
+        <el-button v-if="selectedRows.length > 0" type="danger" @click="handleBatchDelete">批量删除 ({{ selectedRows.length }})</el-button>
         <el-button @click="handleAdd">新增题目</el-button>
         <el-button type="primary" @click="$router.push('/questions/import')">导入题目</el-button>
       </div>
     </div>
 
     <div class="card-container">
-      <el-table :data="tableData" border stripe>
-        <el-table-column prop="id" label="ID" width="70" />
+      <el-table :data="tableData" border stripe @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="50" />
         <el-table-column prop="courseName" label="课程" width="140" show-overflow-tooltip />
         <el-table-column prop="chapterName" label="章节" width="120" show-overflow-tooltip />
         <el-table-column label="类型" width="80">
@@ -155,9 +156,11 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Delete } from '@element-plus/icons-vue'
 import { get, post, put, del } from '@/api'
+import service from '@/api'
 
 const loading = ref(false)
 const tableData = ref([])
+const selectedRows = ref([])
 const courses = ref([])
 const chapters = ref([])
 const formChapters = ref([])
@@ -347,6 +350,33 @@ async function handleToggleStatus(row) {
     row.status = newStatus
     ElMessage.success('状态更新成功')
   } catch { ElMessage.error('操作失败') }
+}
+
+function handleSelectionChange(rows) {
+  selectedRows.value = rows
+}
+
+async function handleBatchDelete() {
+  if (selectedRows.value.length === 0) {
+    ElMessage.warning('请先选择要删除的题目')
+    return
+  }
+  try {
+    await ElMessageBox.confirm(
+      `确定删除选中的 ${selectedRows.value.length} 道题目吗？此操作不可恢复！`,
+      '批量删除',
+      { type: 'warning', confirmButtonText: '确定删除', cancelButtonText: '取消' }
+    )
+    const ids = selectedRows.value.map(r => r.id)
+    await service.delete('/admin/questions/batch', { data: { ids } })
+    ElMessage.success(`成功删除 ${ids.length} 道题目`)
+    selectedRows.value = []
+    fetchData()
+  } catch (err) {
+    if (err !== 'cancel' && err !== 'close') {
+      ElMessage.error('批量删除失败')
+    }
+  }
 }
 
 async function handleDelete(row) {
