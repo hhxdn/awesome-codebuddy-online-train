@@ -1,0 +1,100 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e44]:
+      - text:     
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - generic [ref=e49]:
+            - img [ref=e51]
+            - generic [ref=e55]: 在线学习
+          - generic [ref=e57] [cursor=pointer]:
+            - generic [ref=e58]: 
+            - generic [ref=e59]: 搜索课程、知识点
+        - generic [ref=e62]:
+          - generic [ref=e64] [cursor=pointer]:
+            - img "职业培训师课堂风貌" [ref=e65]
+            - generic [ref=e66]: 职业培训师课堂风貌
+          - generic [ref=e68] [cursor=pointer]:
+            - img "职业培训师学习氛围热烈" [ref=e69]
+            - generic [ref=e70]: 职业培训师学习氛围热烈
+          - generic [ref=e72] [cursor=pointer]:
+            - img "职业培训师精彩课堂" [ref=e73]
+            - generic [ref=e74]: 职业培训师精彩课堂
+        - generic [ref=e86]:
+          - generic [ref=e87]:
+            - generic [ref=e88]: 最新资讯
+            - generic [ref=e89] [cursor=pointer]:
+              - text: 更多
+              - generic [ref=e90]: 
+          - generic [ref=e91]:
+            - generic [ref=e92] [cursor=pointer]: 全部
+            - generic [ref=e93] [cursor=pointer]: 资讯
+            - generic [ref=e94] [cursor=pointer]: 主办单位
+            - generic [ref=e95] [cursor=pointer]: 培训风采
+            - generic [ref=e96] [cursor=pointer]: 课程介绍
+            - generic [ref=e97] [cursor=pointer]: 培训通知
+            - generic [ref=e98] [cursor=pointer]: 师资介绍
+          - generic [ref=e99]:
+            - generic [ref=e100] [cursor=pointer]:
+              - img [ref=e101]
+              - generic [ref=e102]:
+                - generic [ref=e103]: 职业培训师首期高级研修班圆满结束
+                - generic [ref=e104]:
+                  - generic [ref=e105]: 培训中心
+                  - generic [ref=e106]: 1240阅读
+                  - generic [ref=e107]: 2026-06-08
+            - generic [ref=e108] [cursor=pointer]:
+              - img [ref=e109]
+              - generic [ref=e110]:
+                - generic [ref=e111]: 职业培训师首期高级研修班｜专为高阶师资打造的能力进阶课程
+                - generic [ref=e112]:
+                  - generic [ref=e113]: 教研组
+                  - generic [ref=e114]: 1877阅读
+                  - generic [ref=e115]: 2026-06-08
+            - generic [ref=e116] [cursor=pointer]:
+              - img [ref=e117]
+              - generic [ref=e118]:
+                - generic [ref=e119]: 关于开展2025年关于开展职业培训师高级研修班的培训通知
+                - generic [ref=e120]:
+                  - generic [ref=e121]: 培训中心
+                  - generic [ref=e122]: 3458阅读
+                  - generic [ref=e123]: 2026-06-08
+            - generic [ref=e124] [cursor=pointer]:
+              - img [ref=e125]
+              - generic [ref=e126]:
+                - generic [ref=e127]: 研修班师资介绍
+                - generic [ref=e128]:
+                  - generic [ref=e129]: 教研组
+                  - generic [ref=e130]: 990阅读
+                  - generic [ref=e131]: 2026-06-08
+        - generic [ref=e133]:
+          - generic [ref=e134] [cursor=pointer]: 全部
+          - generic [ref=e135] [cursor=pointer]: 职业培训师高级研修班第二期2609
+        - generic [ref=e140] [cursor=pointer]:
+          - generic [ref=e142]: ¥9999
+          - generic [ref=e143]:
+            - heading "职业培训师高级研修班" [level=3] [ref=e144]
+            - generic [ref=e145]:
+              - generic [ref=e146]: 通用
+              - generic [ref=e147]: 4114人学习
+      - tablist [ref=e148]:
+        - tab " 首页" [selected] [ref=e149] [cursor=pointer]:
+          - generic [ref=e151]: 
+          - generic [ref=e152]: 首页
+        - tab " 课程" [ref=e153] [cursor=pointer]:
+          - generic [ref=e155]: 
+          - generic [ref=e156]: 课程
+        - tab " 练习" [ref=e157] [cursor=pointer]:
+          - generic [ref=e159]: 
+          - generic [ref=e160]: 练习
+        - tab " 考试" [ref=e161] [cursor=pointer]:
+          - generic [ref=e163]: 
+          - generic [ref=e164]: 考试
+        - tab " 我的" [ref=e165] [cursor=pointer]:
+          - generic [ref=e167]: 
+          - generic [ref=e168]: 我的
+    - generic [ref=e41] [cursor=pointer]:
+      - generic [ref=e42]: 
+      - generic [ref=e43]: 答疑解惑
+  - dialog [ref=e169]:
+    - generic [ref=e170]: 登录成功

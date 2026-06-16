@@ -113,12 +113,22 @@ watch(
 
 /* ========================================
    Desktop Layout (>=768px)
-   Mobile tabbar layout, full-width, no sidebar
+   Phone-sized centered container
    ======================================== */
 @media (min-width: 768px) {
+  html {
+    background: #E8EDF2;
+  }
+  body {
+    background: #E8EDF2;
+  }
+
   .tabbar-layout {
-    flex-direction: column;
+    max-width: 430px;
+    margin: 0 auto;
     min-height: 100vh;
+    background: var(--bg-color);
+    box-shadow: 0 0 30px rgba(0,0,0,0.10), 0 0 60px rgba(0,0,0,0.04);
   }
 
   .desktop-sidebar {
@@ -133,9 +143,11 @@ watch(
     background: var(--bg-color);
   }
 
-  /* Show mobile tabbar on desktop */
   .main-tabbar {
     display: flex !important;
+    max-width: 430px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 

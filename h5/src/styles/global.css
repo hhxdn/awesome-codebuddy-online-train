@@ -32,7 +32,8 @@
 }
 
 /* ========================================
-   Desktop: full-width responsive, mobile-style layout
+   Desktop (>=768px)
+   Phone-sized container, same as mobile layout
    ======================================== */
 @media (min-width: 768px) {
   html {
@@ -46,7 +47,6 @@
   #app {
     min-height: 100vh;
     overflow-x: hidden;
-    background: var(--bg-color);
   }
 
   /* Custom scrollbar */
@@ -61,58 +61,26 @@
     border-radius: 3px;
   }
 
-  /* Bottom fixed bar */
+  /* Bottom fixed bar - keep inside phone container */
   .bottom-fixed-bar {
     left: 50% !important;
     transform: translateX(-50%) !important;
+    max-width: 430px;
   }
 
-  /* Page container - keep bottom padding for mobile tabbar */
-  .page-container {
-    padding-bottom: 50px;
-  }
-
-  /* Course grid: 2 cols mobile → 4 cols desktop */
-  .course-grid {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    padding: 20px 24px;
-  }
-
-  /* Pull refresh - no forced min-height on desktop */
+  /* Pull refresh - no forced min-height */
   .van-pull-refresh {
     min-height: auto;
   }
 
-  /* Section cards - wider on desktop */
-  .section-card {
-    max-width: 900px;
-    margin: 16px auto;
+  /* Video player - constrain height */
+  .video-player-container video {
+    max-height: 70vh;
+    object-fit: contain;
   }
-
-  /* Cell groups - wider on desktop */
-  .van-cell-group--inset {
-    max-width: 800px;
+  .speed-controls {
+    max-width: 600px;
     margin: 0 auto;
-  }
-}
-
-/* ========================================
-   Large Desktop (>=1200px) - even wider
-   ======================================== */
-@media (min-width: 1200px) {
-  .course-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 20px;
-    padding: 24px 40px;
-  }
-
-  .section-card {
-    max-width: 1100px;
-  }
-
-  .van-cell-group--inset {
-    max-width: 900px;
   }
 }
 
@@ -609,136 +577,4 @@ body {
   padding: 80px 0;
 }
 
-/* ========================================
-   Desktop Page-Specific Styles
-   ======================================== */
-@media (min-width: 768px) {
-  /* Home page */
-  .home-page .home-header {
-    padding: 32px 40px 24px;
-    border-radius: 0 0 16px 16px;
-  }
-  .home-page .home-header .header-top {
-    margin: 0 auto 14px;
-  }
-  .home-page .home-header .header-search {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .home-page .category-bar {
-    position: relative;
-    top: auto;
-    z-index: auto;
-  }
-  .home-page .category-scroll {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 12px 24px;
-  }
-  .home-page .sub-category-bar {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 0 24px 12px;
-  }
 
-  /* Course list page */
-  .course-list-page .search-bar {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-  .course-list-page .category-bar {
-    position: relative;
-    top: auto;
-    z-index: auto;
-  }
-  .course-list-page .category-scroll {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 12px 24px;
-  }
-  .course-list-page .sub-category-bar {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 0 24px 12px;
-  }
-  .course-list-page .van-list__finished-text {
-    padding-bottom: 40px;
-  }
-
-  /* Video player - constrain height on desktop */
-  .video-player-container video {
-    max-height: 70vh;
-    object-fit: contain;
-  }
-  .speed-controls {
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  /* Login page - centered card */
-  .login-page {
-    max-width: 440px;
-    margin: 40px auto;
-    min-height: auto;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    background: #fff;
-  }
-
-  /* Register profile page - centered card */
-  .register-profile-page {
-    max-width: 500px;
-    margin: 20px auto;
-    min-height: auto;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
-    background: #fff;
-  }
-
-  /* Pending approval page */
-  .pending-page {
-    max-width: 440px;
-    margin: 40px auto;
-    min-height: auto;
-  }
-
-  /* Exam pages */
-  .exam-start-page,
-  .exam-result-page,
-  .exam-question-page {
-    margin: 20px auto;
-  }
-
-  /* Practice pages */
-  .practice-home-page,
-  .practice-question-page,
-  .practice-result-page {
-    margin: 0 auto;
-  }
-
-  /* Order pages */
-  .order-confirm-page,
-  .order-list-page {
-    margin: 0 auto;
-  }
-
-  /* Course detail page */
-  .course-detail-page {
-    margin: 0 auto;
-  }
-
-  /* Chapter list page */
-  .chapter-list-page {
-    margin: 0 auto;
-  }
-
-  /* Offline checkin page */
-  .checkin-page {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-}

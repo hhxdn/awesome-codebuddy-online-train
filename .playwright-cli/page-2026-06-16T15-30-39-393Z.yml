@@ -1,0 +1,30 @@
+- generic [ref=e2]:
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - img [ref=e10]
+      - heading "在线学习" [level=1] [ref=e14]
+      - paragraph [ref=e15]: 系统化学习，提升专业技能
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - generic [ref=e18] [cursor=pointer]: 登录
+        - generic [ref=e19] [cursor=pointer]: 注册
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]:
+            - generic [ref=e24]: 
+            - textbox "手机号" [ref=e27]
+          - generic [ref=e28]:
+            - generic [ref=e30]: 
+            - textbox "密码" [ref=e33]
+        - button "登录" [ref=e35] [cursor=pointer]:
+          - generic [ref=e37]: 登录
+    - paragraph [ref=e38]:
+      - text: 登录即表示同意
+      - link "用户协议" [ref=e39] [cursor=pointer]:
+        - /url: "#"
+      - text: 和
+      - link "隐私政策" [ref=e40] [cursor=pointer]:
+        - /url: "#"
+  - generic [ref=e41] [cursor=pointer]:
+    - generic [ref=e42]: 
+    - generic [ref=e43]: 答疑解惑
