@@ -237,7 +237,9 @@ function handleFileChange(file) {
           item.answer = row[11] || ''
         } else {
           item.options = []
-          for (let i = 0; i < 8; i++) {
+          // 单选题只解析A-D（4个选项），多选题解析A-H（8个选项）
+          const maxOpts = type === 'SINGLE' ? 4 : 8
+          for (let i = 0; i < maxOpts; i++) {
             const content = row[3 + i * 2]
             const isCorrect = row[4 + i * 2]
             if (content) {

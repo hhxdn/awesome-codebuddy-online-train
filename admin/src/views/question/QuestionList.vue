@@ -315,7 +315,6 @@ async function handleEdit(row) {
     const res = await get(`/admin/questions/${row.id}`)
     const data = res.data
     form.courseId = data.courseId
-    form.chapterId = data.chapterId
     form.type = data.type
     form.content = data.content
     form.score = data.score
@@ -337,6 +336,7 @@ async function handleEdit(row) {
     }
 
     if (form.courseId) await onFormCourseChange(form.courseId)
+    form.chapterId = data.chapterId
     dialogVisible.value = true
   } catch {
     ElMessage.error('获取题目信息失败')
