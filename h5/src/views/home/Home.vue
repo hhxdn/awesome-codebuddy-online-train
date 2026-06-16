@@ -388,7 +388,8 @@ onMounted(() => {
 .banner-item {
   position: relative;
   width: 100%;
-  height: 200px;
+  aspect-ratio: 16 / 9;
+  max-height: 320px;
   cursor: pointer;
 }
 

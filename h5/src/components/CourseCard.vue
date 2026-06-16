@@ -70,19 +70,17 @@ function goDetail() {
 .card-cover {
   position: relative;
   width: 100%;
-  height: 180px;
+  aspect-ratio: 3 / 2;
   overflow: hidden;
+  border-radius: 10px 10px 0 0;
 }
 
 .card-cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
   transition: transform 0.35s ease;
-}
-
-.course-card:hover .card-cover img {
-  transform: scale(1.06);
 }
 
 .cover-placeholder {
@@ -91,6 +89,10 @@ function goDetail() {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.course-card:hover .card-cover img {
+  transform: scale(1.06);
 }
 
 .cover-placeholder .cover-text {
