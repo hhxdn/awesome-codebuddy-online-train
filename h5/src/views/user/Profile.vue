@@ -196,19 +196,19 @@ onMounted(() => {
     padding-bottom: 0;
   }
 
-  /* Profile header - full width blue bar on desktop */
+  /* Profile header */
   .profile-page :deep(.profile-header) {
     padding: 48px 40px 40px;
     border-radius: 0 0 16px 16px;
   }
 
-  /* Settings icon - align with centered content */
+  /* Settings icon */
   .header-setting {
-    right: calc((100% - 700px) / 2 + 12px);
+    right: 20px;
     top: 24px;
   }
 
-  /* Stats row - centered card on desktop */
+  /* Stats row */
   .profile-page :deep(.stats-row) {
     max-width: 700px;
     margin: -16px auto 0;
@@ -224,12 +224,6 @@ onMounted(() => {
     right: -50px;
   }
 
-  /* Menu label - align with centered menu */
-  .menu-label {
-    padding-left: calc((100% - 700px) / 2 + 20px);
-    padding-right: calc((100% - 700px) / 2 + 20px);
-  }
-
   /* Logout - centered card */
   .logout-wrap {
     max-width: 400px;
@@ -242,15 +236,6 @@ onMounted(() => {
 @media (min-width: 1200px) {
   .profile-page :deep(.stats-row) {
     max-width: 800px;
-  }
-
-  .header-setting {
-    right: calc((100% - 800px) / 2 + 12px);
-  }
-
-  .menu-label {
-    padding-left: calc((100% - 800px) / 2 + 20px);
-    padding-right: calc((100% - 800px) / 2 + 20px);
   }
 }
 </style>

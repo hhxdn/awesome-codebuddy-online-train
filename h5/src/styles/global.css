@@ -32,8 +32,7 @@
 }
 
 /* ========================================
-   Desktop: full-width responsive layout
-   Left sidebar (200px) + content area
+   Desktop: full-width responsive, mobile-style layout
    ======================================== */
 @media (min-width: 768px) {
   html {
@@ -62,15 +61,15 @@
     border-radius: 3px;
   }
 
-  /* Bottom fixed bar - wider on desktop */
+  /* Bottom fixed bar */
   .bottom-fixed-bar {
     left: 50% !important;
     transform: translateX(-50%) !important;
   }
 
-  /* Page container - no bottom padding (no mobile tabbar) */
+  /* Page container - keep bottom padding for mobile tabbar */
   .page-container {
-    padding-bottom: 0;
+    padding-bottom: 50px;
   }
 
   /* Course grid: 2 cols mobile → 4 cols desktop */
@@ -85,13 +84,13 @@
     min-height: auto;
   }
 
-  /* Wider section cards */
+  /* Section cards - wider on desktop */
   .section-card {
-    max-width: 960px;
+    max-width: 900px;
     margin: 16px auto;
   }
 
-  /* Wider cell groups */
+  /* Cell groups - wider on desktop */
   .van-cell-group--inset {
     max-width: 800px;
     margin: 0 auto;
@@ -620,7 +619,6 @@ body {
     border-radius: 0 0 16px 16px;
   }
   .home-page .home-header .header-top {
-    max-width: 800px;
     margin: 0 auto 14px;
   }
   .home-page .home-header .header-search {
@@ -671,8 +669,6 @@ body {
     padding-bottom: 40px;
   }
 
-  /* Profile (Mine) page - see Profile.vue scoped styles for desktop layout */
-
   /* Video player - constrain height on desktop */
   .video-player-container video {
     max-height: 70vh;
@@ -683,7 +679,7 @@ body {
     margin: 0 auto;
   }
 
-  /* Login page */
+  /* Login page - centered card */
   .login-page {
     max-width: 440px;
     margin: 40px auto;
@@ -693,7 +689,7 @@ body {
     background: #fff;
   }
 
-  /* Register profile page */
+  /* Register profile page - centered card */
   .register-profile-page {
     max-width: 500px;
     margin: 20px auto;
@@ -714,38 +710,29 @@ body {
   .exam-start-page,
   .exam-result-page,
   .exam-question-page {
-    max-width: 700px;
     margin: 20px auto;
-  }
-  .question-indicator-row {
-    max-width: 700px;
-    margin: 0 auto;
   }
 
   /* Practice pages */
   .practice-home-page,
   .practice-question-page,
   .practice-result-page {
-    max-width: 700px;
     margin: 0 auto;
   }
 
   /* Order pages */
   .order-confirm-page,
   .order-list-page {
-    max-width: 700px;
     margin: 0 auto;
   }
 
   /* Course detail page */
   .course-detail-page {
-    max-width: 800px;
     margin: 0 auto;
   }
 
   /* Chapter list page */
   .chapter-list-page {
-    max-width: 800px;
     margin: 0 auto;
   }
 

@@ -113,97 +113,29 @@ watch(
 
 /* ========================================
    Desktop Layout (>=768px)
-   Left sidebar + main content area
+   Mobile tabbar layout, full-width, no sidebar
    ======================================== */
 @media (min-width: 768px) {
   .tabbar-layout {
-    flex-direction: row;
-    max-width: 1300px;
-    margin: 0 auto;
+    flex-direction: column;
     min-height: 100vh;
   }
 
   .desktop-sidebar {
-    display: flex;
-    flex-direction: column;
-    width: 200px;
-    min-height: 100vh;
-    background: #fff;
-    border-right: 1px solid var(--border-light);
-    padding: 20px 0;
-    overflow-y: auto;
-    flex-shrink: 0;
-  }
-
-  .sidebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 0 16px 18px;
-    margin: 0 12px 16px;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
-
-  .sidebar-brand .brand-name {
-    font-size: 17px;
-    font-weight: 700;
-    color: var(--text-color);
-    white-space: nowrap;
-  }
-
-  .sidebar-nav {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: 0 10px;
-    flex: 1;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 14px;
-    border-radius: 8px;
-    color: var(--text-secondary);
-    font-size: 14px;
-    text-decoration: none;
-    transition: all var(--transition);
-    cursor: pointer;
-  }
-
-  .nav-item:hover {
-    background: var(--bg-color);
-    color: var(--text-color);
-  }
-
-  .nav-item.active {
-    background: var(--primary-bg);
-    color: var(--primary);
-    font-weight: 600;
-  }
-
-  .nav-item.active:hover {
-    background: var(--primary-bg);
-    color: var(--primary);
+    display: none;
   }
 
   .tabbar-content {
     flex: 1;
-    padding-bottom: 0 !important;
+    padding-bottom: 50px !important;
+    padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important;
     min-height: 100vh;
     background: var(--bg-color);
   }
 
-  /* Hide mobile tabbar on desktop */
+  /* Show mobile tabbar on desktop */
   .main-tabbar {
-    display: none !important;
+    display: flex !important;
   }
 }
 
