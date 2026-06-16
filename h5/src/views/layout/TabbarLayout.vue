@@ -199,6 +199,7 @@ watch(
     margin-left: 200px;
     flex: 1;
     width: calc(100% - 200px);
+    max-width: 1100px;
     padding-bottom: 0 !important;
     min-height: 100vh;
     background: var(--bg-color);
