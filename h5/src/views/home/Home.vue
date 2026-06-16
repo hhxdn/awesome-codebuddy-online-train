@@ -505,7 +505,7 @@ onMounted(() => {
 }
 
 .news-title {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 500;
   color: #1D2129;
   line-height: 1.4;
@@ -545,7 +545,7 @@ onMounted(() => {
   padding: 4px 12px;
   border-radius: 14px;
   background: var(--bg-color);
-  font-size: 14px;
+  font-size: 15px;
   color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
