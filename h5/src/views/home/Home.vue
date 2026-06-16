@@ -402,14 +402,14 @@ onMounted(() => {
 @media (min-width: 768px) {
   .banner-item {
     aspect-ratio: auto;
-    height: 400px;
+    height: 500px;
     border-radius: 10px;
   }
 }
 
 @media (min-width: 1200px) {
   .banner-item {
-    height: 480px;
+    height: 600px;
   }
 }
 
