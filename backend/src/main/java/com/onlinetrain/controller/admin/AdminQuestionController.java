@@ -529,8 +529,8 @@ public class AdminQuestionController {
 
         // 清理题目行：去掉前面的题号
         String content = questionLine.replaceFirst("^\\d+\\s*[.．、]?\\s*", "");
-        // 去掉后面可能的知识点括号
-        content = content.replaceFirst("^\\([^)]*\\)\\s*", "");
+        // 去掉开头可能的知识点括号（支持全角/半角）
+        content = content.replaceFirst("^[（(][^）)]*[）)]\\s*", "");
         // 去掉末尾的（ ）
         content = content.replaceAll("[（(]\\s*[）)]$", "").trim();
 
