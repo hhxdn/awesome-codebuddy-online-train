@@ -42,10 +42,10 @@ onMounted(() => {
     localStorage.setItem(WECHAT_ONLY_KEY, '1')
   }
 
-  // 读取开关状态，默认开启（限制仅微信打开）
-  // 传 ?wechat_only=0 可关闭限制（调试用）
+  // 读取开关状态，默认关闭（不限制）
+  // 传 ?wechat_only=1 可开启限制
   const wechatOnly = localStorage.getItem(WECHAT_ONLY_KEY)
-  if (wechatOnly !== '0' && !isWechat) {
+  if (wechatOnly === '1' && !isWechat) {
     showWechatTip.value = true
   }
 })
