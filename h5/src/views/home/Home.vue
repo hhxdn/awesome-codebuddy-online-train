@@ -63,6 +63,9 @@
           @click="goNewsDetail(item.id)"
         >
           <img v-if="item.cover" :src="item.cover" class="news-cover" />
+          <div v-else class="news-cover-placeholder">
+            <van-icon name="description" size="36" color="#C0C4CC" />
+          </div>
           <div class="news-info" :class="{ 'has-cover': item.cover }">
             <div class="news-title">{{ item.title }}</div>
             <div class="news-meta">
@@ -477,6 +480,17 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
+.news-cover-placeholder {
+  width: 120px;
+  height: 80px;
+  border-radius: 6px;
+  background: #F5F7FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 .news-info {
   flex: 1;
   min-width: 0;
@@ -839,7 +853,7 @@ onMounted(() => {
     margin-top: 16px;
     margin-bottom: 16px;
     border-radius: 12px;
-    padding: 20px 24px;
+    padding: 24px 24px 20px;
     box-shadow: 0 1px 4px rgba(0,0,0,0.04);
   }
   .news-header {
@@ -851,30 +865,56 @@ onMounted(() => {
   .news-header-more {
     font-size: 13px;
   }
+  .news-tabs {
+    gap: 10px;
+    padding: 0 0 14px 0;
+  }
+  .news-tab {
+    font-size: 14px;
+    padding: 6px 16px;
+  }
   .news-list {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
   }
   .news-item {
-    gap: 12px;
+    flex-direction: column;
+    gap: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid #F0F0F0;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .news-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   }
   .news-cover {
-    width: 180px;
-    height: 110px;
-    border-radius: 8px;
+    width: 100%;
+    height: 160px;
+    border-radius: 0;
+    object-fit: cover;
   }
   .news-info {
-    min-height: 110px;
+    padding: 14px 16px 16px;
+    min-height: auto;
+    gap: 10px;
   }
   .news-info.has-cover {
-    min-height: 110px;
+    min-height: auto;
   }
   .news-title {
     font-size: 15px;
+    line-height: 1.5;
+    -webkit-line-clamp: 2;
+    min-height: 45px;
   }
   .news-meta {
     font-size: 12px;
+    gap: 12px;
+    color: #999;
   }
 
   /* Course grid area */
@@ -905,19 +945,16 @@ onMounted(() => {
   .banner-item {
     height: 400px;
   }
+  .news-list {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
   .news-cover {
-    width: 200px;
-    height: 120px;
-    border-radius: 8px;
-  }
-  .news-info {
-    min-height: 120px;
-  }
-  .news-info.has-cover {
-    min-height: 120px;
+    height: 170px;
   }
   .news-title {
-    font-size: 16px;
+    font-size: 15px;
+    min-height: 42px;
   }
 }
 
@@ -934,18 +971,15 @@ onMounted(() => {
     height: 440px;
   }
   .news-list {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
   }
   .news-cover {
-    width: 220px;
-    height: 130px;
+    height: 180px;
   }
-  .news-info {
-    min-height: 130px;
-  }
-  .news-info.has-cover {
-    min-height: 130px;
+  .news-title {
+    font-size: 16px;
+    min-height: 48px;
   }
 }
 </style>
