@@ -388,8 +388,7 @@ onMounted(() => {
 .banner-item {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
-  max-height: 320px;
+  aspect-ratio: 2 / 1;
   cursor: pointer;
 }
 
@@ -398,6 +397,20 @@ onMounted(() => {
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+@media (min-width: 768px) {
+  .banner-item {
+    aspect-ratio: auto;
+    height: 300px;
+    border-radius: 10px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .banner-item {
+    height: 360px;
+  }
 }
 
 .banner-title {
