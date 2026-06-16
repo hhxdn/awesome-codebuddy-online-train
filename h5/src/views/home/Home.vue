@@ -542,18 +542,19 @@ onMounted(() => {
 .news-tabs::-webkit-scrollbar { display: none; }
 .news-tab {
   flex-shrink: 0;
-  padding: 4px 12px;
-  border-radius: 14px;
-  background: var(--bg-color);
+  padding: 6px 16px;
+  border-radius: 6px;
+  background: #F2F3F5;
   font-size: 15px;
-  color: var(--text-secondary);
+  font-weight: 500;
+  color: #4E5969;
   cursor: pointer;
   white-space: nowrap;
 }
 .news-tab.active {
-  background: var(--primary-bg);
-  color: var(--primary);
-  font-weight: 500;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
 }
 .news-empty {
   text-align: center;
