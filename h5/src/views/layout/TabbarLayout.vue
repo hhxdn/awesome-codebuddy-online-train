@@ -130,13 +130,9 @@ watch(
     min-height: 100vh;
     background: #fff;
     border-right: 1px solid var(--border-light);
-    position: sticky;
-    top: 0;
-    z-index: 200;
     padding: 20px 0;
     overflow-y: auto;
     flex-shrink: 0;
-    align-self: flex-start;
   }
 
   .sidebar-brand {
@@ -199,7 +195,6 @@ watch(
   }
 
   .tabbar-content {
-    margin-left: 0;
     flex: 1;
     padding-bottom: 0 !important;
     min-height: 100vh;
