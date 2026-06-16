@@ -531,7 +531,7 @@ onMounted(() => {
   padding: 4px 12px;
   border-radius: 14px;
   background: var(--bg-color);
-  font-size: 12px;
+  font-size: 14px;
   color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
