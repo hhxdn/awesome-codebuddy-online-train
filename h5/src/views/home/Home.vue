@@ -500,6 +500,30 @@ onMounted(() => {
   min-height: 60px;
 }
 
+@media (min-width: 768px) {
+  .news-section {
+    padding: 20px 24px;
+  }
+  .news-header-title {
+    font-size: 20px;
+  }
+  .news-cover {
+    width: 240px;
+    height: 150px;
+    border-radius: 8px;
+  }
+  .news-info {
+    min-height: 150px;
+  }
+  .news-title {
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .news-meta {
+    font-size: 14px;
+  }
+}
+
 .news-info.has-cover {
   min-height: 80px;
 }

@@ -217,4 +217,39 @@ onMounted(() => {
   color: #C9CDD4;
   margin-top: 6px;
 }
+
+@media (min-width: 768px) {
+  .news-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    padding: 20px 24px;
+  }
+  .news-item {
+    border-radius: 12px;
+    padding: 16px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .news-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  }
+  .news-cover {
+    width: 220px;
+    height: 138px;
+    border-radius: 8px;
+  }
+  .news-info.has-cover {
+    min-height: 138px;
+  }
+  .news-title {
+    font-size: 17px;
+  }
+  .news-summary {
+    font-size: 13px;
+  }
+  .news-meta {
+    font-size: 12px;
+  }
+}
 </style>
