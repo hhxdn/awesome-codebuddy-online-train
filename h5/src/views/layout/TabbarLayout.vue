@@ -113,41 +113,110 @@ watch(
 
 /* ========================================
    Desktop Layout (>=768px)
-   Phone-sized centered container
+   Left sidebar + content area, full-width desktop experience
    ======================================== */
 @media (min-width: 768px) {
-  html {
-    background: #E8EDF2;
-  }
-  body {
-    background: #E8EDF2;
-  }
-
   .tabbar-layout {
-    max-width: 430px;
-    margin: 0 auto;
+    flex-direction: row;
     min-height: 100vh;
-    background: var(--bg-color);
-    box-shadow: 0 0 30px rgba(0,0,0,0.10), 0 0 60px rgba(0,0,0,0.04);
   }
 
+  /* Show sidebar */
   .desktop-sidebar {
-    display: none;
+    display: flex;
+    flex-direction: column;
+    width: 220px;
+    min-height: 100vh;
+    background: #fff;
+    border-right: 1px solid var(--border-light);
+    padding: 24px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
   }
 
+  .sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 18px 20px;
+    margin: 0 12px 16px;
+    border-bottom: 1px solid var(--border-light);
+  }
+
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .sidebar-brand .brand-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-color);
+    white-space: nowrap;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 0 10px;
+    flex: 1;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition: all var(--transition);
+    cursor: pointer;
+  }
+
+  .nav-item:hover {
+    background: var(--bg-color);
+    color: var(--text-color);
+  }
+
+  .nav-item.active {
+    background: var(--primary-bg);
+    color: var(--primary);
+    font-weight: 600;
+  }
+
+  .nav-item.active:hover {
+    background: var(--primary-bg);
+    color: var(--primary);
+  }
+
+  /* Content area - fills remaining space */
   .tabbar-content {
     flex: 1;
-    padding-bottom: 50px !important;
-    padding-bottom: calc(50px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: 0 !important;
     min-height: 100vh;
     background: var(--bg-color);
+    min-width: 0;
   }
 
+  /* Hide mobile tabbar on desktop */
   .main-tabbar {
-    display: flex !important;
-    max-width: 430px;
-    left: 50%;
-    transform: translateX(-50%);
+    display: none !important;
+  }
+}
+
+/* ========================================
+   Large Desktop (>=1200px)
+   ======================================== */
+@media (min-width: 1200px) {
+  .desktop-sidebar {
+    width: 240px;
   }
 }
 

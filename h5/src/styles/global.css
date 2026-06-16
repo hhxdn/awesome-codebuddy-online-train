@@ -33,7 +33,7 @@
 
 /* ========================================
    Desktop (>=768px)
-   Phone-sized container, same as mobile layout
+   Full desktop layout with sidebar nav
    ======================================== */
 @media (min-width: 768px) {
   html {
@@ -61,11 +61,23 @@
     border-radius: 3px;
   }
 
-  /* Bottom fixed bar - keep inside phone container */
+  /* Bottom fixed bar - wider on desktop, no phone container restriction */
   .bottom-fixed-bar {
     left: 50% !important;
     transform: translateX(-50%) !important;
-    max-width: 430px;
+    max-width: 500px;
+  }
+
+  /* Page container - no bottom padding (no mobile tabbar) */
+  .page-container {
+    padding-bottom: 0;
+  }
+
+  /* Course grid: 2 cols → 3 cols on medium desktop */
+  .course-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 20px 24px;
   }
 
   /* Pull refresh - no forced min-height */
@@ -73,14 +85,71 @@
     min-height: auto;
   }
 
+  /* Section cards - wider */  
+  .section-card {
+    max-width: 1000px;
+    margin: 16px auto;
+  }
+
+  /* Cell groups - wider */
+  .van-cell-group--inset {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
   /* Video player - constrain height */
   .video-player-container video {
-    max-height: 70vh;
+    max-height: 75vh;
     object-fit: contain;
   }
   .speed-controls {
     max-width: 600px;
     margin: 0 auto;
+  }
+
+  /* Profile header - wider desktop style */
+  .profile-header {
+    border-radius: 0 0 20px 20px;
+    padding-top: 60px;
+    padding-bottom: 48px;
+  }
+}
+
+/* ========================================
+   Large Desktop (>=1200px)
+   ======================================== */
+@media (min-width: 1200px) {
+  .course-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+    padding: 24px 32px;
+  }
+
+  .section-card {
+    max-width: 1100px;
+  }
+
+  .van-cell-group--inset {
+    max-width: 900px;
+  }
+}
+
+/* ========================================
+   Extra Large Desktop (>=1600px)
+   ======================================== */
+@media (min-width: 1600px) {
+  .course-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 24px;
+    padding: 28px 40px;
+  }
+
+  .section-card {
+    max-width: 1200px;
+  }
+
+  .van-cell-group--inset {
+    max-width: 1000px;
   }
 }
 
@@ -577,4 +646,119 @@ body {
   padding: 80px 0;
 }
 
+/* ========================================
+   Desktop Page-Specific Styles (>=768px)
+   ======================================== */
+@media (min-width: 768px) {
+  /* Home page - category bars wrap instead of scroll */
+  .home-page .home-header {
+    padding: 32px 40px 24px;
+    border-radius: 0 0 20px 20px;
+  }
+  .home-page .home-header .header-top {
+    max-width: 800px;
+    margin: 0 auto 14px;
+  }
+  .home-page .home-header .header-search {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .home-page .category-bar {
+    position: relative;
+    top: auto;
+    z-index: auto;
+  }
+  .home-page .category-scroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 12px 24px;
+  }
+  .home-page .sub-category-bar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 0 24px 12px;
+  }
 
+  /* Course list page - category bars wrap */
+  .course-list-page .search-bar {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .course-list-page .category-bar {
+    position: relative;
+    top: auto;
+    z-index: auto;
+  }
+  .course-list-page .category-scroll {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 12px 24px;
+  }
+  .course-list-page .sub-category-bar {
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 8px;
+    padding: 0 24px 12px;
+  }
+  .course-list-page .van-list__finished-text {
+    padding-bottom: 40px;
+  }
+
+  /* Login page - centered card */
+  .login-page {
+    max-width: 440px;
+    margin: 60px auto;
+    min-height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: #fff;
+  }
+
+  /* Register profile page - centered card */
+  .register-profile-page {
+    max-width: 500px;
+    margin: 40px auto;
+    min-height: auto;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    background: #fff;
+  }
+
+  /* Pending approval page */
+  .pending-page {
+    max-width: 440px;
+    margin: 60px auto;
+    min-height: auto;
+  }
+
+  /* Course detail */
+  .course-detail-page {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Chapter list */
+  .chapter-list-page {
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Offline checkin */
+  .checkin-page {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+}
+
+/* ========================================
+   Large Desktop (>=1200px)
+   ======================================== */
+@media (min-width: 1200px) {
+  .course-detail-page,
+  .chapter-list-page {
+    max-width: 1100px;
+  }
+}
