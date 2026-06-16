@@ -35,13 +35,9 @@
    Desktop (>=768px)
    ======================================== */
 @media (min-width: 768px) {
-  html {
-    font-size: 75px !important;
-    background: #E8EDF2;
-  }
   body {
     min-height: 100vh;
-    background: #E8EDF2;
+    background: #F0F2F5;
   }
   #app {
     min-height: 100vh;
@@ -57,7 +53,7 @@
   .course-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    padding: 20px 24px;
+    padding: 16px 0;
   }
 
   .van-pull-refresh { min-height: auto; }
@@ -81,7 +77,7 @@
   .course-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
-    padding: 24px 32px;
+    padding: 20px 0;
   }
 }
 
@@ -92,7 +88,7 @@
   .course-grid {
     grid-template-columns: repeat(5, 1fr);
     gap: 24px;
-    padding: 28px 40px;
+    padding: 24px 0;
   }
 }
 
@@ -594,29 +590,6 @@ body {
    Desktop Page-Specific Styles (>=768px)
    ======================================== */
 @media (min-width: 768px) {
-  /* Home page */
-  .home-page .home-header {
-    padding: 32px 40px 24px;
-    border-radius: 0 0 20px 20px;
-  }
-  .home-page .category-bar {
-    position: relative;
-    top: auto;
-    z-index: auto;
-  }
-  .home-page .category-scroll {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 12px 24px;
-  }
-  .home-page .sub-category-bar {
-    flex-wrap: wrap;
-    overflow-x: visible;
-    gap: 8px;
-    padding: 0 24px 12px;
-  }
-
   /* Course list page */
   .course-list-page .category-bar {
     position: relative;
