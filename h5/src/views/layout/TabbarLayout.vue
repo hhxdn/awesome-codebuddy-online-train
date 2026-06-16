@@ -113,7 +113,7 @@ watch(
 
 /* ========================================
    Desktop Layout (>=768px)
-   Left sidebar + content area, full-width desktop experience
+   Left sidebar + content fills remaining space
    ======================================== */
 @media (min-width: 768px) {
   .tabbar-layout {
@@ -121,7 +121,6 @@ watch(
     min-height: 100vh;
   }
 
-  /* Show sidebar */
   .desktop-sidebar {
     display: flex;
     flex-direction: column;
@@ -146,11 +145,7 @@ watch(
     border-bottom: 1px solid var(--border-light);
   }
 
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-  }
+  .sidebar-logo { display: flex; align-items: center; flex-shrink: 0; }
 
   .sidebar-brand .brand-name {
     font-size: 17px;
@@ -180,23 +175,10 @@ watch(
     cursor: pointer;
   }
 
-  .nav-item:hover {
-    background: var(--bg-color);
-    color: var(--text-color);
-  }
+  .nav-item:hover { background: var(--bg-color); color: var(--text-color); }
+  .nav-item.active { background: var(--primary-bg); color: var(--primary); font-weight: 600; }
+  .nav-item.active:hover { background: var(--primary-bg); color: var(--primary); }
 
-  .nav-item.active {
-    background: var(--primary-bg);
-    color: var(--primary);
-    font-weight: 600;
-  }
-
-  .nav-item.active:hover {
-    background: var(--primary-bg);
-    color: var(--primary);
-  }
-
-  /* Content area - fills remaining space */
   .tabbar-content {
     flex: 1;
     padding-bottom: 0 !important;
@@ -205,19 +187,11 @@ watch(
     min-width: 0;
   }
 
-  /* Hide mobile tabbar on desktop */
-  .main-tabbar {
-    display: none !important;
-  }
+  .main-tabbar { display: none !important; }
 }
 
-/* ========================================
-   Large Desktop (>=1200px)
-   ======================================== */
 @media (min-width: 1200px) {
-  .desktop-sidebar {
-    width: 240px;
-  }
+  .desktop-sidebar { width: 240px; }
 }
 
 /* Page transition */
