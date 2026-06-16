@@ -118,6 +118,9 @@ watch(
 @media (min-width: 768px) {
   .tabbar-layout {
     flex-direction: row;
+    max-width: 1300px;
+    margin: 0 auto;
+    min-height: 100vh;
   }
 
   .desktop-sidebar {
@@ -127,13 +130,13 @@ watch(
     min-height: 100vh;
     background: #fff;
     border-right: 1px solid var(--border-light);
-    position: fixed;
-    left: 0;
+    position: sticky;
     top: 0;
-    bottom: 0;
     z-index: 200;
     padding: 20px 0;
     overflow-y: auto;
+    flex-shrink: 0;
+    align-self: flex-start;
   }
 
   .sidebar-brand {
@@ -196,10 +199,8 @@ watch(
   }
 
   .tabbar-content {
-    margin-left: 200px;
+    margin-left: 0;
     flex: 1;
-    width: calc(100% - 200px);
-    max-width: 1100px;
     padding-bottom: 0 !important;
     min-height: 100vh;
     background: var(--bg-color);
