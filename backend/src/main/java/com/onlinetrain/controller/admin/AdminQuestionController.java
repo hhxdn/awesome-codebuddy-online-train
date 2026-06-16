@@ -536,8 +536,10 @@ public class AdminQuestionController {
 
         if (content.isEmpty()) return null;
 
-        // 判断题型：答案包含多个字母为多选
-        String type = (answer != null && answer.length() > 1 && answer.matches("[A-H]+")) ? "MULTIPLE" : "SINGLE";
+        // 判断题型：去掉分隔符后，答案包含多个字母为多选
+        // 支持 "ABC"、"A,B,C"、"A、B、C"、"A B C" 等格式
+        String cleanedAnswer = answer != null ? answer.replaceAll("[\\s,，、;；]+", "") : "";
+        String type = (cleanedAnswer.length() > 1 && cleanedAnswer.matches("[A-H]+")) ? "MULTIPLE" : "SINGLE";
 
         result.put("content", content);
         result.put("type", type);
