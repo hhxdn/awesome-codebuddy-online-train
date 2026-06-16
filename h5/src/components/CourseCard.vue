@@ -170,4 +170,85 @@ function goDetail() {
   font-size: 11px;
   color: var(--text-muted);
 }
+
+@media (min-width: 768px) {
+  .course-card {
+    border-radius: 12px;
+  }
+  .card-cover {
+    border-radius: 12px 12px 0 0;
+  }
+  .card-body {
+    padding: 14px 16px 16px;
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    min-height: 48px;
+  }
+  .meta-category {
+    font-size: 12px;
+    padding: 3px 10px;
+  }
+  .meta-students {
+    font-size: 12px;
+  }
+  .cover-badge {
+    font-size: 13px;
+    padding: 3px 10px;
+    top: 12px;
+    right: 12px;
+  }
+  .cover-type-badge {
+    font-size: 13px;
+    padding: 3px 10px;
+    top: 12px;
+    left: 12px;
+  }
+  .cover-placeholder .cover-text {
+    font-size: 56px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .course-card {
+    border-radius: 14px;
+  }
+  .card-cover {
+    border-radius: 14px 14px 0 0;
+  }
+  .card-body {
+    padding: 16px 18px 18px;
+  }
+  .card-title {
+    font-size: 18px;
+    min-height: 54px;
+  }
+  .meta-category {
+    font-size: 13px;
+  }
+  .meta-students {
+    font-size: 13px;
+  }
+  .cover-placeholder .cover-text {
+    font-size: 64px;
+  }
+}
+
+@media (min-width: 1600px) {
+  .card-title {
+    font-size: 19px;
+    min-height: 56px;
+  }
+  .meta-category {
+    font-size: 14px;
+  }
+  .meta-students {
+    font-size: 14px;
+  }
+  .cover-placeholder .cover-text {
+    font-size: 72px;
+  }
+}
 </style>
