@@ -17,7 +17,7 @@
           </div>
           <div class="order-body">
             <div class="order-cover">
-              <van-image :src="order.courseCover" width="72" height="48" fit="cover" radius="6">
+              <van-image :src="order.courseCover" width="64" height="48" fit="cover" radius="6">
                 <template #error>
                   <div class="cover-fb">课</div>
                 </template>
@@ -118,7 +118,7 @@ onMounted(() => fetchOrders())
 
 .order-body { display: flex; gap: 12px; margin-bottom: 12px; }
 .cover-fb {
-  width: 72px; height: 48px; border-radius: 6px;
+  width: 64px; height: 48px; border-radius: 6px;
   background: linear-gradient(135deg, #0052D9, #366EF4);
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 16px; font-weight: 700;

@@ -11,7 +11,7 @@
           <template #default="{ row }">
             <el-image
               :src="row.imageUrl"
-              style="width: 180px; height: 68px; border-radius: 4px;"
+              style="width: 180px; height: 101px; border-radius: 4px;"
               fit="cover"
               :preview-src-list="[row.imageUrl]"
               preview-teleported
@@ -57,7 +57,7 @@
         <el-form-item label="图片预览" v-if="form.imageUrl">
           <el-image
             :src="form.imageUrl"
-            style="width: 400px; height: 150px; border-radius: 6px;"
+            style="width: 400px; height: 225px; border-radius: 6px;"
             fit="cover"
           />
         </el-form-item>

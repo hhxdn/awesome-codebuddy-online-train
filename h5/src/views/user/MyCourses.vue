@@ -5,7 +5,7 @@
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <van-list v-model:loading="loading" :finished="finished" finished-text="— 没有更多课程 —">
         <div v-for="course in courseList" :key="course.id" class="course-item" @click="goDetail(course)">
-          <van-image :src="course.cover" width="100" height="66" fit="cover" radius="8">
+          <van-image :src="course.cover" width="100" height="75" fit="cover" radius="8">
             <template #error>
               <div class="cover-placeholder">{{ course.title?.charAt(0) }}</div>
             </template>
