@@ -52,7 +52,7 @@
           <el-input v-model="form.title" placeholder="请输入Banner标题" />
         </el-form-item>
         <el-form-item label="Banner图片" prop="imageUrl">
-          <ImageUpload v-model="form.imageUrl" tip="支持 jpg/png/gif/webp，建议 2:1 比例，如 750×375" />
+          <ImageUpload v-model="form.imageUrl" tip="支持 jpg/png/gif/webp，建议 16:9 比例，如 750×422" />
         </el-form-item>
         <el-form-item label="图片预览" v-if="form.imageUrl">
           <el-image

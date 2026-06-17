@@ -391,7 +391,7 @@ onMounted(() => {
 .banner-item {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 1;
+  aspect-ratio: 16 / 9;
   cursor: pointer;
 }
 
@@ -474,7 +474,7 @@ onMounted(() => {
 
 .news-cover {
   width: 120px;
-  height: 80px;
+  aspect-ratio: 16 / 9;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
@@ -482,7 +482,7 @@ onMounted(() => {
 
 .news-cover-placeholder {
   width: 120px;
-  height: 80px;
+  aspect-ratio: 16 / 9;
   border-radius: 6px;
   background: #F5F7FA;
   display: flex;
@@ -894,9 +894,14 @@ onMounted(() => {
   }
   .news-cover {
     width: 100%;
-    height: 160px;
+    aspect-ratio: 16 / 9;
     border-radius: 0;
     object-fit: cover;
+  }
+  .news-cover-placeholder {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 0;
   }
   .news-info {
     padding: 14px 16px 16px;
@@ -950,9 +955,6 @@ onMounted(() => {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
   }
-  .news-cover {
-    height: 170px;
-  }
   .news-title {
     font-size: 15px;
     min-height: 42px;
@@ -974,9 +976,6 @@ onMounted(() => {
   .news-list {
     grid-template-columns: repeat(5, 1fr);
     gap: 20px;
-  }
-  .news-cover {
-    height: 180px;
   }
   .news-title {
     font-size: 16px;

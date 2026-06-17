@@ -82,7 +82,7 @@
           />
         </el-form-item>
         <el-form-item label="封面图">
-          <ImageUpload v-model="form.cover" tip="支持 jpg/png/gif/webp，建议 3:2 比例，如 600×400" />
+          <ImageUpload v-model="form.cover" tip="支持 jpg/png/gif/webp，建议 16:9 比例，如 750×422" />
         </el-form-item>
         <el-form-item label="来源">
           <el-input v-model="form.source" placeholder="如：官方博客、技术社区等" />
