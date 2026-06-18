@@ -140,10 +140,10 @@
 .news-tab {
   flex-shrink: 0;
   display: inline-block;
-  padding: 8rpx 24rpx;
+  padding: 10rpx 28rpx;
   border-radius: 28rpx;
   background: var(--bg-color);
-  font-size: 24rpx;
+  font-size: 30rpx;
   color: var(--text-secondary);
   margin-right: 16rpx;
 }
@@ -152,6 +152,7 @@
   background: var(--primary-bg);
   color: var(--primary);
   font-weight: 500;
+  font-size: 30rpx;
 }
 
 .news-list {

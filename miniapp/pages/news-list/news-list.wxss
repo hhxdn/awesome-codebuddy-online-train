@@ -21,10 +21,10 @@
 .tab-chip {
   flex-shrink: 0;
   display: inline-block;
-  padding: 12rpx 32rpx;
+  padding: 14rpx 36rpx;
   border-radius: 32rpx;
   background: var(--bg-color);
-  font-size: 26rpx;
+  font-size: 30rpx;
   color: var(--text-secondary);
   margin-right: 16rpx;
   transition: all 0.2s;
@@ -34,6 +34,7 @@
   background: var(--primary);
   color: #fff;
   font-weight: 600;
+  font-size: 30rpx;
 }
 
 .news-items {

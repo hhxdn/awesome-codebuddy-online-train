@@ -135,10 +135,10 @@ onMounted(() => {
 
 .tab-chip {
   flex-shrink: 0;
-  padding: 6px 16px;
+  padding: 8px 20px;
   border-radius: 16px;
   background: var(--bg-color);
-  font-size: 13px;
+  font-size: 16px;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s;
@@ -149,6 +149,7 @@ onMounted(() => {
   background: var(--primary);
   color: #fff;
   font-weight: 600;
+  font-size: 16px;
 }
 
 .news-items {

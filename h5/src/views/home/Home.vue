@@ -542,10 +542,10 @@ onMounted(() => {
 .news-tabs::-webkit-scrollbar { display: none; }
 .news-tab {
   flex-shrink: 0;
-  padding: 6px 16px;
+  padding: 8px 20px;
   border-radius: 6px;
   background: #F2F3F5;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: #4E5969;
   cursor: pointer;
@@ -555,6 +555,7 @@ onMounted(() => {
   background: var(--primary);
   color: #fff;
   font-weight: 600;
+  font-size: 16px;
 }
 .news-empty {
   text-align: center;
@@ -871,8 +872,8 @@ onMounted(() => {
     padding: 0 0 14px 0;
   }
   .news-tab {
-    font-size: 14px;
-    padding: 6px 16px;
+    font-size: 17px;
+    padding: 8px 20px;
   }
   .news-list {
     display: grid;
