@@ -6,7 +6,7 @@
     <template v-if="productType === 'COURSE'">
       <div class="course-card" v-if="course.title">
         <div class="course-cover">
-          <van-image :src="course.cover" width="80" height="60" fit="cover" radius="8">
+          <van-image :src="course.cover" width="30" height="114" fit="cover" radius="8">
             <template #error>
               <div class="cover-ph">{{ course.title?.charAt(0) }}</div>
             </template>
@@ -31,7 +31,7 @@
     <template v-else>
       <div class="course-card" v-if="category.name">
         <div class="course-cover">
-          <van-image :src="category.cover" width="80" height="60" fit="cover" radius="8">
+          <van-image :src="category.cover" width="30" height="114" fit="cover" radius="8">
             <template #error>
               <div class="cover-ph">{{ category.name?.charAt(0) }}</div>
             </template>
@@ -167,7 +167,7 @@ onMounted(() => {
   box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
 .cover-ph {
-  width: 80px; height: 60px; border-radius: 8px;
+  width: 30px; height: 114px; border-radius: 8px;
   background: linear-gradient(135deg, #0052D9, #366EF4);
   display: flex; align-items: center; justify-content: center;
   color: #fff; font-size: 22px; font-weight: 700;

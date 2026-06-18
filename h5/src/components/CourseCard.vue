@@ -70,7 +70,7 @@ function goDetail() {
 .card-cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 750 / 2838;
   overflow: hidden;
   border-radius: 10px 10px 0 0;
 }

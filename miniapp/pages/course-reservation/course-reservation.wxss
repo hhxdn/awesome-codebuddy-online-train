@@ -43,7 +43,7 @@
 
 .course-cover {
   width: 100%;
-  height: 320rpx;
+  height: 1212rpx;
   border-radius: 20rpx;
   overflow: hidden;
   margin-bottom: 28rpx;

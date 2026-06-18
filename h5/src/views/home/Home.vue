@@ -894,13 +894,13 @@ onMounted(() => {
   }
   .news-cover {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 4;
     border-radius: 0;
     object-fit: cover;
   }
   .news-cover-placeholder {
     width: 100%;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 3 / 4;
     border-radius: 0;
   }
   .news-info {

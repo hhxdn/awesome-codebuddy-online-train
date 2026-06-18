@@ -170,7 +170,7 @@ onMounted(() => {
 
 .news-cover {
   width: 110px;
-  height: 72px;
+  aspect-ratio: 3 / 4;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
@@ -182,7 +182,7 @@ onMounted(() => {
 }
 
 .news-info.has-cover {
-  min-height: 72px;
+  min-height: 110px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -236,11 +236,11 @@ onMounted(() => {
   }
   .news-cover {
     width: 220px;
-    height: 138px;
+    aspect-ratio: 3 / 4;
     border-radius: 8px;
   }
   .news-info.has-cover {
-    min-height: 138px;
+    min-height: 220px;
   }
   .news-title {
     font-size: 17px;

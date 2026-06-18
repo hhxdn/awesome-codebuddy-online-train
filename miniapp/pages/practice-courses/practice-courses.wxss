@@ -104,8 +104,8 @@
 }
 
 .card-cover {
-  width: 180rpx;
-  height: 120rpx;
+  width: 100rpx;
+  height: 378rpx;
   border-radius: 20rpx;
   overflow: hidden;
   flex-shrink: 0;

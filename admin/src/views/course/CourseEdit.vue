@@ -36,7 +36,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="封面图片" prop="coverUrl">
-          <ImageUpload v-model="form.coverUrl" tip="支持 jpg/png/gif/webp，建议 4:3 比例，如 400×300" />
+          <ImageUpload v-model="form.coverUrl" tip="支持 jpg/png/gif/webp，建议 750:2838 比例，如 750×2838" />
         </el-form-item>
         <el-form-item label="课程描述" prop="description">
           <el-input v-model="form.description" type="textarea" :rows="4" placeholder="请输入课程描述" />

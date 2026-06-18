@@ -17,7 +17,7 @@
             <el-image
               v-if="row.cover"
               :src="row.cover"
-              style="width: 100px; height: 56px; border-radius: 4px;"
+              style="width: 84px; height: 112px; border-radius: 4px;"
               fit="cover"
               :preview-src-list="[row.cover]"
               preview-teleported
@@ -82,7 +82,7 @@
           />
         </el-form-item>
         <el-form-item label="封面图">
-          <ImageUpload v-model="form.cover" tip="支持 jpg/png/gif/webp，建议 16:9 比例，如 750×422" />
+          <ImageUpload v-model="form.cover" tip="支持 jpg/png/gif/webp，根据模块类型建议不同比例：培训通知 1587×2242，主办单位 1849×2084，师资介绍 200×365，课程介绍 750×2838" />
         </el-form-item>
         <el-form-item label="来源">
           <el-input v-model="form.source" placeholder="如：官方博客、技术社区等" />

@@ -44,7 +44,7 @@
             <el-image
               v-if="row.coverUrl"
               :src="row.coverUrl"
-              style="width: 48px; height: 36px; border-radius: 4px;"
+              style="width: 48px; height: 182px; border-radius: 4px;"
               fit="cover"
             />
             <span v-else>-</span>

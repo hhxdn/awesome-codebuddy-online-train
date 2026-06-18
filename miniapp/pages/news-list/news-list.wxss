@@ -52,7 +52,7 @@
 
 .news-cover {
   width: 220rpx;
-  height: 144rpx;
+  height: 293rpx;
   border-radius: 12rpx;
   flex-shrink: 0;
 }
@@ -63,7 +63,7 @@
 }
 
 .news-info.has-cover {
-  min-height: 144rpx;
+  min-height: 293rpx;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
