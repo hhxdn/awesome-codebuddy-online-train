@@ -539,7 +539,54 @@ public class AdminQuestionController {
         // 判断题型：去掉分隔符后，答案包含多个字母为多选
         // 支持 "ABC"、"A,B,C"、"A、B、C"、"A B C" 等格式
         String cleanedAnswer = answer != null ? answer.replaceAll("[\\s,，、;；]+", "") : "";
-        String type = (cleanedAnswer.length() > 1 && cleanedAnswer.matches("[A-H]+")) ? "MULTIPLE" : "SINGLE";
+
+        // 先检测判断题
+        boolean isJudge = false;
+        if (answer != null) {
+            String upperAnswer = answer.toUpperCase().trim();
+            // 答案直接是判断词（正确/错误/对/错/√/×/是/否/T/F）
+            if (answer.matches("^[正确错误对错√×是否]$") || upperAnswer.matches("^[TF]$")) {
+                isJudge = true;
+            }
+        }
+        // 选项只有2个且内容包含判断题典型表述（如 A.正确 B.错误），也识别为判断题
+        if (!isJudge && options.size() == 2 && cleanedAnswer.length() == 1 && cleanedAnswer.matches("[A-H]")) {
+            String optAContent = "", optBContent = "";
+            for (Map<String, Object> opt : options) {
+                String label = (String) opt.get("label");
+                String optContent = (String) opt.get("content");
+                if ("A".equals(label)) { optAContent = optContent; }
+                if ("B".equals(label)) { optBContent = optContent; }
+            }
+            if (optAContent != null && optBContent != null) {
+                String aUp = optAContent.trim().toUpperCase();
+                String bUp = optBContent.trim().toUpperCase();
+                // 选项内容是典型判断题表述
+                boolean aIsTrue = aUp.contains("正确") || aUp.contains("对") || aUp.contains("√") || aUp.equals("T") || aUp.equals("TRUE") || aUp.contains("是");
+                boolean bIsFalse = bUp.contains("错误") || bUp.contains("错") || bUp.contains("×") || bUp.equals("F") || bUp.equals("FALSE") || bUp.contains("否");
+                if (aIsTrue && bIsFalse) {
+                    isJudge = true;
+                }
+            }
+        }
+
+        String type;
+        if (isJudge) {
+            type = "JUDGE";
+            // 判断题答案标准化为 T/F
+            if (answer != null) {
+                String upperAnswer = answer.toUpperCase().trim();
+                if (answer.matches("^[正确对√是]$") || upperAnswer.equals("T") || upperAnswer.equals("TRUE") || upperAnswer.equals("A")) {
+                    answer = "T";
+                } else if (answer.matches("^[错误错×否]$") || upperAnswer.equals("F") || upperAnswer.equals("FALSE") || upperAnswer.equals("B")) {
+                    answer = "F";
+                }
+            }
+        } else if (cleanedAnswer.length() > 1 && cleanedAnswer.matches("[A-H]+")) {
+            type = "MULTIPLE";
+        } else {
+            type = "SINGLE";
+        }
 
         result.put("content", content);
         result.put("type", type);
