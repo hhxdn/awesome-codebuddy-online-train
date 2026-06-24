@@ -544,8 +544,8 @@ public class AdminQuestionController {
         boolean isJudge = false;
         if (answer != null) {
             String upperAnswer = answer.toUpperCase().trim();
-            // 答案直接是判断词（正确/错误/对/错/√/×/是/否/T/F）
-            if (answer.matches("^[正确错误对错√×是否]$") || upperAnswer.matches("^[TF]$")) {
+            // 答案直接是判断词（"正确"/"错误" 或单字"对/错/√/×/是/否/T/F"）
+            if (answer.matches("^(正确|错误|对|错|√|×|是|否)$") || upperAnswer.matches("^[TF]$")) {
                 isJudge = true;
             }
         }
