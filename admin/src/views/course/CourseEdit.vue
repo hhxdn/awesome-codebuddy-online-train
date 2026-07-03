@@ -85,6 +85,10 @@
         <el-form-item v-if="form.isFree === 0" label="价格" prop="price">
           <el-input-number v-model="form.price" :min="0" :precision="2" :step="0.01" />
         </el-form-item>
+        <el-form-item v-if="form.isFree === 0" label="免费试看节数">
+          <el-input-number v-model="form.freeChapterCount" :min="0" :max="99" />
+          <span style="margin-left: 8px; font-size: 12px; color: #909399;">设为0则不免费，按 sort_order 排序的前N节免费试看</span>
+        </el-form-item>
 
         <div class="card-title">推荐设置</div>
         <el-form-item label="是否推荐">
@@ -156,6 +160,7 @@ const form = reactive({
   sortOrder: 0,
   isFree: 0,
   price: 0,
+  freeChapterCount: 0,
   isRecommend: 0,
   longitude: '',
   latitude: '',
@@ -259,6 +264,7 @@ async function fetchCourse() {
     form.sortOrder = data.sortOrder || 0
     form.isFree = data.isFree || 0
     form.price = data.price || 0
+    form.freeChapterCount = data.freeChapterCount || 0
     form.isRecommend = data.isRecommend || 0
     form.longitude = data.longitude || ''
     form.latitude = data.latitude || ''
@@ -289,6 +295,7 @@ async function handleSubmit() {
       sortOrder: form.sortOrder,
       isFree: form.isFree,
       price: form.price,
+      freeChapterCount: form.freeChapterCount,
       isRecommend: form.isRecommend,
       longitude: form.longitude,
       latitude: form.latitude,

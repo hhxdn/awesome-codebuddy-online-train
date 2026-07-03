@@ -57,7 +57,10 @@
         >
           <div class="chapter-num">{{ String(i + 1).padStart(2, '0') }}</div>
           <div class="chapter-info">
-            <div class="chapter-name text-ellipsis-2">{{ ch.title }}</div>
+            <div class="chapter-name text-ellipsis-2">
+              {{ ch.title }}
+              <span v-if="isPaid && !purchased && ch.free === true" class="trial-tag">免费试看</span>
+            </div>
             <div class="chapter-bottom">
               <span class="chapter-dur">
                 <van-icon name="play-circle-o" size="13" /> {{ ch.duration || '视频' }}
@@ -69,14 +72,15 @@
           </div>
           <div class="chapter-right">
             <van-button
-              v-if="(!isPaid || purchased) && (ch.questionCount > 0)"
+              v-if="(!isPaid || purchased || ch.free === true) && (ch.questionCount > 0)"
               size="small"
               round
               plain
               type="primary"
               @click.stop="goPractice(ch)"
             >练习</van-button>
-            <van-icon v-else name="lock" color="#C9CDD4" size="16" />
+            <van-icon v-else-if="isPaid && !purchased && ch.free !== true" name="lock" color="#C9CDD4" size="16" />
+            <van-icon v-else name="arrow" color="#C9CDD4" size="16" />
           </div>
         </div>
       </div>
@@ -114,7 +118,7 @@
       </template>
       <template v-else-if="!purchased">
         <div class="bottom-left">
-          <span class="price-label">价格</span>
+          <span class="price-label">{{ freeChapterCount > 0 ? '前'+freeChapterCount+'节免费试看' : '价格' }}</span>
           <span class="price-value">¥{{ course.price }}</span>
         </div>
         <van-button type="primary" round @click="buyNow" class="bottom-btn-half">购买课程</van-button>
@@ -144,6 +148,7 @@ const chapters = ref([])
 const purchased = ref(false)
 const accessChecked = ref(false)
 const isPaid = ref(false)
+const freeChapterCount = ref(0)
 const descExpanded = ref(false)
 const checkedIn = ref(false)
 const reservationInfo = ref(null)
@@ -206,7 +211,10 @@ async function fetchDetail() {
   } catch (e) { chapters.value = [] }
   try {
     const res = await get('/courses/' + courseId + '/access')
-    if (res.data) purchased.value = res.data.accessible
+    if (res.data) {
+      purchased.value = res.data.accessible
+      freeChapterCount.value = res.data.freeChapterCount || 0
+    }
   } catch (e) { purchased.value = false }
   accessChecked.value = true
   if (course.value.courseType === 'OFFLINE') {
@@ -222,12 +230,19 @@ async function fetchDetail() {
 }
 
 function goChapter(ch) {
-  if (isPaid.value && !purchased.value) { showToast('请先购买课程'); return }
+  // 付费且未购买 → 检查是否属于免费试看章节
+  if (isPaid.value && !purchased.value) {
+    // 通过 chapters 列表中的 free 标记判断
+    if (ch.free !== true) {
+      showToast('请先购买课程')
+      return
+    }
+  }
   router.push('/video/' + ch.id)
 }
 async function goPractice(ch) {
-  // 未购买付费课程 → 跳转报名学习
-  if (isPaid.value && !purchased.value) {
+  // 未购买付费课程，但该章节是免费试看 → 允许练习
+  if (isPaid.value && !purchased.value && ch.free !== true) {
     router.push('/enroll')
     return
   }
@@ -406,6 +421,17 @@ onMounted(() => fetchDetail())
 .chapter-bottom { display: flex; align-items: center; gap: 12px; }
 .chapter-dur { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
 .chapter-done { font-size: 12px; color: #00A870; display: flex; align-items: center; gap: 3px; }
+.trial-tag {
+  display: inline-block;
+  font-size: 10px;
+  color: #fff;
+  background: linear-gradient(135deg, #FF9800, #F57C00);
+  padding: 1px 6px;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 4px;
+  font-weight: 500;
+}
 .chapter-right { flex-shrink: 0; }
 .chapter-right :deep(.van-button) { font-size: 12px; height: 28px; }
 

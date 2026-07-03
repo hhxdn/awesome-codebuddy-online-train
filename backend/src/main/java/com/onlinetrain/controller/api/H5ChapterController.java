@@ -2,11 +2,17 @@ package com.onlinetrain.controller.api;
 
 import com.onlinetrain.common.Result;
 import com.onlinetrain.entity.Chapter;
+import com.onlinetrain.entity.Course;
+import com.onlinetrain.entity.CourseCategory;
 import com.onlinetrain.entity.LearningRecord;
+import com.onlinetrain.entity.Order;
 import com.onlinetrain.entity.Question;
 import com.onlinetrain.entity.StudentExerciseAccess;
 import com.onlinetrain.service.ChapterService;
+import com.onlinetrain.service.CourseCategoryService;
+import com.onlinetrain.service.CourseService;
 import com.onlinetrain.service.LearningRecordService;
+import com.onlinetrain.service.OrderService;
 import com.onlinetrain.service.QuestionService;
 import com.onlinetrain.service.StudentExerciseAccessService;
 import io.swagger.annotations.Api;
@@ -19,8 +25,10 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * H5章节控制器
@@ -34,6 +42,15 @@ public class H5ChapterController {
     private ChapterService chapterService;
 
     @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private OrderService orderService;
+
+    @Autowired
+    private CourseCategoryService categoryService;
+
+    @Autowired
     private QuestionService questionService;
 
     @Autowired
@@ -43,15 +60,73 @@ public class H5ChapterController {
     private StudentExerciseAccessService exerciseAccessService;
 
     /**
-     * 章节详情
+     * 章节详情（含访问权限校验）
      */
     @GetMapping("/{chapterId}")
     @ApiOperation("章节详情")
-    public Result<Chapter> detail(@PathVariable Long chapterId) {
+    public Result<Chapter> detail(@PathVariable Long chapterId, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
         Chapter chapter = chapterService.getById(chapterId);
         if (chapter == null) {
             return Result.notFound("章节不存在");
         }
+
+        // 访问权限校验
+        Course course = courseService.getById(chapter.getCourseId());
+        if (course != null && course.getPrice() != null
+                && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            boolean accessible = false;
+            if (userId != null) {
+                // 检查是否购买该课程
+                long paidCount = orderService.lambdaQuery()
+                        .eq(Order::getUserId, userId)
+                        .eq(Order::getCourseId, chapter.getCourseId())
+                        .eq(Order::getStatus, "PAID")
+                        .count();
+                if (paidCount > 0) accessible = true;
+
+                // 检查是否购买分类
+                if (!accessible && course.getCategoryId() != null) {
+                    Set<Long> categoryIds = new HashSet<>();
+                    Long catId = course.getCategoryId();
+                    CourseCategory cat = categoryService.getById(catId);
+                    while (cat != null) {
+                        categoryIds.add(cat.getId());
+                        cat = cat.getParentId() != null ? categoryService.getById(cat.getParentId()) : null;
+                    }
+                    long categoryPaidCount = orderService.lambdaQuery()
+                            .eq(Order::getUserId, userId)
+                            .eq(Order::getProductType, "CATEGORY")
+                            .in(Order::getProductId, categoryIds)
+                            .eq(Order::getStatus, "PAID")
+                            .count();
+                    if (categoryPaidCount > 0) accessible = true;
+                }
+            }
+
+            // 未购买但属于前N节免费试看
+            if (!accessible && course.getFreeChapterCount() != null
+                    && course.getFreeChapterCount() > 0) {
+                // 获取该章节在课程中的排序位置
+                List<Chapter> sortedChapters = chapterService.lambdaQuery()
+                        .eq(Chapter::getCourseId, chapter.getCourseId())
+                        .orderByAsc(Chapter::getSortOrder)
+                        .list();
+                for (int i = 0; i < sortedChapters.size(); i++) {
+                    if (sortedChapters.get(i).getId().equals(chapterId)) {
+                        if (i < course.getFreeChapterCount()) {
+                            accessible = true;
+                        }
+                        break;
+                    }
+                }
+            }
+
+            if (!accessible) {
+                return Result.error(403, "该章节需要购买课程后才能观看");
+            }
+        }
+
         return Result.ok(chapter);
     }
 

@@ -55,7 +55,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { showToast } from 'vant'
+import { showToast, showDialog } from 'vant'
 import { get, post } from '../../api'
 
 const route = useRoute()
@@ -100,6 +100,20 @@ async function fetchChapterDetail() {
       videoUrl.value = isValidVideoUrl(rawUrl) ? rawUrl : FALLBACK_VIDEO
     }
   } catch (e) {
+    // 付费权限错误，引导返回课程详情页购买
+    const errMsg = (e && e.message) || ''
+    if (errMsg.includes('购买课程')) {
+      showDialog({
+        title: '需要购买课程',
+        message: errMsg + '，请前往课程详情页购买',
+        confirmButtonText: '我知道了',
+        confirmButtonColor: '#0052D9',
+        theme: 'round-button'
+      }).then(() => {
+        router.back()
+      })
+      return
+    }
     chapter.value = { id: chapterId, title: 'Demo 视频章节', videoUrl: '' }
     videoUrl.value = FALLBACK_VIDEO
     nextChapterId.value = parseInt(chapterId) + 1

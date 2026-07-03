@@ -63,3 +63,7 @@ UPDATE `exam_paper` SET `exam_type` = 'ONLINE' WHERE `exam_type` IS NULL;
 -- 证书表新增考试记录关联字段
 ALTER TABLE `certificate`
     ADD COLUMN IF NOT EXISTS `exam_record_id` BIGINT COMMENT '关联的线下考试记录ID(线下考试通过后颁发)' AFTER `course_id`;
+
+-- 课程表新增免费章节数（前N节免费试看，0或不设置则全部付费）
+ALTER TABLE `course`
+    ADD COLUMN IF NOT EXISTS `free_chapter_count` INT DEFAULT 0 COMMENT '免费章节数，付费课程可设置前N节免费试看';

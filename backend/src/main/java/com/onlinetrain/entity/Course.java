@@ -64,6 +64,9 @@ public class Course {
     /** 前置线上课程ID，学完才能打卡此线下课程 */
     private Long prerequisiteCourseId;
 
+    /** 免费章节数（付费课程可设置前N节免费试看，0或null表示不免费） */
+    private Integer freeChapterCount;
+
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

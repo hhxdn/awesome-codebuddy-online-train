@@ -109,18 +109,54 @@ public class H5CourseController {
     }
 
     /**
-     * 章节列表（含各章节题目数量）
+     * 章节列表（含各章节题目数量，含试看标记）
      */
     @GetMapping("/{id}/chapters")
     @ApiOperation("章节列表")
-    public Result<List<Map<String, Object>>> chapters(@PathVariable Long id) {
+    public Result<List<Map<String, Object>>> chapters(@PathVariable Long id, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        Course course = courseService.getById(id);
+
         List<Chapter> chapters = chapterService.lambdaQuery()
                 .eq(Chapter::getCourseId, id)
                 .orderByAsc(Chapter::getSortOrder)
                 .list();
 
+        // 判断用户是否已购买该课程
+        boolean purchased = false;
+        if (userId != null && course != null && course.getPrice() != null
+                && course.getPrice().compareTo(BigDecimal.ZERO) > 0) {
+            long paidCount = orderService.lambdaQuery()
+                    .eq(Order::getUserId, userId)
+                    .eq(Order::getCourseId, id)
+                    .eq(Order::getStatus, "PAID")
+                    .count();
+            if (paidCount > 0) purchased = true;
+            // 也检查分类购买
+            if (!purchased && course.getCategoryId() != null) {
+                Set<Long> categoryIds = new HashSet<>();
+                Long catId = course.getCategoryId();
+                CourseCategory cat = categoryService.getById(catId);
+                while (cat != null) {
+                    categoryIds.add(cat.getId());
+                    cat = cat.getParentId() != null ? categoryService.getById(cat.getParentId()) : null;
+                }
+                long categoryPaidCount = orderService.lambdaQuery()
+                        .eq(Order::getUserId, userId)
+                        .eq(Order::getProductType, "CATEGORY")
+                        .in(Order::getProductId, categoryIds)
+                        .eq(Order::getStatus, "PAID")
+                        .count();
+                if (categoryPaidCount > 0) purchased = true;
+            }
+        }
+
+        int freeChapterCount = (course != null && course.getFreeChapterCount() != null)
+                ? course.getFreeChapterCount() : 0;
+
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Chapter ch : chapters) {
+        for (int i = 0; i < chapters.size(); i++) {
+            Chapter ch = chapters.get(i);
             Map<String, Object> item = new HashMap<>();
             item.put("id", ch.getId());
             item.put("courseId", ch.getCourseId());
@@ -129,6 +165,14 @@ public class H5CourseController {
             item.put("duration", ch.getVideoDuration() != null && ch.getVideoDuration() > 0 ? formatDuration(ch.getVideoDuration()) : "视频");
             item.put("sortOrder", ch.getSortOrder());
             item.put("createTime", ch.getCreateTime());
+
+            // 试看标记：已购买 / 免费课程 / 前N节免费 → free=true
+            boolean isFree = course == null || course.getPrice() == null
+                    || course.getPrice().compareTo(BigDecimal.ZERO) <= 0
+                    || purchased
+                    || (freeChapterCount > 0 && i < freeChapterCount);
+            item.put("free", isFree);
+
             // 统计该章节的题目数
             long questionCount = questionService.lambdaQuery()
                     .eq(Question::getChapterId, ch.getId())
@@ -179,6 +223,7 @@ public class H5CourseController {
         if (course.getPrice() == null || course.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
             result.put("accessible", true);
             result.put("reason", "免费课程");
+            result.put("freeChapterCount", 0);
             return Result.ok(result);
         }
 
@@ -192,6 +237,7 @@ public class H5CourseController {
             if (paidCount > 0) {
                 result.put("accessible", true);
                 result.put("reason", "已购买课程");
+                result.put("freeChapterCount", 0);
                 return Result.ok(result);
             }
 
@@ -215,12 +261,23 @@ public class H5CourseController {
                 if (categoryPaidCount > 0) {
                     result.put("accessible", true);
                     result.put("reason", "已购买分类");
+                    result.put("freeChapterCount", 0);
                     return Result.ok(result);
                 }
             }
         }
 
+        // 未购买，但有免费试看章节
+        int freeChapterCount = (course.getFreeChapterCount() != null) ? course.getFreeChapterCount() : 0;
+        if (freeChapterCount > 0) {
+            result.put("accessible", false);
+            result.put("reason", "可试看前" + freeChapterCount + "节");
+            result.put("freeChapterCount", freeChapterCount);
+            return Result.ok(result);
+        }
+
         result.put("accessible", false);
+        result.put("freeChapterCount", 0);
         result.put("reason", "需要购买课程或对应分类");
         return Result.ok(result);
     }
