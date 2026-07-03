@@ -521,6 +521,14 @@ onMounted(() => {
   font-size: 12px;
   color: var(--text-muted);
   margin-top: 4px;
+  flex-wrap: nowrap;
+  align-items: center;
+  overflow: hidden;
+}
+
+.news-meta span {
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .news-views {
@@ -922,6 +930,12 @@ onMounted(() => {
     font-size: 12px;
     gap: 12px;
     color: #999;
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .news-meta span {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* Course grid area */
