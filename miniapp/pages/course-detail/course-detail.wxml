@@ -36,7 +36,7 @@
       <text class="chapter-total">共{{chapters.length}}节</text>
     </view>
     <view wx:if="{{chapters.length > 0}}">
-      <view wx:for="{{chapters}}" wx:key="id" class="chapter-item" bindtap="goChapter" data-ch="{{item}}">
+      <view wx:for="{{chapters}}" wx:key="id" class="chapter-item" bindtap="goChapter" data-id="{{item.id}}">
         <view class="chapter-num">{{index < 9 ? '0' + (index+1) : index+1}}</view>
         <view class="chapter-info">
           <view class="chapter-name text-ellipsis-2">
@@ -49,7 +49,7 @@
           </view>
         </view>
         <view class="chapter-right">
-          <button wx:if="{{!isPaid || purchased || item.free}}" class="practice-btn" size="mini" bindtap="goPractice" data-ch="{{item}}">练习</button>
+          <button wx:if="{{!isPaid || purchased || item.free}}" class="practice-btn" size="mini" catchtap="goPractice" data-id="{{item.id}}">练习</button>
           <text wx:else class="lock-icon">🔒</text>
         </view>
       </view>

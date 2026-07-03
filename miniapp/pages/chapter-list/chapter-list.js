@@ -1,41 +1,42 @@
 // pages/chapter-list/chapter-list.js
 const app = getApp()
 Page({
-  data: { courseId: '', courseName: '', chapters: [], progress: 0, finishedCount: 0, purchased: false, isPaid: false },
+  data: { courseId: '', courseName: '', chapters: [], progress: 0, finishedCount: 0, purchased: false, isPaid: false, loaded: false },
   onLoad(options) {
     this.setData({ courseId: options.id || options.courseId })
     this.fetchChapters()
   },
   async fetchChapters() {
     const courseId = this.data.courseId
-    try {
-      const res = await app.get('/courses/' + courseId + '/chapters')
-      const chapters = res.data || []
-      const finishedCount = chapters.filter(c => c.completed).length
-      const progress = chapters.length > 0 ? Math.round(finishedCount / chapters.length * 100) : 0
-      this.setData({ chapters, finishedCount, progress, courseName: chapters[0]?.courseName || '' })
-    } catch (e) { this.setData({ chapters: [] }) }
-
-    // 获取课程购买状态
-    try {
-      const [courseRes, accessRes] = await Promise.all([
-        app.get('/courses/' + courseId),
-        app.get('/courses/' + courseId + '/access')
-      ])
-      const course = courseRes && courseRes.data
-      this.setData({
-        isPaid: (course && (course.price || 0) > 0),
-        purchased: accessRes?.data?.accessible || false
-      })
-    } catch (e) {
-      this.setData({ isPaid: false, purchased: false })
-    }
+    // 并行加载章节 + 课程信息 + 购买状态，避免 isPaid/purchased 未就绪时用户点击绕过检查
+    const [chaptersRes, courseRes, accessRes] = await Promise.all([
+      app.get('/courses/' + courseId + '/chapters').catch(() => ({ data: [] })),
+      app.get('/courses/' + courseId).catch(() => ({ data: null })),
+      app.get('/courses/' + courseId + '/access').catch(() => ({ data: null }))
+    ])
+    const chapters = chaptersRes.data || []
+    const finishedCount = chapters.filter(c => c.completed).length
+    const progress = chapters.length > 0 ? Math.round(finishedCount / chapters.length * 100) : 0
+    const course = courseRes && courseRes.data
+    this.setData({
+      chapters, finishedCount, progress,
+      courseName: chapters[0]?.courseName || '',
+      isPaid: (course && (course.price || 0) > 0),
+      purchased: accessRes?.data?.accessible || false,
+      loaded: true
+    })
   },
   goChapter(e) {
     const id = e.currentTarget.dataset.id
     const ch = this.data.chapters.find(c => c.id == id)
     if (this.data.isPaid && !this.data.purchased && ch && !ch.free) {
-      wx.showToast({ title: '请先购买课程', icon: 'none' })
+      wx.showModal({
+        title: '需要购买课程',
+        content: '该章节需要购买课程后才能观看',
+        showCancel: false,
+        confirmText: '我知道了',
+        confirmColor: '#0052D9'
+      })
       return
     }
     wx.navigateTo({ url: '/pages/video-player/video-player?chapterId=' + id })
@@ -46,7 +47,13 @@ Page({
     const ch = this.data.chapters.find(c => c.id == chapterId)
     // 付费课程且未购买，检查是否免费章节
     if (this.data.isPaid && !this.data.purchased && ch && !ch.free) {
-      wx.showToast({ title: '请先购买课程', icon: 'none' })
+      wx.showModal({
+        title: '需要购买课程',
+        content: '该章节练习需要购买课程后才能使用',
+        showCancel: false,
+        confirmText: '我知道了',
+        confirmColor: '#0052D9'
+      })
       return
     }
     // 先检查练习权限（与 H5 一致）

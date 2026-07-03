@@ -102,21 +102,39 @@ Page({
   },
 
   goChapter(e) {
-    const ch = e.currentTarget.dataset.ch
-    if (this.data.isPaid && !this.data.purchased && !ch.free) {
-      wx.showToast({ title: '请先购买课程', icon: 'none' })
+    const id = e.currentTarget.dataset.id
+    const ch = this.data.chapters.find(c => c.id == id)
+    if (this.data.isPaid && !this.data.purchased && ch && !ch.free) {
+      wx.showModal({
+        title: '需要购买课程',
+        content: '该章节需要购买课程后才能观看',
+        showCancel: false,
+        confirmText: '我知道了',
+        confirmColor: '#0052D9'
+      })
       return
     }
-    wx.navigateTo({ url: '/pages/video-player/video-player?chapterId=' + ch.id })
+    if (ch) {
+      wx.navigateTo({ url: '/pages/video-player/video-player?chapterId=' + ch.id })
+    }
   },
 
   goPractice(e) {
-    const ch = e.currentTarget.dataset.ch
-    if (this.data.isPaid && !this.data.purchased && !ch.free) {
-      wx.showToast({ title: '请先购买课程', icon: 'none' })
+    const id = e.currentTarget.dataset.id
+    const ch = this.data.chapters.find(c => c.id == id)
+    if (this.data.isPaid && !this.data.purchased && ch && !ch.free) {
+      wx.showModal({
+        title: '需要购买课程',
+        content: '该章节练习需要购买课程后才能使用',
+        showCancel: false,
+        confirmText: '我知道了',
+        confirmColor: '#0052D9'
+      })
       return
     }
-    wx.navigateTo({ url: '/pages/practice-home/practice-home?chapterId=' + ch.id })
+    if (ch) {
+      wx.navigateTo({ url: '/pages/practice-home/practice-home?chapterId=' + ch.id })
+    }
   },
 
   startLearn() {
