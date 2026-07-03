@@ -39,6 +39,9 @@ public class Chapter {
     /** 排序 */
     private Integer sortOrder;
 
+    /** 是否免费试看 0否 1是 */
+    private Integer free;
+
     /** 创建时间 */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;

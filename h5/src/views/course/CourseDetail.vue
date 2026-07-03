@@ -118,7 +118,7 @@
       </template>
       <template v-else-if="!purchased">
         <div class="bottom-left">
-          <span class="price-label">{{ freeChapterCount > 0 ? '前'+freeChapterCount+'节免费试看' : '价格' }}</span>
+          <span class="price-label">{{ freeChapterCount > 0 ? freeChapterCount+'节免费试看' : '价格' }}</span>
           <span class="price-value">¥{{ course.price }}</span>
         </div>
         <van-button type="primary" round @click="buyNow" class="bottom-btn-half">购买课程</van-button>

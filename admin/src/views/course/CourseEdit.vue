@@ -87,7 +87,7 @@
         </el-form-item>
         <el-form-item v-if="form.isFree === 0" label="免费试看节数">
           <el-input-number v-model="form.freeChapterCount" :min="0" :max="99" />
-          <span style="margin-left: 8px; font-size: 12px; color: #909399;">设为0则不免费，按 sort_order 排序的前N节免费试看</span>
+          <span style="margin-left: 8px; font-size: 12px; color: #909399;">快捷设置前N节免费，也可在下表逐节勾选</span>
         </el-form-item>
 
         <div class="card-title">推荐设置</div>
@@ -114,6 +114,11 @@
           <el-table-column label="排序" width="100">
             <template #default="{ row }">
               <el-input-number v-model="row.sortOrder" :min="0" size="small" controls-position="right" />
+            </template>
+          </el-table-column>
+          <el-table-column v-if="form.isFree === 0" label="免费" width="70" align="center">
+            <template #default="{ row }">
+              <el-checkbox v-model="row.free" :true-value="1" :false-value="0" />
             </template>
           </el-table-column>
           <el-table-column label="操作" width="80">
@@ -212,7 +217,8 @@ function addChapter() {
   form.chapters.push({
     title: '',
     videoUrl: '',
-    sortOrder: form.chapters.length + 1
+    sortOrder: form.chapters.length + 1,
+    free: 0
   })
 }
 
@@ -304,7 +310,8 @@ async function handleSubmit() {
       chapters: form.chapters.map((ch, i) => ({
         title: ch.title || '',
         videoUrl: ch.videoUrl || '',
-        sortOrder: ch.sortOrder || i + 1
+        sortOrder: ch.sortOrder || i + 1,
+        free: form.isFree === 0 && form.freeChapterCount > 0 && i < form.freeChapterCount ? 1 : (ch.free || 0)
       }))
     }
     if (isEdit.value) {

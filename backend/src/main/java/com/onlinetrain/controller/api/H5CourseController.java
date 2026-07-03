@@ -267,12 +267,15 @@ public class H5CourseController {
             }
         }
 
-        // 未购买，但有免费试看章节
-        int freeChapterCount = (course.getFreeChapterCount() != null) ? course.getFreeChapterCount() : 0;
-        if (freeChapterCount > 0) {
+        // 未购买，但检查是否有章节标记为免费试看
+        long freeCount = chapterService.lambdaQuery()
+                .eq(Chapter::getCourseId, id)
+                .eq(Chapter::getFree, 1)
+                .count();
+        if (freeCount > 0) {
             result.put("accessible", false);
-            result.put("reason", "可试看前" + freeChapterCount + "节");
-            result.put("freeChapterCount", freeChapterCount);
+            result.put("reason", "可试看" + freeCount + "节");
+            result.put("freeChapterCount", (int) freeCount);
             return Result.ok(result);
         }
 

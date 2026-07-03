@@ -104,22 +104,9 @@ public class H5ChapterController {
                 }
             }
 
-            // 未购买但属于前N节免费试看
-            if (!accessible && course.getFreeChapterCount() != null
-                    && course.getFreeChapterCount() > 0) {
-                // 获取该章节在课程中的排序位置
-                List<Chapter> sortedChapters = chapterService.lambdaQuery()
-                        .eq(Chapter::getCourseId, chapter.getCourseId())
-                        .orderByAsc(Chapter::getSortOrder)
-                        .list();
-                for (int i = 0; i < sortedChapters.size(); i++) {
-                    if (sortedChapters.get(i).getId().equals(chapterId)) {
-                        if (i < course.getFreeChapterCount()) {
-                            accessible = true;
-                        }
-                        break;
-                    }
-                }
+            // 未购买但章节标记为免费试看
+            if (!accessible && chapter.getFree() != null && chapter.getFree() == 1) {
+                accessible = true;
             }
 
             if (!accessible) {

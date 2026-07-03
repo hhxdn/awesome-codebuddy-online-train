@@ -103,6 +103,8 @@ public class AdminCourseController {
                 chapter.setVideoUrl((String) ch.get("videoUrl"));
                 chapter.setSortOrder(ch.get("sortOrder") != null
                         ? Integer.valueOf(ch.get("sortOrder").toString()) : i + 1);
+                chapter.setFree(ch.get("free") != null
+                        ? Integer.valueOf(ch.get("free").toString()) : 0);
                 // VOD 字段：如果前端传了 fileId，说明是通过 VOD 上传的，记录 fileId 和即时播放地址
                 String fileId = (String) ch.get("fileId");
                 String playbackUrl = (String) ch.get("playbackUrl");
@@ -156,6 +158,8 @@ public class AdminCourseController {
                 chapter.setVideoUrl((String) ch.get("videoUrl"));
                 chapter.setSortOrder(ch.get("sortOrder") != null
                         ? Integer.valueOf(ch.get("sortOrder").toString()) : i + 1);
+                chapter.setFree(ch.get("free") != null
+                        ? Integer.valueOf(ch.get("free").toString()) : 0);
                 // VOD 字段处理：
                 // 1. 如果前端传了 fileId（新上传），使用新的 VOD 信息
                 // 2. 如果前端传了 vodFileId（编辑已有章节），保留原有 VOD 信息

@@ -67,3 +67,7 @@ ALTER TABLE `certificate`
 -- 课程表新增免费章节数（前N节免费试看，0或不设置则全部付费）
 ALTER TABLE `course`
     ADD COLUMN IF NOT EXISTS `free_chapter_count` INT DEFAULT 0 COMMENT '免费章节数，付费课程可设置前N节免费试看';
+
+-- 章节表新增免费标记（单章节独立控制是否免费，替代仅按排序的前N节免费逻辑）
+ALTER TABLE `chapter`
+    ADD COLUMN IF NOT EXISTS `free` TINYINT DEFAULT 0 COMMENT '是否免费试看 0否 1是';
