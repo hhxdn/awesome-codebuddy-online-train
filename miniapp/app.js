@@ -49,6 +49,7 @@ App({
   // 封装请求
   request(options) {
     const self = this
+    const skipGlobalError = options.skipGlobalError || false
     return new Promise((resolve, reject) => {
       const header = {
         'Content-Type': 'application/json'
@@ -64,7 +65,8 @@ App({
         header,
         timeout: 15000,
         success(res) {
-          if (res.statusCode === 401 || res.statusCode === 403) {
+          // HTTP 401 是真正的认证过期，强制登出
+          if (res.statusCode === 401) {
             wx.removeStorageSync('token')
             wx.removeStorageSync('userInfo')
             self.globalData.token = ''
@@ -73,6 +75,17 @@ App({
               wx.reLaunch({ url: '/pages/login/login' })
             }, 800)
             reject(new Error('登录已过期'))
+            return
+          }
+
+          // HTTP 403 可能是付费验证，不强制登出，交给业务层处理
+          if (res.statusCode === 403) {
+            const data = res.data
+            const msg = (data && data.message) || '无权限访问'
+            if (!skipGlobalError) {
+              wx.showToast({ title: msg, icon: 'none' })
+            }
+            reject(new Error(msg))
             return
           }
 
@@ -91,7 +104,9 @@ App({
           }
 
           if (data && data.code !== undefined && data.code !== 200 && data.code !== 0) {
-            wx.showToast({ title: data.message || '请求失败', icon: 'none' })
+            if (!skipGlobalError) {
+              wx.showToast({ title: data.message || '请求失败', icon: 'none' })
+            }
             reject(new Error(data.message || '请求失败'))
             return
           }

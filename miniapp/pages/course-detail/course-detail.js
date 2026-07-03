@@ -8,6 +8,7 @@ Page({
     chapters: [],
     purchased: false,
     isPaid: false,
+    freeChapterCount: 0,
     descExpanded: false,
     hasLongDesc: false,
     checkedIn: false,
@@ -60,9 +61,12 @@ Page({
 
     try {
       const res = await app.get('/courses/' + courseId + '/access')
-      this.setData({ purchased: res.data?.accessible })
+      this.setData({
+        purchased: res.data?.accessible,
+        freeChapterCount: res.data?.freeChapterCount || 0
+      })
     } catch (e) {
-      this.setData({ purchased: false })
+      this.setData({ purchased: false, freeChapterCount: 0 })
     }
 
     if (this.data.course.courseType === 'OFFLINE') {
@@ -99,7 +103,7 @@ Page({
 
   goChapter(e) {
     const ch = e.currentTarget.dataset.ch
-    if (this.data.isPaid && !this.data.purchased) {
+    if (this.data.isPaid && !this.data.purchased && !ch.free) {
       wx.showToast({ title: '请先购买课程', icon: 'none' })
       return
     }
@@ -108,7 +112,7 @@ Page({
 
   goPractice(e) {
     const ch = e.currentTarget.dataset.ch
-    if (this.data.isPaid && !this.data.purchased) {
+    if (this.data.isPaid && !this.data.purchased && !ch.free) {
       wx.showToast({ title: '请先购买课程', icon: 'none' })
       return
     }

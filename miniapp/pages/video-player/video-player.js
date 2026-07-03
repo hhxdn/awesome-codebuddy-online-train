@@ -34,29 +34,54 @@ Page({
   async fetchChapter() {
     const chapterId = this.data.chapterId
     try {
-      const res = await app.get('/chapters/' + chapterId)
-      if (res.data) {
+      // 使用 skipGlobalError 禁止全局 toast，由本页自行处理付费 403
+      const res = await app.request({
+        url: '/chapters/' + chapterId,
+        method: 'GET',
+        skipGlobalError: true
+      })
+      if (res && res.data) {
         this.setData({
           chapter: res.data,
           courseName: res.data.courseName || ''
         })
 
-        // 获取同一课程的所有章节
+        // 获取同一课程的所有章节 + 购买状态
         if (res.data.courseId) {
-          try {
-            const chaptersRes = await app.get('/courses/' + res.data.courseId + '/chapters')
-            const chapters = chaptersRes.data || []
-            const idx = chapters.findIndex(c => c.id == chapterId)
-            this.setData({
-              chapters,
-              prevChapter: idx > 0 ? chapters[idx - 1] : null,
-              nextChapter: idx < chapters.length - 1 ? chapters[idx + 1] : null
-            })
-          } catch (e) {}
+          const [chaptersRes, accessRes] = await Promise.all([
+            app.get('/courses/' + res.data.courseId + '/chapters'),
+            app.get('/courses/' + res.data.courseId + '/access').catch(() => ({ data: null }))
+          ])
+          const chapters = (chaptersRes && chaptersRes.data) || []
+          const purchased = accessRes?.data?.accessible || false
+          const idx = chapters.findIndex(c => c.id == chapterId)
+          // 未购买时，上一节/下一节只能跳转到免费章节
+          const filterFree = (list) => list.filter(c => purchased || c.free)
+          const freeChapters = filterFree(chapters)
+          const freeIdx = freeChapters.findIndex(c => c.id == chapterId)
+          this.setData({
+            chapters,
+            prevChapter: freeIdx > 0 ? freeChapters[freeIdx - 1] : null,
+            nextChapter: freeIdx < freeChapters.length - 1 ? freeChapters[freeIdx + 1] : null
+          })
         }
       }
     } catch (e) {
-      wx.showToast({ title: '加载失败', icon: 'none' })
+      const errMsg = e.message || ''
+      if (errMsg.includes('购买课程') || errMsg.includes('购买')) {
+        wx.showModal({
+          title: '需要购买课程',
+          content: errMsg + '，请前往课程详情页购买',
+          showCancel: false,
+          confirmText: '我知道了',
+          confirmColor: '#0052D9',
+          success() {
+            wx.navigateBack()
+          }
+        })
+      } else if (errMsg !== '登录已过期') {
+        wx.showToast({ title: '加载失败', icon: 'none' })
+      }
     }
   },
 

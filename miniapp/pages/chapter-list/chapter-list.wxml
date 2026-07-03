@@ -13,14 +13,18 @@
         {{item.completed ? '✓' : (index < 9 ? '0' + (index+1) : index+1)}}
       </view>
       <view class="chapter-info">
-        <view class="chapter-name text-ellipsis-2">{{item.title}}</view>
+        <view class="chapter-name text-ellipsis-2">
+          {{item.title}}
+          <text wx:if="{{isPaid && !purchased && item.free}}" class="trial-tag">免费试看</text>
+        </view>
         <view class="chapter-bottom">
           <text class="chapter-dur">▶ {{item.duration || '视频'}}</text>
           <text wx:if="{{item.completed}}" class="chapter-done">✅ 已学完</text>
         </view>
       </view>
       <view class="chapter-right">
-        <button class="practice-btn" size="mini" catchtap="goPractice" data-id="{{item.id}}">练习</button>
+        <button wx:if="{{!isPaid || purchased || item.free}}" class="practice-btn" size="mini" catchtap="goPractice" data-id="{{item.id}}">练习</button>
+        <text wx:else class="lock-icon">🔒</text>
       </view>
     </view>
   </view>
